@@ -47,8 +47,8 @@ sealed trait Form[A] { self =>
 
 object Form extends AutoDerivation[Form] {
 
-  inline def renderVar[A](v: Var[A]) =
-    derived[A].render(v)
+  inline def renderVar[A](v: Var[A])(using fa: Form[A]) =
+    fa.render(v)
 
   def join[A](caseClass: CaseClass[Typeclass, A]): Form[A] = new Form[A] {
     def render(variable: Var[A]): HtmlElement =
@@ -76,7 +76,10 @@ object Form extends AutoDerivation[Form] {
       )
   }
 
-  inline given optionOfA[A](using d: Defaultable[A]): Form[Option[A]] =
+  inline given optionOfA[A](using
+      d: Defaultable[A],
+      fa: Form[A]
+  ): Form[Option[A]] =
     new Form[Option[A]] {
       def render(variable: Var[Option[A]]): HtmlElement =
         val a = variable.zoom {
@@ -100,8 +103,7 @@ object Form extends AutoDerivation[Form] {
                   case Some(_) => "block"
                   case None    => "none"
                 },
-                Form
-                  .renderVar(a)
+                fa.render(a)
               ),
               div(
                 Button(
@@ -137,7 +139,7 @@ object Form extends AutoDerivation[Form] {
         )
       )
 
-  inline given listOfA[A]: Form[List[A]] =
+  inline given listOfA[A](using fa: Form[A]): Form[List[A]] =
     new Form[List[A]] {
 
       def render(variable: Var[List[A]]): HtmlElement =
@@ -155,7 +157,7 @@ object Form extends AutoDerivation[Form] {
             }
           }
           span(
-            Form.renderVar(va),
+            fa.render(va),
             Button(
               "Sync",
               onClick.mapTo(va.now()) --> variable.updater[A] { (list, na) =>

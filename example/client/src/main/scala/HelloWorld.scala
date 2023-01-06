@@ -4,6 +4,7 @@ import dev.cheleb.scalamigen.*
 import dev.cheleb.scalamigen.Form.given
 import org.scalajs.dom
 import com.raquo.laminar.api.L.*
+import magnolia1.*
 
 // Define some models
 case class Person(
