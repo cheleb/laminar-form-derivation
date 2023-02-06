@@ -5,6 +5,8 @@ import dev.cheleb.scalamigen.Form.given
 import org.scalajs.dom
 import com.raquo.laminar.api.L.*
 import magnolia1.*
+import be.doeraene.webcomponents.ui5.SideNavigation
+import be.doeraene.webcomponents.ui5.Icon
 
 // Define some models
 case class Person(
@@ -38,12 +40,39 @@ object App extends App {
 
   val myApp =
     div(
-      child <-- itemVar.signal.map { item =>
-        div(
-          s"$item"
+      SideNavigation(
+        _.events.onSelectionChange
+          .map(_.detail.item.dataset.get("sample")) --> Observer[
+          Option[String]
+        ] {
+
+          case None        =>
+          case Some(value) => println(value)
+
+        },
+        Seq(
+          SideNavigation.item(
+            _.text := "Item 1",
+            dataAttr("sample") := "item1"
+          ),
+          SideNavigation.item(
+            _.text := "Item 2",
+            dataAttr("sample") := "item2"
+          ),
+          SideNavigation.item(
+            _.text := "Item 3",
+            dataAttr("sample") := "item3"
+          )
         )
-      },
-      Form.renderVar(itemVar)
+      ),
+      div(
+        child <-- itemVar.signal.map { item =>
+          div(
+            s"$item"
+          )
+        },
+        Form.renderVar(itemVar)
+      )
     )
 
   val containerNode = dom.document.getElementById("root")

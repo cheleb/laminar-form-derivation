@@ -70,6 +70,12 @@ object SampleServer extends ZIOAppDefault {
 
   val app: HttpApp[Any, Nothing] = dynamic ++ static ++ ws
 
+  val config = ServerConfig.default
+    .port(8888)
+//    .leakDetection(LeakDetectionLevel.PARANOID)
+//    .maxThreads(nThreads)
+  val configLayer = ServerConfig.live(config)
+
   override val run =
-    Server.serve(app).provide(Server.default)
+    Server.serve(app).provide(configLayer, Server.live)
 }

@@ -1,14 +1,32 @@
 //import ProjectDef._
 import org.scalajs.linker.interface.ModuleSplitStyle
-val scala3 = "3.2.1"
+val scala3 = "3.2.2"
 
 inThisBuild(
   List(
     scalaVersion := scala3,
     organization := "dev.cheleb",
-//    githubOwner := "cheleb",
-//    githubRepository := "laminar-form-derivation",
-    startYear := Some(2022),
+    homepage := Some(url("https://github.com/cheleb/")),
+    sonatypeCredentialHost := "s01.oss.sonatype.org",
+    sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
+    pgpPublicRing := file("/tmp/public.asc"),
+    pgpSecretRing := file("/tmp/secret.asc"),
+    pgpPassphrase := sys.env.get("PGP_PASSWORD").map(_.toArray),
+    scmInfo := Some(
+      ScmInfo(
+        url("https://github.com/cheleb/laminar-form-derivation/"),
+        "scm:git:git@github.com:cheleb/laminar-form-derivation.git"
+      )
+    ),
+    developers := List(
+      Developer(
+        "cheleb",
+        "Olivier NOUGUIER",
+        "olivier.nouguier@gmail.com",
+        url("https://github.com/cheleb")
+      )
+    ),
+    startYear := Some(2023),
     licenses += ("Apache-2.0", url(
       "http://www.apache.org/licenses/LICENSE-2.0"
     )),
@@ -46,8 +64,7 @@ lazy val root = project
     sharedJvm
   )
   .settings(
-    publish := {},
-    publishLocal := {}
+    publish / skip := true
   )
 
 lazy val server = project
@@ -58,19 +75,14 @@ lazy val server = project
     fork := true,
     scalaJSProjects := Seq(example),
     Assets / pipelineStages := Seq(scalaJSPipeline),
-    // triggers scalaJSPipeline when using compile or continuous compilation
-//    Compile / compile := ((Compile / compile) dependsOn scalaJSPipeline).value,
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio-http" % "0.0.3"
     )
-//    Assets / WebKeys.packagePrefix := "public/",
-//    Runtime / managedClasspath += (Assets / packageBin).value
   )
   .settings(serverSettings: _*)
   .dependsOn(sharedJvm, core)
   .settings(
-    publish := {},
-    publishLocal := {}
+    publish / skip := true
   )
 
 def scalaJSModule = dev match {
@@ -87,6 +99,7 @@ val usedScalacOptions = Seq(
 )
 lazy val core = scalajsProject("core")
   .settings(
+    name := "laminar-form-derivation",
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
       _.withModuleKind(scalaJSModule)
@@ -103,23 +116,7 @@ lazy val core = scalajsProject("core")
       "be.doeraene" %%% "web-components-ui5" % "1.9.0"
     )
   )
-//  .settings(
-//    npmDevDependencies in Compile ++= Seq("vite" -> "^2.9.9")
-  // npmDependencies in Compile ++= Seq(
-  //   "@ui5/webcomponents" -> "1.8.0",
-  //   "@ui5/webcomponents-fiori" -> "1.8.0",
-  //   "@ui5/webcomponents-icons" -> "1.8.0"
-  // )
-//  )
-  .settings(
-    publish := {},
-    publishLocal := {}
-  )
-  .dependsOn(sharedJs)
-  .settings(
-    publish := {},
-    publishLocal := {}
-  )
+//  .dependsOn(sharedJs)
 
 lazy val example = scalajsProject("example-client", Some("example/client"))
   .settings(
@@ -137,8 +134,7 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("example/shared"))
   .settings(
-    publish := {},
-    publishLocal := {}
+    publish / skip := true
   )
 lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
