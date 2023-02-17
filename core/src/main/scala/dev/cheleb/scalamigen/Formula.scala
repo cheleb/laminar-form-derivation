@@ -18,7 +18,7 @@ trait Defaultable[A] {
   def default: A
 }
 
-sealed trait Form[A] { self =>
+trait Form[A] { self =>
 
   extension (a: A)
     def render: HtmlElement =
