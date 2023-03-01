@@ -10,6 +10,10 @@ import scala.util.Random
 import com.raquo.domtypes.generic.keys.HtmlAttr
 import com.raquo.domtypes.generic.defs.attrs.HtmlAttrs
 
+import io.github.iltotore.iron.{given, *}
+import io.github.iltotore.iron.constraint.all.{given, *}
+import scala.scalajs.js.`import`
+
 trait Editable[A] {
   def render(a: A, update: Observer[A]): HtmlElement
 }
@@ -47,7 +51,9 @@ trait Form[A] { self =>
 
 object Form extends AutoDerivation[Form] {
 
-  inline def renderVar[A](v: Var[A])(using fa: Form[A]) =
+  import dev.cheleb.scalamigen.forms.given
+
+  def renderVar[A](v: Var[A])(using fa: Form[A]) =
     fa.render(v)
 
   def join[A](caseClass: CaseClass[Typeclass, A]): Form[A] = new Form[A] {
@@ -76,59 +82,7 @@ object Form extends AutoDerivation[Form] {
       )
   }
 
-  inline given optionOfA[A](using
-      d: Defaultable[A],
-      fa: Form[A]
-  ): Form[Option[A]] =
-    new Form[Option[A]] {
-      def render(variable: Var[Option[A]]): HtmlElement =
-        val a = variable.zoom {
-          case Some(a) =>
-            a
-          case None => d.default
-        } { case a =>
-          Some(a)
-        }
-        a.now() match
-          case null =>
-            Button(
-              _.design := ButtonDesign.Emphasized,
-              "Set",
-              onClick.mapTo(Some(d.default)) --> variable.writer
-            )
-          case _ =>
-            div(
-              div(
-                display <-- variable.signal.map {
-                  case Some(_) => "block"
-                  case None    => "none"
-                },
-                fa.render(a)
-              ),
-              div(
-                Button(
-                  display <-- variable.signal.map {
-                    case Some(_) => "none"
-                    case None    => "block"
-                  },
-                  _.design := ButtonDesign.Emphasized,
-                  "Set",
-                  onClick.mapTo(Some(d.default)) --> variable.writer
-                ),
-                Button(
-                  display <-- variable.signal.map {
-                    case Some(_) => "block"
-                    case None    => "none"
-                  },
-                  _.design := ButtonDesign.Emphasized,
-                  "Clear",
-                  onClick.mapTo(None) --> variable.writer
-                )
-              )
-            )
-    }
-
-  inline given Editable[Int] with
+  given Editable[Int] with
     def render(a: Int, update: Observer[Int]): HtmlElement =
       UList.item(
         input(
@@ -139,7 +93,7 @@ object Form extends AutoDerivation[Form] {
         )
       )
 
-  inline given listOfA[A](using fa: Form[A]): Form[List[A]] =
+  given listOfA[A](using fa: Form[A]): Form[List[A]] =
     new Form[List[A]] {
 
       def render(variable: Var[List[A]]): HtmlElement =
@@ -181,7 +135,7 @@ object Form extends AutoDerivation[Form] {
         )
     }
 
-  inline given listOfA[A](using fa: Editable[A]): Form[List[A]] =
+  given listOfA[A](using fa: Editable[A]): Form[List[A]] =
     new Form[List[A]] {
 
       def render(variable: Var[List[A]]): HtmlElement =
@@ -242,6 +196,58 @@ object Form extends AutoDerivation[Form] {
         )
       )
   }
+  given optionOfA[A](using
+      d: Defaultable[A],
+      fa: Form[A]
+  ): Form[Option[A]] =
+    new Form[Option[A]] {
+      def render(variable: Var[Option[A]]): HtmlElement =
+        val a = variable.zoom {
+          case Some(a) =>
+            a
+          case None => d.default
+        } { case a =>
+          Some(a)
+        }
+        a.now() match
+          case null =>
+            Button(
+              _.design := ButtonDesign.Emphasized,
+              "Set",
+              onClick.mapTo(Some(d.default)) --> variable.writer
+            )
+          case _ =>
+            div(
+              div(
+                display <-- variable.signal.map {
+                  case Some(_) => "block"
+                  case None    => "none"
+                },
+                fa.render(a)
+              ),
+              div(
+                Button(
+                  display <-- variable.signal.map {
+                    case Some(_) => "none"
+                    case None    => "block"
+                  },
+                  _.design := ButtonDesign.Emphasized,
+                  "Set",
+                  onClick.mapTo(Some(d.default)) --> variable.writer
+                ),
+                Button(
+                  display <-- variable.signal.map {
+                    case Some(_) => "block"
+                    case None    => "none"
+                  },
+                  _.design := ButtonDesign.Emphasized,
+                  "Clear",
+                  onClick.mapTo(None) --> variable.writer
+                )
+              )
+            )
+    }
+  /*
 
   given optionString: Form[Option[String]] =
     new Form[Option[String]] {
@@ -277,7 +283,6 @@ object Form extends AutoDerivation[Form] {
           case Some(a) =>
             div(
               input(
-                tpe("number"),
                 controlled(
                   value <-- variable.signal.map { int =>
                     int.getOrElse(0).toString
@@ -300,4 +305,6 @@ object Form extends AutoDerivation[Form] {
         }
 
     }
+
+   */
 }
