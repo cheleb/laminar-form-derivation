@@ -14,50 +14,55 @@ import io.github.iltotore.iron.{given, *}
 import io.github.iltotore.iron.constraint.all.{given, *}
 import scala.scalajs.js.`import`
 
-trait Editable[A] {
-  def render(a: A, update: Observer[A]): HtmlElement
-}
-
 trait Defaultable[A] {
   def default: A
 }
 
 trait Form[A] { self =>
 
+  def isAnyRef = false
+
+  def fromString(s: String): Option[A] = None
+
   extension (a: A)
     def render: HtmlElement =
-      self.render(Var(a))
+      self.render(Var(a), () => ())
 
   given Owner = unsafeWindowOwner
 
   def labelled(name: String, required: Boolean): Form[A] = new Form[A] {
-    def render(variable: Var[A]): HtmlElement =
+    def render(variable: Var[A], syncParent: () => Unit): HtmlElement =
       div(
         div(
           Label(_.required := required, _.showColon := false, name)
         ),
         div(
-          self.render(variable)
+          self.render(variable, syncParent)
         )
       )
 
   }
   def xmap[B](to: A => B)(from: B => A): Form[B] = new Form[B] {
-    def render(variable: Var[B]): HtmlElement =
-      self.render(variable.zoom(from)(to))
+    def render(variable: Var[B], syncParent: () => Unit): HtmlElement =
+      self.render(variable.zoom(from)(to), syncParent)
   }
-  def render(variable: Var[A]): HtmlElement
+  def render(variable: Var[A], syncParent: () => Unit): HtmlElement
 }
 
 object Form extends AutoDerivation[Form] {
 
-  import dev.cheleb.scalamigen.forms.given
-
-  def renderVar[A](v: Var[A])(using fa: Form[A]) =
-    fa.render(v)
+  def renderVar[A](v: Var[A], syncParent: () => Unit = () => ())(using
+      fa: Form[A]
+  ) =
+    fa.render(v, syncParent)
 
   def join[A](caseClass: CaseClass[Typeclass, A]): Form[A] = new Form[A] {
-    def render(variable: Var[A]): HtmlElement =
+
+    override def isAnyRef: Boolean = true
+    def render(
+        variable: Var[A],
+        syncParent: () => Unit = () => ()
+    ): HtmlElement =
       Panel(
         _.id := caseClass.typeInfo.full,
         _.headerText := caseClass.typeInfo.full,
@@ -73,7 +78,8 @@ object Form extends AutoDerivation[Form] {
                   if (p.label == param.label) value
                   else p.deref(variable.now())
                 }
-              )(unsafeWindowOwner)
+              )(unsafeWindowOwner),
+              syncParent
             )
             .amend(
               idAttr := param.label
@@ -82,21 +88,10 @@ object Form extends AutoDerivation[Form] {
       )
   }
 
-  given Editable[Int] with
-    def render(a: Int, update: Observer[Int]): HtmlElement =
-      UList.item(
-        input(
-          tpe("number"),
-          value <-- Var(a.toString),
-          onInput.mapToValue.map(_.toInt) --> update,
-          a
-        )
-      )
-
   given listOfA[A](using fa: Form[A]): Form[List[A]] =
     new Form[List[A]] {
 
-      def render(variable: Var[List[A]]): HtmlElement =
+      def render(variable: Var[List[A]], syncParent: () => Unit): HtmlElement =
 
         def renderNewA(
             index: Int,
@@ -104,63 +99,31 @@ object Form extends AutoDerivation[Form] {
             aSignalAt: Signal[(A, Int)]
         ) =
           val va = Var(initialAatIdx._1)
-          va.signal --> variable.updater[A] { (list, na) =>
-            list.zipWithIndex.map { (a, idx) =>
-              if (idx == index) na
-              else a
-            }
-          }
-          span(
-            fa.render(va),
-            Button(
-              "Sync",
-              onClick.mapTo(va.now()) --> variable.updater[A] { (list, na) =>
-                list.zipWithIndex.map { (a, idx) =>
-                  if (idx == index) na
-                  else a
-                }
-              }
+
+          val formOfA =
+            if (fa.isAnyRef)
+              fa.render(va, () => variable.update(_.updated(index, va.now())))
+            else
+              fa.render(va, syncParent)
+                .amend(
+                  onInput.mapToValue --> { v =>
+                    fa.fromString(v).foreach { v =>
+                      variable.update(_.updated(index, v))
+                    }
+                  }
+                )
+
+          div(
+            idAttr := s"list-item-$index",
+            div(
+              formOfA
             )
           )
 
         UList(
           width := "100%",
           _.id := "list-of-string",
-          _.noDataText := "No data",
-          _.separators := ListSeparator.None,
-          children <-- variable
-            .zoom(_.zipWithIndex)(_.map(_._1))
-            .signal
-            .split(_._2)(renderNewA)
-        )
-    }
-
-  given listOfA[A](using fa: Editable[A]): Form[List[A]] =
-    new Form[List[A]] {
-
-      def render(variable: Var[List[A]]): HtmlElement =
-
-        def renderNewA(
-            userId: Int,
-            initialUser: (A, Int),
-            userStream: Signal[(A, Int)]
-        ) =
-          fa.render(
-            initialUser._1,
-            Observer[A] { na =>
-              variable.update { list =>
-                list.zipWithIndex.map { (a, idx) =>
-                  if (idx == userId) na
-                  else a
-                }
-              }
-            }
-          )
-
-        UList(
-          width := "100%",
-          _.id := "list-of-string",
-          _.noDataText := "No data",
+          _.noDataText := "No  data",
           _.separators := ListSeparator.None,
           children <-- variable
             .zoom(_.zipWithIndex)(_.map(_._1))
@@ -170,29 +133,38 @@ object Form extends AutoDerivation[Form] {
     }
 
   def split[A](sealedTrait: SealedTrait[Form, A]): Form[A] = new Form[A] {
-    def render(variable: Var[A]): HtmlElement =
+
+    override def isAnyRef: Boolean = true
+    def render(variable: Var[A], syncParent: () => Unit): HtmlElement =
       sealedTrait.choose(variable.now()) { sub =>
         sub.typeclass.render(sub.cast(variable.now()))
       }
   }
 
   given string: Form[String] with
-    def render(variable: Var[String]): HtmlElement =
+    def render(variable: Var[String], syncParent: () => Unit): HtmlElement =
       Input(
         _.showClearIcon := true,
         value <-- variable.signal,
-        onInput.mapToValue --> variable.writer
+        onInput.mapToValue --> { v =>
+          variable.set(v)
+          syncParent()
+        }
       )
 
   given int: Form[Int] = new Form[Int] { self =>
-    def render(variable: Var[Int]): HtmlElement =
+    override def fromString(s: String): Option[Int] = s.toIntOption
+    def render(variable: Var[Int], syncParent: () => Unit): HtmlElement =
       input(
         tpe("number"),
         controlled(
           value <-- variable.signal.map { str =>
             str.toString()
           },
-          onInput.mapToValue.map(_.toInt) --> variable.writer
+          onInput.mapToValue --> { v =>
+            v.toIntOption.foreach(variable.set)
+            syncParent()
+          }
         )
       )
   }
@@ -201,7 +173,10 @@ object Form extends AutoDerivation[Form] {
       fa: Form[A]
   ): Form[Option[A]] =
     new Form[Option[A]] {
-      def render(variable: Var[Option[A]]): HtmlElement =
+      def render(
+          variable: Var[Option[A]],
+          syncParent: () => Unit
+      ): HtmlElement =
         val a = variable.zoom {
           case Some(a) =>
             a
@@ -223,7 +198,7 @@ object Form extends AutoDerivation[Form] {
                   case Some(_) => "block"
                   case None    => "none"
                 },
-                fa.render(a)
+                fa.render(a, syncParent)
               ),
               div(
                 Button(
@@ -247,64 +222,5 @@ object Form extends AutoDerivation[Form] {
               )
             )
     }
-  /*
 
-  given optionString: Form[Option[String]] =
-    new Form[Option[String]] {
-      def render(variable: Var[Option[String]]): HtmlElement =
-        variable.now() match {
-          case Some(a) =>
-            div(
-              Input(
-                _.showClearIcon := true,
-                value <-- variable.signal.map(_.getOrElse("")),
-                onInput.stopPropagation.mapToValue --> variable.someWriter
-              ),
-              Button(
-                _.design := ButtonDesign.Emphasized,
-                "Clear",
-                onClick.mapTo(None) --> variable.writer
-              )
-            )
-          case None =>
-            Button(
-              _.design := ButtonDesign.Emphasized,
-              "Set",
-              onClick.mapTo(Some("")) --> variable.writer
-            )
-        }
-
-    }
-
-  given optionInt: Form[Option[Int]] =
-    new Form[Option[Int]] {
-      def render(variable: Var[Option[Int]]): HtmlElement =
-        variable.now() match {
-          case Some(a) =>
-            div(
-              input(
-                controlled(
-                  value <-- variable.signal.map { int =>
-                    int.getOrElse(0).toString
-                  },
-                  onInput.mapToValue.map(_.toInt) --> variable.someWriter
-                )
-              ),
-              Button(
-                _.design := ButtonDesign.Emphasized,
-                "Clear",
-                onClick.mapTo(None) --> variable.writer
-              )
-            )
-          case None =>
-            Button(
-              _.design := ButtonDesign.Emphasized,
-              "Set",
-              onClick.mapTo(Some(0)) --> variable.writer
-            )
-        }
-
-    }
-
-   */
 }

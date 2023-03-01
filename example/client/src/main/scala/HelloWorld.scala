@@ -6,7 +6,7 @@ import be.doeraene.webcomponents.ui5.*
 
 object App extends App {
 
-  val sample = Var(samples.validation)
+  val sample = Var(listelements.component)
 
   val myApp =
     div(
@@ -27,16 +27,13 @@ object App extends App {
               sample.set(samples.person)
             case v @ Some("Validation") =>
               sample.set(samples.validation)
-            case v @ Some(name) =>
+            case v @ Some("Lists") =>
               sample.set(
-                div(
-                  s"Hello $name"
-                )
+                listelements.component
               )
-            case None =>
-              throw new IllegalArgumentException(
-                s"This item did not have data 'componentName'."
-              )
+            case _ =>
+              sample.set(div("????"))
+
           },
           Seq(
             SideNavigation.item(
@@ -48,8 +45,8 @@ object App extends App {
               dataAttr("component-name") := "Validation"
             ),
             SideNavigation.item(
-              _.text := "Item 3",
-              dataAttr("component-name") := "item3"
+              _.text := "List",
+              dataAttr("component-name") := "Lists"
             )
           )
         )

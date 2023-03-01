@@ -8,6 +8,7 @@ import com.raquo.laminar.api.L.*
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.Positive
 
+import samples.APositif
 case class APositif(
     optional: Option[String],
     optionalInt: Option[Int],

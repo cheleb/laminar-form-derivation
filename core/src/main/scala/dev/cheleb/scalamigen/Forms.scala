@@ -20,7 +20,8 @@ given Defaultable[IronType[Double, Positive]] with
 
 given Form[IronType[Double, Positive]] with
   def render(
-      variable: Var[IronType[Double, Positive]]
+      variable: Var[IronType[Double, Positive]],
+      syncParent: () => Unit
   ): HtmlElement =
     val errorVar = Var("")
     div(
@@ -29,9 +30,9 @@ given Form[IronType[Double, Positive]] with
           s"$item"
         )
       }),
-      Input(
+      input(
         tpe("number"),
-        _.showClearIcon := true,
+        // _.showClearIcon := true,
         backgroundColor <-- errorVar.signal.map {
           case "" => "white"
           case _  => "red"
