@@ -1,7 +1,8 @@
-import {defineConfig, PluginOption, UserConfig} from 'vite'
+import { defineConfig, PluginOption, UserConfig } from 'vite'
 
-export default defineConfig(({command, mode}): UserConfig => {
+export default defineConfig(({ command, mode }): UserConfig => {
     return {
+        base: '/laminar-form-derivation/',
         plugins: command === "build" ? [htmlPlugin()] : [],
         build: {
             target: "esnext"
