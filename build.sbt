@@ -111,7 +111,7 @@ lazy val core = scalajsProject("core")
   .settings(scalacOptions ++= usedScalacOptions)
   .settings(
     libraryDependencies ++= Seq(
-      "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.2.6",
+      "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.0",
       "com.raquo" %%% "laminar" % "0.14.5",
       "io.laminext" %%% "websocket" % "0.14.4",
       "be.doeraene" %%% "web-components-ui5" % "1.9.0",
