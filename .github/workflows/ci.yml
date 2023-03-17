@@ -14,6 +14,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 19
+      - name: Install dependencies
+        run: |
+          cd example/client
+          npm install
       - name: Setup JVM
         uses: actions/setup-java@v3
         with:
