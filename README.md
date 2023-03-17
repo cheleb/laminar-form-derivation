@@ -2,6 +2,11 @@
 
 This project derive UI Form for [laminar](https://laminar.dev/) with magnolia.
 
+
+## Demo
+
+[Live demo](https://cheleb.github.io/laminar-form-derivation/)
+
 ## Installation
 
 TBD

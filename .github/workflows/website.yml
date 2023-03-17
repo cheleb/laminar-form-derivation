@@ -4,7 +4,9 @@ name: Deploy static content to Pages
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ['master']
+    branches: ["master"]
+    paths-ignore:
+      - "**/*.md"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -17,7 +19,7 @@ permissions:
 
 # Allow one concurrent deployment
 concurrency:
-  group: 'pages'
+  group: "pages"
   cancel-in-progress: true
 
 jobs:
@@ -39,15 +41,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-#          cache: 'npm'
+      #          cache: 'npm'
       - name: Install dependencies
-        run: | 
+        run: |
           cd example/client
           npm install
       - name: ScalaJS build
         run: DEV=1 sbt example-client/fullLinkJS
       - name: Vite build
-        run: | 
+        run: |
           cd example/client
           npm run build
       - name: Setup Pages
@@ -56,7 +58,7 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload dist repository
-          path: './example/client/dist'
+          path: "./example/client/dist"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
