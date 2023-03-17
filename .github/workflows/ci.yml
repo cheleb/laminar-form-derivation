@@ -10,6 +10,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 19
       - name: Setup JVM
         uses: actions/setup-java@v3
         with:
@@ -19,3 +23,5 @@ jobs:
       #   run: sbt +test
       - name: server/dist
         run: sbt server/dist
+        env:
+          NODE_OPTIONS: "--openssl-legacy-provider"
