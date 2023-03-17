@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  CI:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup JVM
+        uses: actions/setup-java@v3
+        with:
+          java-version: "19"
+          distribution: "zulu"
+      # - name: Tests
+      #   run: sbt +test
+      - name: server/dist
+        run: sbt server/dist
