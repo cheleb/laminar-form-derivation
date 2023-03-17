@@ -77,7 +77,7 @@ lazy val server = project
     scalaJSProjects := Seq(example),
     Assets / pipelineStages := Seq(scalaJSPipeline),
     libraryDependencies ++= Seq(
-      "dev.zio" %% "zio-http" % "0.0.3"
+      "dev.zio" %% "zio-http" % "0.0.4"
     )
   )
   .settings(serverSettings: _*)

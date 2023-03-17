@@ -20,28 +20,24 @@ object HH:
 
 object SampleServer extends ZIOAppDefault {
 
-  val static = Http.collectHttp[Request] {
+  val static = Http.collectRoute[Request] {
     case Method.GET -> !! =>
       Http
-        .fromStream(ZStream.fromResource("public/index.html"))
-        .addHeaders(Headers.contentType("text/html"))
+        .fromResource("public/index.html")
+
     case Method.GET -> !! / "js" =>
       Http
-        .fromStream(
-          ZStream.fromResource("public/example-client-fastopt-bundle.js")
-        )
-        .addHeaders(Headers.contentType("application/javascript"))
+        .fromResource("public/example-client-fastopt-bundle.js")
     case Method.GET -> "" /: "images" /: path =>
       Http
-        .fromStream(ZStream.fromResource(s"public/images/$path"))
-        .addHeaders(HH.contentType(path))
+        .fromResource(s"public/images/$path")
     case Method.GET -> !! / "css" =>
-      Http.fromStream(ZStream.fromResource("public/style.css"))
+      Http.fromResource("public/style.css")
 
-    case Method.GET -> "" /: "images" /: path =>
-      Http.text(s"Path: $path")
+    // case Method.GET -> "" /: "images" /: path =>
+    //   Http.text(s"Path: $path")
     case Method.GET -> !! / "favicon.ico" =>
-      Http.fromStream(ZStream.fromResource("public/favicon.ico"))
+      Http.fromResource("public/favicon.ico")
   }
 
   private val socket =
@@ -68,7 +64,7 @@ object SampleServer extends ZIOAppDefault {
       ZIO.succeed(Response.text(s"Hello, $name!"))
   }
 
-  val app: HttpApp[Any, Nothing] = dynamic ++ static ++ ws
+  val app = dynamic ++ static ++ ws
 
   val config = ServerConfig.default
     .port(8888)
@@ -77,5 +73,5 @@ object SampleServer extends ZIOAppDefault {
   val configLayer = ServerConfig.live(config)
 
   override val run =
-    Server.serve(app).provide(configLayer, Server.live)
+    Server.serve(app.withDefaultErrorResponse).provide(configLayer, Server.live)
 }

@@ -14,6 +14,10 @@ import io.github.iltotore.iron.{given, *}
 import io.github.iltotore.iron.constraint.all.{given, *}
 import scala.scalajs.js.`import`
 
+trait IronTypeValidator[T, C] {
+  def validate(a: String): Either[String, IronType[T, C]]
+}
+
 trait Defaultable[A] {
   def default: A
 }
@@ -23,6 +27,35 @@ trait Form[A] { self =>
   def isAnyRef = false
 
   def fromString(s: String): Option[A] = None
+  def fromString(s: String, variable: Var[A], errorVar: Var[String]): Unit = ()
+
+  def toString(a: A) = a.toString
+
+  def render(
+      variable: Var[A],
+      syncParent: () => Unit
+  ): HtmlElement =
+    val errorVar = Var("")
+    div(
+      div(child <-- errorVar.signal.map { item =>
+        div(
+          s"$item"
+        )
+      }),
+      input(
+        tpe("number"),
+        // _.showClearIcon := true,
+        backgroundColor <-- errorVar.signal.map {
+          case "" => "white"
+          case _  => "red"
+        },
+        value <-- variable.signal.map(toString(_)),
+        onInput.mapToValue --> { str =>
+          fromString(str, variable, errorVar)
+
+        }
+      )
+    )
 
   extension (a: A)
     def render: HtmlElement =
@@ -31,7 +64,7 @@ trait Form[A] { self =>
   given Owner = unsafeWindowOwner
 
   def labelled(name: String, required: Boolean): Form[A] = new Form[A] {
-    def render(variable: Var[A], syncParent: () => Unit): HtmlElement =
+    override def render(variable: Var[A], syncParent: () => Unit): HtmlElement =
       div(
         div(
           Label(_.required := required, _.showColon := false, name)
@@ -43,10 +76,10 @@ trait Form[A] { self =>
 
   }
   def xmap[B](to: A => B)(from: B => A): Form[B] = new Form[B] {
-    def render(variable: Var[B], syncParent: () => Unit): HtmlElement =
+    override def render(variable: Var[B], syncParent: () => Unit): HtmlElement =
       self.render(variable.zoom(from)(to), syncParent)
   }
-  def render(variable: Var[A], syncParent: () => Unit): HtmlElement
+//  def render(variable: Var[A], syncParent: () => Unit): HtmlElement
 }
 
 object Form extends AutoDerivation[Form] {
@@ -59,7 +92,7 @@ object Form extends AutoDerivation[Form] {
   def join[A](caseClass: CaseClass[Typeclass, A]): Form[A] = new Form[A] {
 
     override def isAnyRef: Boolean = true
-    def render(
+    override def render(
         variable: Var[A],
         syncParent: () => Unit = () => ()
     ): HtmlElement =
@@ -91,7 +124,10 @@ object Form extends AutoDerivation[Form] {
   given listOfA[A](using fa: Form[A]): Form[List[A]] =
     new Form[List[A]] {
 
-      def render(variable: Var[List[A]], syncParent: () => Unit): HtmlElement =
+      override def render(
+          variable: Var[List[A]],
+          syncParent: () => Unit
+      ): HtmlElement =
 
         def renderNewA(
             index: Int,
@@ -135,14 +171,17 @@ object Form extends AutoDerivation[Form] {
   def split[A](sealedTrait: SealedTrait[Form, A]): Form[A] = new Form[A] {
 
     override def isAnyRef: Boolean = true
-    def render(variable: Var[A], syncParent: () => Unit): HtmlElement =
+    override def render(variable: Var[A], syncParent: () => Unit): HtmlElement =
       sealedTrait.choose(variable.now()) { sub =>
         sub.typeclass.render(sub.cast(variable.now()))
       }
   }
 
   given string: Form[String] with
-    def render(variable: Var[String], syncParent: () => Unit): HtmlElement =
+    override def render(
+        variable: Var[String],
+        syncParent: () => Unit
+    ): HtmlElement =
       Input(
         _.showClearIcon := true,
         value <-- variable.signal,
@@ -154,7 +193,10 @@ object Form extends AutoDerivation[Form] {
 
   given int: Form[Int] = new Form[Int] { self =>
     override def fromString(s: String): Option[Int] = s.toIntOption
-    def render(variable: Var[Int], syncParent: () => Unit): HtmlElement =
+    override def render(
+        variable: Var[Int],
+        syncParent: () => Unit
+    ): HtmlElement =
       input(
         tpe("number"),
         controlled(
@@ -173,7 +215,7 @@ object Form extends AutoDerivation[Form] {
       fa: Form[A]
   ): Form[Option[A]] =
     new Form[Option[A]] {
-      def render(
+      override def render(
           variable: Var[Option[A]],
           syncParent: () => Unit
       ): HtmlElement =

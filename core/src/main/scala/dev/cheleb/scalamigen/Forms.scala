@@ -9,6 +9,9 @@ import com.raquo.laminar.api.L.*
 import be.doeraene.webcomponents.ui5.*
 import be.doeraene.webcomponents.ui5.configkeys.*
 
+import scala.quoted.*
+import com.raquo.airstream.state.Var
+
 given Defaultable[Int] with
   def default = 0
 
@@ -18,37 +21,24 @@ given Defaultable[String] with
 given Defaultable[IronType[Double, Positive]] with
   def default = 1.0.refine[Positive]
 
-given Form[IronType[Double, Positive]] with
-  def render(
-      variable: Var[IronType[Double, Positive]],
-      syncParent: () => Unit
-  ): HtmlElement =
-    val errorVar = Var("")
-    div(
-      div(child <-- errorVar.signal.map { item =>
-        div(
-          s"$item"
-        )
-      }),
-      input(
-        tpe("number"),
-        // _.showClearIcon := true,
-        backgroundColor <-- errorVar.signal.map {
-          case "" => "white"
-          case _  => "red"
-        },
-        value <-- variable.signal.map(_.toString()),
-        onInput.mapToValue --> { str =>
-          str.toDoubleOption match
-            case None =>
-              errorVar.set("Not a number")
-            case Some(double) =>
-              double.refineEither[Positive] match
-                case Left(error) =>
-                  errorVar.set(error)
-                case Right(value) =>
-                  errorVar.set("")
-                  variable.set(value)
-        }
-      )
-    )
+given IronTypeValidator[Double, Positive] with
+  def validate(a: String): Either[String, IronType[Double, Positive]] =
+    a.toDoubleOption match
+      case None         => Left("Not a number")
+      case Some(double) => double.refineEither[Positive]
+
+given [T, C](using fv: IronTypeValidator[T, C]): Form[IronType[T, C]] =
+  new Form[IronType[T, C]] {
+
+    override def fromString(
+        str: String,
+        variable: Var[IronType[T, C]],
+        errorVar: Var[String]
+    ): Unit =
+      fv.validate(str) match
+        case Left(error) =>
+          errorVar.set(error)
+        case Right(value) =>
+          errorVar.set("")
+          variable.set(value)
+  }
