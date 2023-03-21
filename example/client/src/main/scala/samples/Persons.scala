@@ -8,8 +8,8 @@ import com.raquo.laminar.api.L.*
 import magnolia1.*
 import be.doeraene.webcomponents.ui5.*
 
-import io.github.iltotore.iron.{given, *}
-import io.github.iltotore.iron.constraint.all.{given, *}
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.constraint.all.*
 
 // Define some models
 case class Person(
