@@ -7,12 +7,9 @@ import be.doeraene.webcomponents.ui5.*
 import be.doeraene.webcomponents.ui5.configkeys.*
 import java.util.UUID
 import scala.util.Random
-import com.raquo.domtypes.generic.keys.HtmlAttr
-import com.raquo.domtypes.generic.defs.attrs.HtmlAttrs
 
-import io.github.iltotore.iron.{given, *}
-import io.github.iltotore.iron.constraint.all.{given, *}
-import scala.scalajs.js.`import`
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.constraint.all.*
 
 trait IronTypeValidator[T, C] {
   def validate(a: String): Either[String, IronType[T, C]]
@@ -75,7 +72,7 @@ trait Form[A] { self =>
       )
 
   }
-  def xmap[B](to: A => B)(from: B => A): Form[B] = new Form[B] {
+  def xmap[B](to: (B, A) => B)(from: B => A): Form[B] = new Form[B] {
     override def render(variable: Var[B], syncParent: () => Unit): HtmlElement =
       self.render(variable.zoom(from)(to), syncParent)
   }
@@ -106,7 +103,7 @@ object Form extends AutoDerivation[Form] {
           param.typeclass
             .labelled(param.label, !isOption)
             .render(
-              variable.zoom(a => param.deref(a))(value =>
+              variable.zoom(a => param.deref(a))((_, value) =>
                 caseClass.construct { p =>
                   if (p.label == param.label) value
                   else p.deref(variable.now())
@@ -162,7 +159,7 @@ object Form extends AutoDerivation[Form] {
           _.noDataText := "No  data",
           _.separators := ListSeparator.None,
           children <-- variable
-            .zoom(_.zipWithIndex)(_.map(_._1))
+            .zoom(_.zipWithIndex)((a, b) => b.map(_._1))
             .signal
             .split(_._2)(renderNewA)
         )
@@ -223,7 +220,7 @@ object Form extends AutoDerivation[Form] {
           case Some(a) =>
             a
           case None => d.default
-        } { case a =>
+        } { case (_, a) =>
           Some(a)
         }
         a.now() match

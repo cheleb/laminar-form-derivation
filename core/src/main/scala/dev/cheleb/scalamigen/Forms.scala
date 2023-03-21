@@ -2,8 +2,8 @@ package dev.cheleb.scalamigen.forms
 
 import dev.cheleb.scalamigen.*
 
-import io.github.iltotore.iron.{given, *}
-import io.github.iltotore.iron.constraint.all.{given, *}
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.constraint.all.*
 
 import com.raquo.laminar.api.L.*
 import be.doeraene.webcomponents.ui5.*

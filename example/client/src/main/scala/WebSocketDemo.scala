@@ -4,7 +4,6 @@ import com.raquo.laminar.api.L.{*, given}
 import be.doeraene.webcomponents.ui5.*
 import be.doeraene.webcomponents.ui5.configkeys.*
 import io.laminext.websocket._
-import com.raquo.domtypes.generic.keys.Key
 import org.scalajs.dom.KeyCode
 import com.raquo.laminar.CollectionCommand
 
