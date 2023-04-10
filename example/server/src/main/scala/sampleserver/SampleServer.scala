@@ -25,6 +25,10 @@ object SampleServer extends ZIOAppDefault {
       Http
         .fromResource("public/index.html")
 
+    case Method.GET -> !! / "index.html" =>
+      Http
+        .fromResource("public/index.html")
+
     case Method.GET -> !! / "js" =>
       Http
         .fromResource("public/example-client-fastopt-bundle.js")
@@ -66,12 +70,17 @@ object SampleServer extends ZIOAppDefault {
 
   val app = dynamic ++ static ++ ws
 
+  val port = sys.env.get("PORT").map(_.toInt).getOrElse(8888)
+
   val config = ServerConfig.default
-    .port(8888)
+    .port(port)
 //    .leakDetection(LeakDetectionLevel.PARANOID)
 //    .maxThreads(nThreads)
   val configLayer = ServerConfig.live(config)
 
   override val run =
-    Server.serve(app.withDefaultErrorResponse).provide(configLayer, Server.live)
+    ZIO.debug(s"Starting server: http://localhost:$port/index.html") *>
+      Server
+        .serve(app.withDefaultErrorResponse)
+        .provide(configLayer, Server.live)
 }
