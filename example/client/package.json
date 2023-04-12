@@ -8,7 +8,7 @@
     "jsdom": "^21.0.0",
     "@ui5/webcomponents": "1.12.1",
     "@ui5/webcomponents-fiori": "1.12.0",
-    "@ui5/webcomponents-icons": "1.12.0",
+    "@ui5/webcomponents-icons": "1.12.1",
     "highlight.js": "^11.6.0"
   },
   "devDependencies": {
