@@ -17,11 +17,12 @@ case class Person(
     fav: Pet,
     pet: Option[Pet],
     email: Option[String],
-    age: Int
+    age: BigInt,
+    size: Double
 )
 case class Pet(
     name: String,
-    age: Int,
+    age: BigInt,
     House: House,
     size: Double :| Positive
 )
@@ -39,7 +40,8 @@ val vlad =
     Pet("Batman", 666, House(2), 169),
     Some(Pet("Wolfy", 12, House(1), 42)),
     Some("vlad.dracul@gmail.com"),
-    48
+    48,
+    1.85
   )
 
 val personVar = Var(vlad)

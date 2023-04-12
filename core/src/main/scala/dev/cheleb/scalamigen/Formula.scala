@@ -10,6 +10,7 @@ import scala.util.Random
 
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
+import scala.util.Try
 
 trait IronTypeValidator[T, C] {
   def validate(a: String): Either[String, IronType[T, C]]
@@ -40,7 +41,6 @@ trait Form[A] { self =>
         )
       }),
       input(
-        tpe("number"),
         // _.showClearIcon := true,
         backgroundColor <-- errorVar.signal.map {
           case "" => "white"
@@ -188,10 +188,12 @@ object Form extends AutoDerivation[Form] {
         }
       )
 
-  given int: Form[Int] = new Form[Int] { self =>
-    override def fromString(s: String): Option[Int] = s.toIntOption
+  def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
+    self =>
+    override def fromString(s: String): Option[A] =
+      f(s).orElse(Some(zero))
     override def render(
-        variable: Var[Int],
+        variable: Var[A],
         syncParent: () => Unit
     ): HtmlElement =
       input(
@@ -201,12 +203,21 @@ object Form extends AutoDerivation[Form] {
             str.toString()
           },
           onInput.mapToValue --> { v =>
-            v.toIntOption.foreach(variable.set)
+            fromString(v).foreach(variable.set)
             syncParent()
           }
         )
       )
   }
+
+  given Form[Double] = numericForm(_.toDoubleOption, 0)
+  given Form[Int] = numericForm(_.toIntOption, 0)
+  given Form[Float] = numericForm(_.toFloatOption, 0)
+  given Form[BigInt] =
+    numericForm(str => Try(BigInt(str)).toOption, BigInt(0))
+  given Form[BigDecimal] =
+    numericForm(str => Try(BigDecimal(str)).toOption, BigDecimal(0))
+
   given optionOfA[A](using
       d: Defaultable[A],
       fa: Form[A]
