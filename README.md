@@ -9,7 +9,7 @@ This project derive UI Form for [laminar](https://laminar.dev/) with magnolia.
 
 ## Installation
 
-TBD
+libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation" % "0.4.3"
 
 ## Run the example
 
@@ -20,6 +20,16 @@ Client side is reloaded in dev mode with [vite](https://vitejs.dev/), server sid
 Client code is in [example/client](./example/client/src/main/scala/HelloWorld.scala)
 
 ### Development
+
+* VSCode with metals
+
+Just open the project with vscode and enjoy [the magic](.vscode/tasks.json)
+
+ ```bash
+ code .
+ ```
+
+* Manual
 
 With vite hot reload
 
