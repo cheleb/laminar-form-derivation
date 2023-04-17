@@ -77,7 +77,8 @@ lazy val server = project
     scalaJSProjects := Seq(example),
     Assets / pipelineStages := Seq(scalaJSPipeline),
     libraryDependencies ++= Seq(
-      "dev.zio" %% "zio-http" % "0.0.5"
+      "dev.zio" %% "zio-http" % "3.0.0-RC1",
+      "io.github.iltotore" %% "iron-zio-json" % "2.1.0"
     )
   )
   .settings(serverSettings: _*)
@@ -115,7 +116,7 @@ lazy val core = scalajsProject("core")
       "com.raquo" %%% "laminar" % "15.0.1",
       "io.laminext" %%% "websocket" % "0.14.4",
       "be.doeraene" %%% "web-components-ui5" % "1.9.2",
-      "io.github.iltotore" %%% "iron-zio-json" % "2.1.0"
+      "io.github.iltotore" %%% "iron" % "2.1.0"
     )
   )
 //  .dependsOn(sharedJs)

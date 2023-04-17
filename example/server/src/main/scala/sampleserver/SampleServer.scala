@@ -4,23 +4,24 @@ import zio.*
 import zio.http.*
 import zio.http.socket.{WebSocketChannelEvent, WebSocketFrame}
 
-import zio.http.model.Method
 import zio.stream.ZStream
-import zio.http.model.Headers
 import zio.http.Path.Segment
 import zio.http.Path.Segment.Root
 import zio.http.ChannelEvent.ChannelRead
 
 object HH:
-  def contentType(path: Path): Headers =
+  def contentType(path: Path): Option[Header] =
     path.lastSegment
       .map(p => p.text.substring(p.text.lastIndexOf('.') + 1))
-      .map(ext => Headers.contentType(s"image/$ext"))
-      .getOrElse(Headers.empty)
+      .flatMap(ext =>
+        MediaType
+          .forContentType(s"image/$ext")
+      )
+      .map(ext => Header.ContentType(ext))
 
 object SampleServer extends ZIOAppDefault {
 
-  val static = Http.collectRoute[Request] {
+  val static = Http.collectHttp[Request] {
     case Method.GET -> !! =>
       Http
         .fromResource("public/index.html")
@@ -72,11 +73,11 @@ object SampleServer extends ZIOAppDefault {
 
   val port = sys.env.get("PORT").map(_.toInt).getOrElse(8888)
 
-  val config = ServerConfig.default
+  val config = Server.Config.default
     .port(port)
 //    .leakDetection(LeakDetectionLevel.PARANOID)
 //    .maxThreads(nThreads)
-  val configLayer = ServerConfig.live(config)
+  val configLayer = ZLayer.succeed(config)
 
   override val run =
     ZIO.debug(s"Starting server: http://localhost:$port/index.html") *>
