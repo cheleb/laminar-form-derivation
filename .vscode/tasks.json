@@ -1,0 +1,63 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "demo",
+            "runOptions": {
+                "runOn": "folderOpen"
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "npmInstall",
+                "runDemo"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "label": "npmInstall",
+            "type": "shell",
+            "command": "cd example/client; npm i",
+            "presentation": {
+                "panel": "dedicated",
+                "group": "runDevCmd",
+                "close": true
+            },
+            "group": "build"
+        },
+        {
+            "label": "runDemo",
+            "dependsOrder": "parallel",
+            "dependsOn": [
+                "fastLink",
+                "npmDev"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "label": "fastLink",
+            "type": "shell",
+            "command": "DEV=1 sbt \"clean; ~example-client/fastLinkJS\"",
+            "presentation": {
+                "panel": "dedicated",
+                "group": "runDevCmd"
+            },
+            "group": "build"
+        },
+        {
+            "label": "npmDev",
+            "type": "shell",
+            "command": "cd example/client; npm run dev",
+            "presentation": {
+                "panel": "dedicated",
+                "group": "runDevCmd"
+            },
+            "group": "build"
+        }
+    ]
+}
