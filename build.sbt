@@ -115,7 +115,7 @@ lazy val core = scalajsProject("core")
       "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.0",
       "com.raquo" %%% "laminar" % "15.0.1",
       "io.laminext" %%% "websocket" % "0.14.4",
-      "be.doeraene" %%% "web-components-ui5" % "1.9.2",
+      "be.doeraene" %%% "web-components-ui5" % "1.10.0",
       "io.github.iltotore" %%% "iron" % "2.1.0"
     )
   )
