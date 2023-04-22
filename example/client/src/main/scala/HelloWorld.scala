@@ -6,7 +6,7 @@ import be.doeraene.webcomponents.ui5.*
 
 object App extends App {
 
-  val sample = Var(listelements.component)
+  val sample = Var(samples.either)
 
   val myApp =
     div(

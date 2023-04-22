@@ -12,6 +12,7 @@ import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 import scala.util.Try
 import com.raquo.airstream.state.Var
+import com.raquo.airstream.core.Source
 
 trait IronTypeValidator[T, C] {
   def validate(a: String): Either[String, IronType[T, C]]
@@ -219,35 +220,67 @@ object Form extends AutoDerivation[Form] {
   given Form[BigDecimal] =
     numericForm(str => Try(BigDecimal(str)).toOption, BigDecimal(0))
 
-  given eitherOf[L, R](using lf: Form[L], rf: Form[R]): Form[Either[L, R]] =
+  given eitherOf[L, R](using
+      lf: Form[L],
+      rf: Form[R],
+      df: Defaultable[L],
+      dr: Defaultable[R]
+  ): Form[Either[L, R]] =
     new Form[Either[L, R]] {
       override def render(
           variable: Var[Either[L, R]],
           syncParent: () => Unit
       ): HtmlElement =
-        variable.now() match {
+        val pp = div()
+        val el = variable.now() match {
           case Left(l) =>
             val vl = Var(l)
+            var vr: Option[Var[R]] = None
             TabContainer(
               width := "100%",
+              _.events.onTabSelect --> { ev =>
+                if (ev.detail.tabIndex == 0)
+                  variable.set(Left(vl.now()))
+                else
+                  vr.foreach { vr =>
+                    variable.set(Right(vr.now()))
+                  }
+
+              },
               _.tab(
                 _.text := "Left",
                 lf.render(vl, () => variable.set(Left(vl.now())))
               ),
-              _.tab(_.text := "Right", Label("Right"))
+              _.tab(
+                _.icon := IconName.warning2,
+                _.text := l.getClass.getName,
+                Link(
+                  "replace",
+                  _.events.onClick --> { _ =>
+                    vr = Some(Var(dr.default))
+                    variable.set(Right(dr.default))
+                    vr.foreach { vr =>
+                      val eem =
+                        rf.render(vr, () => variable.set(Right(vr.now())))
+                      eem(pp)
+                    }
+                  }
+                )
+              )
             )
           case Right(r) =>
             val vr = Var(r)
             TabContainer(
               width := "100%",
-              _.tab(_.text := "Left"),
+              _.tab(_.icon := IconName.warning2, _.text := r.getClass.getName),
               _.tab(
                 _.text := "right",
                 rf.render(vr, () => variable.set(Right(vr.now())))
               )
             )
         }
-
+        el(pp)
+        pp
     }
 
   given optionOfA[A](using
