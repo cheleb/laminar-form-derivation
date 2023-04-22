@@ -11,6 +11,7 @@ import scala.util.Random
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 import scala.util.Try
+import com.raquo.airstream.state.Var
 
 trait IronTypeValidator[T, C] {
   def validate(a: String): Either[String, IronType[T, C]]
@@ -217,6 +218,37 @@ object Form extends AutoDerivation[Form] {
     numericForm(str => Try(BigInt(str)).toOption, BigInt(0))
   given Form[BigDecimal] =
     numericForm(str => Try(BigDecimal(str)).toOption, BigDecimal(0))
+
+  given eitherOf[L, R](using lf: Form[L], rf: Form[R]): Form[Either[L, R]] =
+    new Form[Either[L, R]] {
+      override def render(
+          variable: Var[Either[L, R]],
+          syncParent: () => Unit
+      ): HtmlElement =
+        variable.now() match {
+          case Left(l) =>
+            val vl = Var(l)
+            TabContainer(
+              width := "100%",
+              _.tab(
+                _.text := "Left",
+                lf.render(vl, () => variable.set(Left(vl.now())))
+              ),
+              _.tab(_.text := "Right", Label("Right"))
+            )
+          case Right(r) =>
+            val vr = Var(r)
+            TabContainer(
+              width := "100%",
+              _.tab(_.text := "Left"),
+              _.tab(
+                _.text := "right",
+                rf.render(vr, () => variable.set(Right(vr.now())))
+              )
+            )
+        }
+
+    }
 
   given optionOfA[A](using
       d: Defaultable[A],
