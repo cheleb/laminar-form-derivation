@@ -6,7 +6,7 @@ import be.doeraene.webcomponents.ui5.*
 
 object App extends App {
 
-  val sample = Var(listelements.component)
+  val sample = Var(samples.either)
 
   val myApp =
     div(
@@ -23,6 +23,8 @@ object App extends App {
             .map(_.detail.item.dataset.get("componentName")) --> Observer[
             Option[String]
           ] {
+            case e @ Some("Either") =>
+              sample.set(samples.either)
             case v @ Some("Person") =>
               sample.set(samples.person)
             case v @ Some("Validation") =>
@@ -36,6 +38,10 @@ object App extends App {
 
           },
           Seq(
+            SideNavigation.item(
+              _.text := "Either",
+              dataAttr("component-name") := "Either"
+            ),
             SideNavigation.item(
               _.text := "Person",
               dataAttr("component-name") := "Person"

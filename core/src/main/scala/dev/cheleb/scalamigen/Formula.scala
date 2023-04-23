@@ -11,6 +11,10 @@ import scala.util.Random
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 import scala.util.Try
+import com.raquo.airstream.state.Var
+import com.raquo.airstream.core.Source
+import com.raquo.laminar.nodes.ReactiveElement
+import org.scalajs.dom.HTMLDivElement
 
 trait IronTypeValidator[T, C] {
   def validate(a: String): Either[String, IronType[T, C]]
@@ -18,6 +22,7 @@ trait IronTypeValidator[T, C] {
 
 trait Defaultable[A] {
   def default: A
+  def label: String = default.getClass.getSimpleName()
 }
 
 trait Form[A] { self =>
@@ -217,6 +222,53 @@ object Form extends AutoDerivation[Form] {
     numericForm(str => Try(BigInt(str)).toOption, BigInt(0))
   given Form[BigDecimal] =
     numericForm(str => Try(BigDecimal(str)).toOption, BigDecimal(0))
+
+  given eitherOf[L, R](using
+      lf: Form[L],
+      rf: Form[R],
+      ld: Defaultable[L],
+      rd: Defaultable[R]
+  ): Form[Either[L, R]] =
+    new Form[Either[L, R]] {
+      override def render(
+          variable: Var[Either[L, R]],
+          syncParent: () => Unit
+      ): HtmlElement =
+
+        val (vl, vr) = variable.now() match
+          case Left(l) =>
+            (Var(l), Var(rd.default))
+          case Right(r) =>
+            (Var(ld.default), Var(r))
+
+        div(
+          span(
+            Link(ld.label, onClick.mapTo(Left(vl.now())) --> variable.writer),
+            "----",
+            Link(
+              rd.label,
+              onClick.mapTo(
+                Right(vr.now())
+              ) --> variable.writer
+            )
+          ),
+          div(
+            display <-- variable.signal.map {
+              case Left(_) => "block"
+              case _       => "none"
+            },
+            lf.render(vl, () => variable.set(Left(vl.now())))
+          ),
+          div(
+            display <-- variable.signal.map {
+              case Left(_) => "none"
+              case _       => "block"
+            },
+            rf.render(vr, () => variable.set(Right(vr.now())))
+          )
+        )
+
+    }
 
   given optionOfA[A](using
       d: Defaultable[A],
