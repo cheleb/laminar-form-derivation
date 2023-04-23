@@ -15,6 +15,7 @@ import com.raquo.airstream.state.Var
 import com.raquo.airstream.core.Source
 import com.raquo.laminar.nodes.ReactiveElement
 import org.scalajs.dom.HTMLDivElement
+import magnolia1.SealedTrait.SubtypeValue
 
 trait IronTypeValidator[T, C] {
   def validate(a: String): Either[String, IronType[T, C]]
@@ -29,6 +30,8 @@ trait Form[A] { self =>
 
   def isAnyRef = false
 
+//  def default: A
+
   def fromString(s: String): Option[A] = None
   def fromString(s: String, variable: Var[A], errorVar: Var[String]): Unit = ()
 
@@ -36,7 +39,8 @@ trait Form[A] { self =>
 
   def render(
       variable: Var[A],
-      syncParent: () => Unit
+      syncParent: () => Unit,
+      values: List[A] = List.empty
   ): HtmlElement =
     val errorVar = Var("")
     div(
@@ -66,22 +70,30 @@ trait Form[A] { self =>
   given Owner = unsafeWindowOwner
 
   def labelled(name: String, required: Boolean): Form[A] = new Form[A] {
-    override def render(variable: Var[A], syncParent: () => Unit): HtmlElement =
+    override def render(
+        variable: Var[A],
+        syncParent: () => Unit,
+        values: List[A] = List.empty
+    ): HtmlElement =
       div(
         div(
           Label(_.required := required, _.showColon := false, name)
         ),
         div(
-          self.render(variable, syncParent)
+          self.render(variable, syncParent, values)
         )
       )
 
   }
   def xmap[B](to: (B, A) => B)(from: B => A): Form[B] = new Form[B] {
-    override def render(variable: Var[B], syncParent: () => Unit): HtmlElement =
-      self.render(variable.zoom(from)(to), syncParent)
+    override def render(
+        variable: Var[B],
+        syncParent: () => Unit,
+        values: List[B] = List.empty
+    ): HtmlElement =
+      self.render(variable.zoom(from)(to), syncParent, values.map(from))
   }
-//  def render(variable: Var[A], syncParent: () => Unit): HtmlElement
+
 }
 
 object Form extends AutoDerivation[Form] {
@@ -96,7 +108,8 @@ object Form extends AutoDerivation[Form] {
     override def isAnyRef: Boolean = true
     override def render(
         variable: Var[A],
-        syncParent: () => Unit = () => ()
+        syncParent: () => Unit = () => (),
+        values: List[A] = List.empty
     ): HtmlElement =
       Panel(
         _.id := caseClass.typeInfo.full,
@@ -104,6 +117,12 @@ object Form extends AutoDerivation[Form] {
         _.headerLevel := TitleLevel.H3,
         caseClass.params.map { param =>
           val isOption = param.deref(variable.now()).isInstanceOf[Option[_]]
+
+          val enumValues =
+            if param.annotations.isEmpty then List.empty[A]
+            else if param.annotations(0).isInstanceOf[EnumValues[_]] then
+              param.annotations(0).asInstanceOf[EnumValues[A]].values.toList
+            else List.empty[A]
 
           param.typeclass
             .labelled(param.label, !isOption)
@@ -114,7 +133,8 @@ object Form extends AutoDerivation[Form] {
                   else p.deref(variable.now())
                 }
               )(unsafeWindowOwner),
-              syncParent
+              syncParent,
+              enumValues.map(_.asInstanceOf[param.PType])
             )
             .amend(
               idAttr := param.label
@@ -128,7 +148,8 @@ object Form extends AutoDerivation[Form] {
 
       override def render(
           variable: Var[List[A]],
-          syncParent: () => Unit
+          syncParent: () => Unit,
+          values: List[List[A]] = List.empty
       ): HtmlElement =
 
         def renderNewA(
@@ -173,16 +194,47 @@ object Form extends AutoDerivation[Form] {
   def split[A](sealedTrait: SealedTrait[Form, A]): Form[A] = new Form[A] {
 
     override def isAnyRef: Boolean = true
-    override def render(variable: Var[A], syncParent: () => Unit): HtmlElement =
-      sealedTrait.choose(variable.now()) { sub =>
-        sub.typeclass.render(sub.cast(variable.now()))
-      }
+    override def render(
+        variable: Var[A],
+        syncParent: () => Unit,
+        values: List[A] = List.empty
+    ): HtmlElement =
+      if sealedTrait.isEnum then
+        val valuesLabels = values.map(_.toString)
+        div(
+          Select(
+            _.events.onChange
+              .map(_.detail.selectedOption.dataset) --> { ds =>
+              ds.get("idx").foreach(idx => variable.set(values(idx.toInt)))
+              syncParent()
+            },
+            sealedTrait.subtypes
+              .map(_.typeInfo.short)
+              .filter(valuesLabels.contains(_))
+              .map { label =>
+                Select.option(
+                  label,
+                  dataAttr("idx") := values
+                    .map(_.toString)
+                    .indexOf(label)
+                    .toString(),
+                  _.selected <-- variable.signal.map(
+                    _.toString() == label
+                  )
+                )
+              }
+              .toSeq
+          )
+        )
+      else div("Not an enum")
+
   }
 
   given string: Form[String] with
     override def render(
         variable: Var[String],
-        syncParent: () => Unit
+        syncParent: () => Unit,
+        values: List[String] = List.empty
     ): HtmlElement =
       Input(
         _.showClearIcon := true,
@@ -199,7 +251,8 @@ object Form extends AutoDerivation[Form] {
       f(s).orElse(Some(zero))
     override def render(
         variable: Var[A],
-        syncParent: () => Unit
+        syncParent: () => Unit,
+        values: List[A] = List.empty
     ): HtmlElement =
       input(
         tpe("number"),
@@ -232,7 +285,8 @@ object Form extends AutoDerivation[Form] {
     new Form[Either[L, R]] {
       override def render(
           variable: Var[Either[L, R]],
-          syncParent: () => Unit
+          syncParent: () => Unit,
+          values: List[Either[L, R]] = List.empty
       ): HtmlElement =
 
         val (vl, vr) = variable.now() match
@@ -277,7 +331,8 @@ object Form extends AutoDerivation[Form] {
     new Form[Option[A]] {
       override def render(
           variable: Var[Option[A]],
-          syncParent: () => Unit
+          syncParent: () => Unit,
+          values: List[Option[A]] = List.empty
       ): HtmlElement =
         val a = variable.zoom {
           case Some(a) =>
