@@ -8,14 +8,23 @@ import com.raquo.laminar.api.L.*
 
 import com.raquo.airstream.state.Var
 
-val either = {
+val enums = {
 
-  case class EitherSample(
-      either: Either[Cat, Dog],
-      optionalInt: Option[Int]
+  enum Color(code: String):
+    case Black extends Color("000")
+    case White extends Color("FFF")
+    case Isabelle extends Color("???")
+
+  case class Cat(
+      name: String,
+      age: Int,
+      @EnumValues(Color.values)
+      color: Color
   )
 
-  val eitherVar = Var(EitherSample(Left(Cat("Scala le chat", 6)), Some(1)))
+  val eitherVar = Var(
+    Cat("Scala", 10, Color.White)
+  )
 
   div(
     child <-- eitherVar.signal.map { item =>

@@ -6,7 +6,7 @@ import be.doeraene.webcomponents.ui5.*
 
 object App extends App {
 
-  val sample = Var(samples.either)
+  val sample = Var(samples.enums)
 
   val myApp =
     div(
@@ -25,6 +25,8 @@ object App extends App {
           ] {
             case e @ Some("Either") =>
               sample.set(samples.either)
+            case e @ Some("Enums") =>
+              sample.set(samples.enums)
             case v @ Some("Person") =>
               sample.set(samples.person)
             case v @ Some("Validation") =>
@@ -41,6 +43,10 @@ object App extends App {
             SideNavigation.item(
               _.text := "Either",
               dataAttr("component-name") := "Either"
+            ),
+            SideNavigation.item(
+              _.text := "Enums",
+              dataAttr("component-name") := "Enums"
             ),
             SideNavigation.item(
               _.text := "Person",
