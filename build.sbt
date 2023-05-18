@@ -1,10 +1,11 @@
 //import ProjectDef._
 import org.scalajs.linker.interface.ModuleSplitStyle
-val scala3 = "3.2.2"
+val scala32 = "3.2.2"
+val scala33 = "3.3.0-RC6"
 
 inThisBuild(
   List(
-    scalaVersion := scala3,
+    scalaVersion := scala32,
     organization := "dev.cheleb",
     homepage := Some(url("https://github.com/cheleb/")),
     sonatypeCredentialHost := "s01.oss.sonatype.org",
