@@ -1,7 +1,6 @@
 package samples
 
-import dev.cheleb.scalamigen.*
-import dev.cheleb.scalamigen.forms.given
+import dev.cheleb.scalamigen.{*, given}
 
 import org.scalajs.dom
 import com.raquo.laminar.api.L.*
