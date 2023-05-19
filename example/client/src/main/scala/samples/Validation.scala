@@ -1,8 +1,6 @@
 package samples
 
-import dev.cheleb.scalamigen.*
-import dev.cheleb.scalamigen.forms.given
-import dev.cheleb.scalamigen.forms.*
+import dev.cheleb.scalamigen.{*, given}
 
 import com.raquo.laminar.api.L.*
 
@@ -14,7 +12,7 @@ import be.doeraene.webcomponents.ui5.Input
 
 import model.CurrencyCode
 
-given Form[CurrencyCode] = strForm(CurrencyCode(_))
+given Form[CurrencyCode] = stringForm(CurrencyCode(_))
 
 case class IronSample(
     curenncyCode: CurrencyCode,

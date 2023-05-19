@@ -1,7 +1,6 @@
 package listelements
 
-import dev.cheleb.scalamigen.*
-import dev.cheleb.scalamigen.forms.given
+import dev.cheleb.scalamigen.{*, given}
 
 import com.raquo.laminar.api.L.*
 
