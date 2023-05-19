@@ -230,7 +230,7 @@ object Form extends AutoDerivation[Form] {
 
   }
 
-  given string: Form[String] with
+  given Form[String] with
     override def render(
         variable: Var[String],
         syncParent: () => Unit,

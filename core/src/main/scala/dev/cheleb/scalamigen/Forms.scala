@@ -42,3 +42,18 @@ given [T, C](using fv: IronTypeValidator[T, C]): Form[IronType[T, C]] =
           errorVar.set("")
           variable.set(value)
   }
+
+def strForm[A](to: String => A) = new Form[A]:
+  override def render(
+      variable: Var[A],
+      syncParent: () => Unit,
+      values: List[A] = List.empty
+  ): HtmlElement =
+    Input(
+      _.showClearIcon := true,
+      value <-- variable.signal.map(_.toString),
+      onInput.mapToValue.map(to) --> { v =>
+        variable.set(v)
+        syncParent()
+      }
+    )
