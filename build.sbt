@@ -1,6 +1,6 @@
 //import ProjectDef._
 import org.scalajs.linker.interface.ModuleSplitStyle
-val scala32 = "3.2.2"
+val scala32 = "3.3.0"
 val scala33 = "3.3.0-RC6"
 
 inThisBuild(
