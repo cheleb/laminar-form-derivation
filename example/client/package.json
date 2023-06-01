@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "jsdom": "^22.0.0",
-    "@ui5/webcomponents": "1.13.3",
+    "@ui5/webcomponents": "1.14.0",
     "@ui5/webcomponents-fiori": "1.13.3",
     "@ui5/webcomponents-icons": "1.13.3",
     "highlight.js": "^11.6.0"
