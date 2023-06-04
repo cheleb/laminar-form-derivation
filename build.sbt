@@ -1,11 +1,11 @@
 //import ProjectDef._
 import org.scalajs.linker.interface.ModuleSplitStyle
-val scala32 = "3.3.0"
-val scala33 = "3.3.0-RC6"
+
+val scala33 = "3.3.0"
 
 inThisBuild(
   List(
-    scalaVersion := scala32,
+    scalaVersion := scala33,
     organization := "dev.cheleb",
     homepage := Some(url("https://github.com/cheleb/")),
     sonatypeCredentialHost := "s01.oss.sonatype.org",
@@ -78,7 +78,7 @@ lazy val server = project
     scalaJSProjects := Seq(example),
     Assets / pipelineStages := Seq(scalaJSPipeline),
     libraryDependencies ++= Seq(
-      "dev.zio" %% "zio-http" % "3.0.0-RC1",
+      "dev.zio" %% "zio-http" % "3.0.0-RC2",
       "io.github.iltotore" %% "iron-zio-json" % "2.1.0"
     )
   )
