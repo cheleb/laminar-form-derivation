@@ -47,7 +47,7 @@ jobs:
           cd example/client
           npm install
       - name: ScalaJS build
-        run: DEV=1 sbt example-client/fullLinkJS
+        run: sbt example-client/fullLinkJS
       - name: Vite build
         run: |
           cd example/client
