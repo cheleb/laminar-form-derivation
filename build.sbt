@@ -117,7 +117,7 @@ lazy val core = scalajsProject("core")
       "com.raquo" %%% "laminar" % "15.0.1",
       "io.laminext" %%% "websocket" % "0.14.4",
       "be.doeraene" %%% "web-components-ui5" % "1.10.0",
-      "io.github.iltotore" %%% "iron" % "2.1.0"
+      "io.github.iltotore" %%% "iron" % "2.2.0"
     )
   )
 //  .dependsOn(sharedJs)
