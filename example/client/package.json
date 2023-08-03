@@ -5,11 +5,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "jsdom": "^22.0.0",
+    "jsdom": "^22.1.0",
     "@ui5/webcomponents": "1.14.4",
     "@ui5/webcomponents-fiori": "1.14.4",
     "@ui5/webcomponents-icons": "1.14.4",
-    "highlight.js": "^11.6.0"
+    "highlight.js": "^11.8.0"
   },
   "devDependencies": {
     "vite": "^4.0.0",
