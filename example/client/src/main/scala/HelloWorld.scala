@@ -77,6 +77,6 @@ object App extends App {
       )
     )
 
-  val containerNode = dom.document.getElementById("root")
+  val containerNode = dom.document.getElementById("app")
   render(containerNode, myApp)
 }
