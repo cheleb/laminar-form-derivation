@@ -1,4 +1,5 @@
 //import ProjectDef._
+import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
 val scala33 = "3.3.1"
@@ -177,3 +178,22 @@ def scalajsProject(projectId: String, folder: Option[String] = None): Project =
         "-Xfatal-warnings"
       )
     )
+
+Global / onLoad := {
+  val scalaVersionValue = (example / scalaVersion).value
+  val outputFile =
+    baseDirectory.value / "example" / "client" / "scala-metadata.js"
+  IO.writeLines(
+    outputFile,
+    s"""
+  |const scalaVersion = "$scalaVersionValue"
+  |
+  |exports.scalaMetadata = {
+  |  scalaVersion: scalaVersion
+  |}
+  |""".stripMargin.split("\n").toList,
+    StandardCharsets.UTF_8
+  )
+
+  (Global / onLoad).value
+}
