@@ -42,7 +42,7 @@
         {
             "label": "fastLink",
             "type": "shell",
-            "command": "NODE_OPTIONS='--openssl-legacy-provider' DEV=1 sbt \"clean; ~example-client/fastLinkJS\"",
+            "command": "NODE_OPTIONS='--openssl-legacy-provider' DEV=1 sbt \"~example-client/fastLinkJS\"",
             "presentation": {
                 "panel": "dedicated",
                 "group": "runDevCmd"
