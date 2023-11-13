@@ -3,6 +3,7 @@ package demo
 import org.scalajs.dom
 import com.raquo.laminar.api.L.*
 import be.doeraene.webcomponents.ui5.*
+import samples.tree
 
 object App extends App {
 
@@ -35,6 +36,8 @@ object App extends App {
               sample.set(
                 listelements.component
               )
+            case v @ Some("Tree") =>
+              sample.set(tree.component)
             case _ =>
               sample.set(div("????"))
 
@@ -59,6 +62,10 @@ object App extends App {
             SideNavigation.item(
               _.text := "List",
               dataAttr("component-name") := "Lists"
+            ),
+            SideNavigation.item(
+              _.text := "Tree",
+              dataAttr("component-name") := "Tree"
             )
           )
         )

@@ -95,6 +95,15 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
     )
 }
 
+given Form[Nothing] = new Form[Nothing] {
+  override def render(
+      variable: Var[Nothing],
+      syncParent: () => Unit,
+      values: List[Nothing] = List.empty
+  ): HtmlElement =
+    div()
+}
+
 given Form[Double] = numericForm(_.toDoubleOption, 0)
 given Form[Int] = numericForm(_.toIntOption, 0)
 given Form[Float] = numericForm(_.toFloatOption, 0)

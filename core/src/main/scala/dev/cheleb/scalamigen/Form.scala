@@ -63,10 +63,6 @@ trait Form[A] { self =>
       )
     )
 
-  extension (a: A)
-    def render: HtmlElement =
-      self.render(Var(a), () => ())
-
   given Owner = unsafeWindowOwner
 
   def labelled(name: String, required: Boolean): Form[A] = new Form[A] {
@@ -100,9 +96,9 @@ object Form extends AutoDerivation[Form] {
 
   def renderVar[A](v: Var[A], syncParent: () => Unit = () => ())(using
       fa: Form[A]
-  ) =
+  ) = {
     fa.render(v, syncParent)
-
+  }
   def join[A](caseClass: CaseClass[Typeclass, A]): Form[A] = new Form[A] {
 
     override def isAnyRef: Boolean = true
@@ -151,33 +147,46 @@ object Form extends AutoDerivation[Form] {
         syncParent: () => Unit,
         values: List[A] = List.empty
     ): HtmlElement =
+      println("split" + sealedTrait.typeInfo.full)
       if sealedTrait.isEnum then
-        val valuesLabels = values.map(_.toString)
-        div(
-          Select(
-            _.events.onChange
-              .map(_.detail.selectedOption.dataset) --> { ds =>
-              ds.get("idx").foreach(idx => variable.set(values(idx.toInt)))
-              syncParent()
-            },
-            sealedTrait.subtypes
-              .map(_.typeInfo.short)
-              .filter(valuesLabels.contains(_))
-              .map { label =>
-                Select.option(
-                  label,
-                  dataAttr("idx") := values
-                    .map(_.toString)
-                    .indexOf(label)
-                    .toString(),
-                  _.selected <-- variable.signal.map(
-                    _.toString() == label
+        if values.isEmpty then
+          sealedTrait
+            .choose(variable.now()) { case o =>
+              val vo = Var(o.value)
+              o.typeclass.render(
+                vo,
+                () =>
+                  variable.set(vo.now())
+                  syncParent()
+              )
+            }
+        else
+          val valuesLabels = values.map(_.toString)
+          div(
+            Select(
+              _.events.onChange
+                .map(_.detail.selectedOption.dataset) --> { ds =>
+                ds.get("idx").foreach(idx => variable.set(values(idx.toInt)))
+                syncParent()
+              },
+              sealedTrait.subtypes
+                .map(_.typeInfo.short)
+                .filter(valuesLabels.contains(_))
+                .map { label =>
+                  Select.option(
+                    label,
+                    dataAttr("idx") := values
+                      .map(_.toString)
+                      .indexOf(label)
+                      .toString(),
+                    _.selected <-- variable.signal.map(
+                      _.toString() == label
+                    )
                   )
-                )
-              }
-              .toSeq
+                }
+                .toSeq
+            )
           )
-        )
       else div("Not an enum")
 
   }
