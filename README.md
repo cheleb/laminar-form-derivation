@@ -21,6 +21,9 @@ Client code is in [example/client](./example/client/src/main/scala/HelloWorld.sc
 
 ### Development
 
+
+Insure [dev mode](example/client/package.json#L5) is on `fastLinkJS` and not `fullLinkJS` (production mode)
+
 * VSCode with metals
 
 Just open the project with vscode and enjoy [the magic](.vscode/tasks.json)
