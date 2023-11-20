@@ -54,9 +54,13 @@ given Form[String] with
       onInput.mapToValue --> { v =>
         variable.set(v)
         syncParent()
+
       }
     )
 
+/** Use this form to render a string that can be converted to A, can be used for
+  * Opaque types.
+  */
 def stringForm[A](to: String => A) = new Form[A]:
   override def render(
       variable: Var[A],

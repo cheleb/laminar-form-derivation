@@ -152,7 +152,6 @@ object Form extends AutoDerivation[Form] {
         syncParent: () => Unit,
         values: List[A] = List.empty
     ): HtmlElement =
-      println("split" + sealedTrait.typeInfo.full)
       if sealedTrait.isEnum then
         if values.isEmpty then
           sealedTrait
