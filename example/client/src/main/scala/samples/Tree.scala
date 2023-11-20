@@ -25,16 +25,17 @@ object tree {
           case Tree.Empty =>
             button(
               "Add",
-              onClick --> Observer(_ =>
-                variable.set(Tree.Node(0, Tree.Empty, Tree.Empty))
-              )
+              onClick.mapTo(
+                Tree.Node(0, Tree.Empty, Tree.Empty)
+              ) --> variable.writer
             )
 
           case Tree.Node(value, left, right) =>
-            nodeInstance.render(
-              variable.asInstanceOf[Var[Tree.Node[Int]]],
-              syncParent,
-              Nil
+            div(
+              button("drop", onClick.mapTo(Tree.Empty) --> variable.writer),
+              nodeInstance.render(
+                variable.asInstanceOf[Var[Tree.Node[Int]]]
+              )
             )
     }
 

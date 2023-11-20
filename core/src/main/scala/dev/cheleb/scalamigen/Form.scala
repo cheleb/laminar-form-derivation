@@ -38,6 +38,11 @@ trait Form[A] { self =>
   def toString(a: A) = a.toString
 
   def render(
+      variable: Var[A]
+  ): HtmlElement =
+    render(variable, () => ())
+
+  def render(
       variable: Var[A],
       syncParent: () => Unit,
       values: List[A] = List.empty
