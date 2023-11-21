@@ -5,7 +5,6 @@ import dev.cheleb.scalamigen.{*, given}
 import com.raquo.laminar.api.L.*
 
 import com.raquo.airstream.state.Var
-import listelements.Person
 
 object tree {
   enum Tree[+T]:
@@ -40,7 +39,7 @@ object tree {
           variable: Var[Tree[A]],
           syncParent: () => Unit,
           values: List[Tree[A]]
-      ): HtmlElement =
+      )(using WidgetFactory): HtmlElement =
         variable.now() match
           case Tree.Empty =>
             button(
@@ -86,7 +85,6 @@ object tree {
       .distinctByFn(Tree.isSameStructure)
       .map { item =>
         Form.renderVar(treeVar2)
-
       }
   )
 }

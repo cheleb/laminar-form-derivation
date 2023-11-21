@@ -47,7 +47,7 @@ given Form[String] with
       variable: Var[String],
       syncParent: () => Unit,
       values: List[String] = List.empty
-  ): HtmlElement =
+  )(using factory: WidgetFactory): HtmlElement =
     Input(
       _.showClearIcon := true,
       value <-- variable.signal,
@@ -66,7 +66,7 @@ def stringForm[A](to: String => A) = new Form[A]:
       variable: Var[A],
       syncParent: () => Unit,
       values: List[A] = List.empty
-  ): HtmlElement =
+  )(using factory: WidgetFactory): HtmlElement =
     Input(
       _.showClearIcon := true,
       value <-- variable.signal.map(_.toString),
@@ -84,7 +84,7 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
       variable: Var[A],
       syncParent: () => Unit,
       values: List[A] = List.empty
-  ): HtmlElement =
+  )(using factory: WidgetFactory): HtmlElement =
     input(
       tpe("number"),
       controlled(
@@ -104,7 +104,7 @@ given Form[Nothing] = new Form[Nothing] {
       variable: Var[Nothing],
       syncParent: () => Unit,
       values: List[Nothing] = List.empty
-  ): HtmlElement =
+  )(using factory: WidgetFactory): HtmlElement =
     div()
 }
 
@@ -127,7 +127,7 @@ given eitherOf[L, R](using
         variable: Var[Either[L, R]],
         syncParent: () => Unit,
         values: List[Either[L, R]] = List.empty
-    ): HtmlElement =
+    )(using factory: WidgetFactory): HtmlElement =
 
       val (vl, vr) = variable.now() match
         case Left(l) =>
@@ -173,7 +173,7 @@ given optionOfA[A](using
         variable: Var[Option[A]],
         syncParent: () => Unit,
         values: List[Option[A]] = List.empty
-    ): HtmlElement =
+    )(using factory: WidgetFactory): HtmlElement =
       val a = variable.zoom {
         case Some(a) =>
           a
@@ -227,7 +227,7 @@ given listOfA[A](using fa: Form[A]): Form[List[A]] =
         variable: Var[List[A]],
         syncParent: () => Unit,
         values: List[List[A]] = List.empty
-    ): HtmlElement =
+    )(using factory: WidgetFactory): HtmlElement =
 
       def renderNewA(
           index: Int,

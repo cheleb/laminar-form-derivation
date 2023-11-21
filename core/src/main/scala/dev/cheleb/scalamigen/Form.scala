@@ -26,6 +26,11 @@ trait Defaultable[A] {
   def label: String = default.getClass.getSimpleName()
 }
 
+trait WidgetFactory {
+  def numericForm: HtmlElement
+  def objectForm: HtmlElement
+}
+
 trait Form[A] { self =>
 
   def isAnyRef = false
@@ -39,14 +44,14 @@ trait Form[A] { self =>
 
   def render(
       variable: Var[A]
-  ): HtmlElement =
+  )(using factory: WidgetFactory): HtmlElement =
     render(variable, () => ())
 
   def render(
       variable: Var[A],
       syncParent: () => Unit,
       values: List[A] = List.empty
-  ): HtmlElement =
+  )(using factory: WidgetFactory): HtmlElement =
     val errorVar = Var("")
     div(
       div(child <-- errorVar.signal.map { item =>
@@ -75,7 +80,7 @@ trait Form[A] { self =>
         variable: Var[A],
         syncParent: () => Unit,
         values: List[A] = List.empty
-    ): HtmlElement =
+    )(using factory: WidgetFactory): HtmlElement =
       div(
         div(
           Label(_.required := required, _.showColon := false, name)
@@ -91,7 +96,7 @@ trait Form[A] { self =>
         variable: Var[B],
         syncParent: () => Unit,
         values: List[B] = List.empty
-    ): HtmlElement =
+    )(using factory: WidgetFactory): HtmlElement =
       self.render(variable.zoom(from)(to), syncParent, values.map(from))
   }
 
@@ -100,48 +105,53 @@ trait Form[A] { self =>
 object Form extends AutoDerivation[Form] {
 
   def renderVar[A](v: Var[A], syncParent: () => Unit = () => ())(using
+      WidgetFactory
+  )(using
       fa: Form[A]
   ) = {
     fa.render(v, syncParent)
   }
-  def join[A](caseClass: CaseClass[Typeclass, A]): Form[A] = new Form[A] {
+  def join[A](
+      caseClass: CaseClass[Typeclass, A]
+  ): Form[A] = new Form[A] {
 
     override def isAnyRef: Boolean = true
     override def render(
         variable: Var[A],
         syncParent: () => Unit = () => (),
         values: List[A] = List.empty
-    ): HtmlElement =
-      Panel(
-        _.id := caseClass.typeInfo.full,
-        _.headerText := caseClass.typeInfo.full,
-        _.headerLevel := TitleLevel.H3,
-        caseClass.params.map { param =>
-          val isOption = param.deref(variable.now()).isInstanceOf[Option[_]]
+    )(using factory: WidgetFactory): HtmlElement =
+      factory.objectForm
+        .amend(
+          // _.id := caseClass.typeInfo.full,
+          // _.headerText := caseClass.typeInfo.full,
+          // _.headerLevel := TitleLevel.H3,
+          caseClass.params.map { param =>
+            val isOption = param.deref(variable.now()).isInstanceOf[Option[_]]
 
-          val enumValues =
-            if param.annotations.isEmpty then List.empty[A]
-            else if param.annotations(0).isInstanceOf[EnumValues[_]] then
-              param.annotations(0).asInstanceOf[EnumValues[A]].values.toList
-            else List.empty[A]
+            val enumValues =
+              if param.annotations.isEmpty then List.empty[A]
+              else if param.annotations(0).isInstanceOf[EnumValues[_]] then
+                param.annotations(0).asInstanceOf[EnumValues[A]].values.toList
+              else List.empty[A]
 
-          param.typeclass
-            .labelled(param.label, !isOption)
-            .render(
-              variable.zoom(a => param.deref(a))((_, value) =>
-                caseClass.construct { p =>
-                  if (p.label == param.label) value
-                  else p.deref(variable.now())
-                }
-              )(unsafeWindowOwner),
-              syncParent,
-              enumValues.map(_.asInstanceOf[param.PType])
-            )
-            .amend(
-              idAttr := param.label
-            )
-        }.toSeq
-      )
+            param.typeclass
+              .labelled(param.label, !isOption)
+              .render(
+                variable.zoom(a => param.deref(a))((_, value) =>
+                  caseClass.construct { p =>
+                    if (p.label == param.label) value
+                    else p.deref(variable.now())
+                  }
+                )(unsafeWindowOwner),
+                syncParent,
+                enumValues.map(_.asInstanceOf[param.PType])
+              )
+              .amend(
+                idAttr := param.label
+              )
+          }.toSeq
+        )
   }
 
   def split[A](sealedTrait: SealedTrait[Form, A]): Form[A] = new Form[A] {
@@ -151,7 +161,7 @@ object Form extends AutoDerivation[Form] {
         variable: Var[A],
         syncParent: () => Unit,
         values: List[A] = List.empty
-    ): HtmlElement =
+    )(using factory: WidgetFactory): HtmlElement =
       if sealedTrait.isEnum then
         if values.isEmpty then
           sealedTrait

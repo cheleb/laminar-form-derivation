@@ -34,7 +34,7 @@ object App extends App {
               sample.set(samples.validation)
             case v @ Some("Lists") =>
               sample.set(
-                listelements.component
+                samples.component
               )
             case v @ Some("Tree") =>
               sample.set(tree.component)
