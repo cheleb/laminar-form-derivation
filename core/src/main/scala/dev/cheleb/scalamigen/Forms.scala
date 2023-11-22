@@ -4,8 +4,6 @@ import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 
 import com.raquo.laminar.api.L.*
-import be.doeraene.webcomponents.ui5.*
-import be.doeraene.webcomponents.ui5.configkeys.*
 
 import scala.quoted.*
 import scala.util.Try
@@ -48,15 +46,15 @@ given Form[String] with
       syncParent: () => Unit,
       values: List[String] = List.empty
   )(using factory: WidgetFactory): HtmlElement =
-    Input(
-      _.showClearIcon := true,
-      value <-- variable.signal,
-      onInput.mapToValue --> { v =>
-        variable.set(v)
-        syncParent()
+    factory.text
+      .amend(
+        value <-- variable.signal,
+        onInput.mapToValue --> { v =>
+          variable.set(v)
+          syncParent()
 
-      }
-    )
+        }
+      )
 
 /** Use this form to render a string that can be converted to A, can be used for
   * Opaque types.
@@ -67,8 +65,7 @@ def stringForm[A](to: String => A) = new Form[A]:
       syncParent: () => Unit,
       values: List[A] = List.empty
   )(using factory: WidgetFactory): HtmlElement =
-    Input(
-      _.showClearIcon := true,
+    factory.text.amend(
       value <-- variable.signal.map(_.toString),
       onInput.mapToValue.map(to) --> { v =>
         variable.set(v)
@@ -85,18 +82,18 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
       syncParent: () => Unit,
       values: List[A] = List.empty
   )(using factory: WidgetFactory): HtmlElement =
-    input(
-      tpe("number"),
-      controlled(
-        value <-- variable.signal.map { str =>
-          str.toString()
-        },
-        onInput.mapToValue --> { v =>
-          fromString(v).foreach(variable.set)
-          syncParent()
-        }
+    factory.numeric
+      .amend(
+        controlled(
+          value <-- variable.signal.map { str =>
+            str.toString()
+          },
+          onInput.mapToValue --> { v =>
+            fromString(v).foreach(variable.set)
+            syncParent()
+          }
+        )
       )
-    )
 }
 
 given Form[Nothing] = new Form[Nothing] {
@@ -137,9 +134,10 @@ given eitherOf[L, R](using
 
       div(
         span(
-          Link(ld.label, onClick.mapTo(Left(vl.now())) --> variable.writer),
+          factory
+            .link(ld.label, onClick.mapTo(Left(vl.now())) --> variable.writer),
           "----",
-          Link(
+          factory.link(
             rd.label,
             onClick.mapTo(
               Right(vr.now())
@@ -183,8 +181,7 @@ given optionOfA[A](using
       }
       a.now() match
         case null =>
-          Button(
-            _.design := ButtonDesign.Emphasized,
+          factory.button.amend(
             "Set",
             onClick.mapTo(Some(d.default)) --> variable.writer
           )
@@ -198,21 +195,19 @@ given optionOfA[A](using
               fa.render(a, syncParent)
             ),
             div(
-              Button(
+              factory.button.amend(
                 display <-- variable.signal.map {
                   case Some(_) => "none"
                   case None    => "block"
                 },
-                _.design := ButtonDesign.Emphasized,
                 "Set",
                 onClick.mapTo(Some(d.default)) --> variable.writer
               ),
-              Button(
+              factory.button.amend(
                 display <-- variable.signal.map {
                   case Some(_) => "block"
                   case None    => "none"
                 },
-                _.design := ButtonDesign.Emphasized,
                 "Clear",
                 onClick.mapTo(None) --> variable.writer
               )
@@ -256,14 +251,12 @@ given listOfA[A](using fa: Form[A]): Form[List[A]] =
           )
         )
 
-      UList(
-        width := "100%",
-        _.id := "list-of-string",
-        _.noDataText := "No  data",
-        _.separators := ListSeparator.None,
-        children <-- variable
-          .zoom(_.zipWithIndex)((a, b) => b.map(_._1))
-          .signal
-          .split(_._2)(renderNewA)
-      )
+      factory
+        .ul("list-of-string")
+        .amend(
+          children <-- variable
+            .zoom(_.zipWithIndex)((a, b) => b.map(_._1))
+            .signal
+            .split(_._2)(renderNewA)
+        )
   }

@@ -16,6 +16,7 @@ import com.raquo.airstream.core.Source
 import com.raquo.laminar.nodes.ReactiveElement
 import org.scalajs.dom.HTMLDivElement
 import magnolia1.SealedTrait.SubtypeValue
+import com.raquo.laminar.modifiers.EventListener
 
 trait IronTypeValidator[T, C] {
   def validate(a: String): Either[String, IronType[T, C]]
@@ -27,15 +28,17 @@ trait Defaultable[A] {
 }
 
 trait WidgetFactory {
-  def numericForm: HtmlElement
-  def objectForm: HtmlElement
+  def text: HtmlElement
+  def numeric: HtmlElement
+  def button: HtmlElement
+  def link(text: String, obs: EventListener[_, _]): HtmlElement
+  def panel(headerText: String): HtmlElement
+  def ul(id: String): HtmlElement
 }
 
 trait Form[A] { self =>
 
   def isAnyRef = false
-
-//  def default: A
 
   def fromString(s: String): Option[A] = None
   def fromString(s: String, variable: Var[A], errorVar: Var[String]): Unit = ()
@@ -121,7 +124,8 @@ object Form extends AutoDerivation[Form] {
         syncParent: () => Unit = () => (),
         values: List[A] = List.empty
     )(using factory: WidgetFactory): HtmlElement =
-      factory.objectForm
+      factory
+        .panel(caseClass.typeInfo.full)
         .amend(
           // _.id := caseClass.typeInfo.full,
           // _.headerText := caseClass.typeInfo.full,
