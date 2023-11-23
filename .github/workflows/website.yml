@@ -44,13 +44,13 @@ jobs:
       #          cache: 'npm'
       - name: Install dependencies
         run: |
-          cd example/client
+          cd examples/client
           npm install
 #      - name: ScalaJS build
-#        run: sbt example-client/fastLinkJS
+#        run: sbt client/fastLinkJS
       - name: Vite build
         run: |
-          cd example/client
+          cd examples/client
           npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v3
@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-pages-artifact@v2
         with:
           # Upload dist repository
-          path: "./example/client/dist"
+          path: "./examples/client/dist"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2

@@ -62,6 +62,7 @@ lazy val root = project
   .aggregate(
     server,
     core,
+    ui5,
     sharedJs,
     sharedJvm,
     example
@@ -71,16 +72,15 @@ lazy val root = project
   )
 
 lazy val server = project
-  .in(file("example/server"))
+  .in(file("examples/server"))
   .enablePlugins(serverPlugins: _*)
   .settings(
-    cancelable := true,
     fork := true,
     scalaJSProjects := Seq(example),
     Assets / pipelineStages := Seq(scalaJSPipeline),
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio-http" % "3.0.0-RC2",
-      "io.github.iltotore" %% "iron-zio-json" % "2.2.1"
+      "io.github.iltotore" %% "iron-zio-json" % "2.3.0"
     )
   )
   .settings(serverSettings: _*)
@@ -101,7 +101,7 @@ val usedScalacOptions = Seq(
   "-language:implicitConversions",
   "-Xmax-inlines:64"
 )
-lazy val core = scalajsProject("core")
+lazy val core = scalajsProject("core", false)
   .settings(
     name := "laminar-form-derivation",
     scalaJSUseMainModuleInitializer := true,
@@ -117,13 +117,29 @@ lazy val core = scalajsProject("core")
       "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.3",
       "com.raquo" %%% "laminar" % "16.0.0",
       "io.laminext" %%% "websocket" % "0.16.2",
-      "be.doeraene" %%% "web-components-ui5" % "1.17.0",
-      "io.github.iltotore" %%% "iron" % "2.2.1"
+      "io.github.iltotore" %%% "iron" % "2.3.0"
     )
   )
-//  .dependsOn(sharedJs)
 
-lazy val example = scalajsProject("example-client", Some("example/client"))
+lazy val ui5 = scalajsProject("ui5", false)
+  .settings(
+    name := "laminar-form-derivation-ui5",
+    scalaJSUseMainModuleInitializer := true,
+    scalaJSLinkerConfig ~= {
+      _.withModuleKind(scalaJSModule)
+        .withSourceMap(true)
+        .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("ui5")))
+    }
+  )
+  .settings(scalacOptions ++= usedScalacOptions)
+  .dependsOn(core)
+  .settings(
+    libraryDependencies ++= Seq(
+      "be.doeraene" %%% "web-components-ui5" % "1.17.0"
+    )
+  )
+
+lazy val example = scalajsProject("client", true)
   .settings(
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
@@ -133,11 +149,14 @@ lazy val example = scalajsProject("example-client", Some("example/client"))
     }
   )
   .settings(scalacOptions ++= usedScalacOptions)
-  .dependsOn(core, sharedJs)
+  .dependsOn(ui5, sharedJs)
+  .settings(
+    publish / skip := true
+  )
 
 lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
-  .in(file("example/shared"))
+  .in(file("examples/shared"))
   .settings(
     publish / skip := true
   )
@@ -165,8 +184,11 @@ def scalaJSPlugin = dev match {
   case false => ScalaJSBundlerPlugin
 }
 
-def scalajsProject(projectId: String, folder: Option[String] = None): Project =
-  Project(id = projectId, base = file(folder.getOrElse(projectId)))
+def scalajsProject(projectId: String, sample: Boolean): Project =
+  Project(
+    id = projectId,
+    base = file(s"${if (sample) "examples" else "modules"}/$projectId")
+  )
     .enablePlugins(scalaJSPlugin)
     .settings(nexusNpmSettings)
     .settings(Test / requireJsDomEnv := true)
@@ -182,7 +204,7 @@ def scalajsProject(projectId: String, folder: Option[String] = None): Project =
 Global / onLoad := {
   val scalaVersionValue = (example / scalaVersion).value
   val outputFile =
-    baseDirectory.value / "example" / "client" / "scala-metadata.js"
+    baseDirectory.value / "examples" / "client" / "scala-metadata.js"
   IO.writeLines(
     outputFile,
     s"""

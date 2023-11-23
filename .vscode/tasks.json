@@ -19,7 +19,7 @@
         {
             "label": "npmInstall",
             "type": "shell",
-            "command": "cd example/client; npm i",
+            "command": "cd examples/client; npm i",
             "presentation": {
                 "panel": "dedicated",
                 "group": "runDevCmd",
@@ -42,7 +42,7 @@
         {
             "label": "fastLink",
             "type": "shell",
-            "command": "NODE_OPTIONS='--openssl-legacy-provider' DEV=1 sbt \"~example-client/fastLinkJS\"",
+            "command": "NODE_OPTIONS='--openssl-legacy-provider' DEV=1 sbt \"~client/fastLinkJS\"",
             "presentation": {
                 "panel": "dedicated",
                 "group": "runDevCmd"
@@ -52,7 +52,7 @@
         {
             "label": "npmDev",
             "type": "shell",
-            "command": "cd example/client; npm run dev",
+            "command": "cd examples/client; npm run dev",
             "presentation": {
                 "panel": "dedicated",
                 "group": "runDevCmd"
