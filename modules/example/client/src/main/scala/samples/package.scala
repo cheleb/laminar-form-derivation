@@ -18,7 +18,7 @@ given Defaultable[Cat] with
 given Defaultable[Dog] with
   def default = Dog("", 0)
 
-val laminarZ = new WidgetFactory:
+val laminar = new WidgetFactory:
   def text: HtmlElement = input(
     tpe := "text"
   )
@@ -54,4 +54,4 @@ val ui5 = new WidgetFactory:
     _.separators := ListSeparator.None
   )
 
-given WidgetFactory = laminarZ
+given WidgetFactory = laminar

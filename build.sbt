@@ -71,7 +71,7 @@ lazy val root = project
   )
 
 lazy val server = project
-  .in(file("example/server"))
+  .in(file("modules/example/server"))
   .enablePlugins(serverPlugins: _*)
   .settings(
     cancelable := true,
@@ -121,7 +121,27 @@ lazy val core = scalajsProject("core")
       "io.github.iltotore" %%% "iron" % "2.3.0"
     )
   )
-//  .dependsOn(sharedJs)
+
+lazy val ui5 = scalajsProject("ui5")
+  .settings(
+    name := "laminar-form-derivation-ui5",
+    scalaJSUseMainModuleInitializer := true,
+    scalaJSLinkerConfig ~= {
+      _.withModuleKind(scalaJSModule)
+        .withSourceMap(true)
+        .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("ui5")))
+    }
+  )
+  .settings(scalacOptions ++= usedScalacOptions)
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.3",
+      "com.raquo" %%% "laminar" % "16.0.0",
+      "io.laminext" %%% "websocket" % "0.16.2",
+      "be.doeraene" %%% "web-components-ui5" % "1.17.0",
+      "io.github.iltotore" %%% "iron" % "2.3.0"
+    )
+  )
 
 lazy val example = scalajsProject("example-client", Some("example/client"))
   .settings(
@@ -137,7 +157,7 @@ lazy val example = scalajsProject("example-client", Some("example/client"))
 
 lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
-  .in(file("example/shared"))
+  .in(file("modules/example/shared"))
   .settings(
     publish / skip := true
   )
@@ -166,7 +186,10 @@ def scalaJSPlugin = dev match {
 }
 
 def scalajsProject(projectId: String, folder: Option[String] = None): Project =
-  Project(id = projectId, base = file(folder.getOrElse(projectId)))
+  Project(
+    id = projectId,
+    base = file(s"modules/${folder.getOrElse(projectId)}")
+  )
     .enablePlugins(scalaJSPlugin)
     .settings(nexusNpmSettings)
     .settings(Test / requireJsDomEnv := true)
