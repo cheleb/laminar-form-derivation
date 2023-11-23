@@ -19,7 +19,7 @@
         {
             "label": "npmInstall",
             "type": "shell",
-            "command": "cd modules/example/client; npm i",
+            "command": "cd examples/client; npm i",
             "presentation": {
                 "panel": "dedicated",
                 "group": "runDevCmd",

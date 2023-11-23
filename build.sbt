@@ -62,6 +62,7 @@ lazy val root = project
   .aggregate(
     server,
     core,
+    ui5,
     sharedJs,
     sharedJvm,
     example
@@ -117,8 +118,7 @@ lazy val core = scalajsProject("core", false)
       "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.3",
       "com.raquo" %%% "laminar" % "16.0.0",
       "io.laminext" %%% "websocket" % "0.16.2",
-      "io.github.iltotore" %%% "iron" % "2.3.0",
-      "be.doeraene" %%% "web-components-ui5" % "1.17.0"
+      "io.github.iltotore" %%% "iron" % "2.3.0"
     )
   )
 
@@ -151,6 +151,9 @@ lazy val example = scalajsProject("client", true)
   )
   .settings(scalacOptions ++= usedScalacOptions)
   .dependsOn(ui5, sharedJs)
+  .settings(
+    publish / skip := true
+  )
 
 lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)

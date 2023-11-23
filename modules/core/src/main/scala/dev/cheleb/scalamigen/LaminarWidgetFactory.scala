@@ -2,7 +2,6 @@ package dev.cheleb.scalamigen
 
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.modifiers.EventListener
-import be.doeraene.webcomponents.ui5.Select
 import org.scalajs.dom.HTMLSelectElement
 
 object LaminarWidgetFactory extends WidgetFactory:

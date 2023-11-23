@@ -15,7 +15,6 @@ import com.raquo.laminar.nodes.ReactiveElement
 import org.scalajs.dom.HTMLDivElement
 import magnolia1.SealedTrait.SubtypeValue
 import com.raquo.laminar.modifiers.EventListener
-import be.doeraene.webcomponents.ui5.Select
 
 trait IronTypeValidator[T, C] {
   def validate(a: String): Either[String, IronType[T, C]]
