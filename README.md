@@ -40,7 +40,7 @@ With vite hot reload
 
 ```bash
 sbt clean
-DEV=1 sbt "~example-client/fastLinkJS"
+DEV=1 sbt "~client/fastLinkJS"
 ```
 
  * Terminal 2

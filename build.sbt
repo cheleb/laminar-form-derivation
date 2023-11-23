@@ -71,7 +71,7 @@ lazy val root = project
   )
 
 lazy val server = project
-  .in(file("modules/example/server"))
+  .in(file("example/server"))
   .enablePlugins(serverPlugins: _*)
   .settings(
     cancelable := true,
@@ -101,7 +101,7 @@ val usedScalacOptions = Seq(
   "-language:implicitConversions",
   "-Xmax-inlines:64"
 )
-lazy val core = scalajsProject("core")
+lazy val core = scalajsProject("core", false)
   .settings(
     name := "laminar-form-derivation",
     scalaJSUseMainModuleInitializer := true,
@@ -122,7 +122,7 @@ lazy val core = scalajsProject("core")
     )
   )
 
-lazy val ui5 = scalajsProject("ui5")
+lazy val ui5 = scalajsProject("ui5", false)
   .settings(
     name := "laminar-form-derivation-ui5",
     scalaJSUseMainModuleInitializer := true,
@@ -140,7 +140,7 @@ lazy val ui5 = scalajsProject("ui5")
     )
   )
 
-lazy val example = scalajsProject("example-client", Some("example/client"))
+lazy val example = scalajsProject("client", true)
   .settings(
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
@@ -154,7 +154,7 @@ lazy val example = scalajsProject("example-client", Some("example/client"))
 
 lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
-  .in(file("modules/example/shared"))
+  .in(file("examples/shared"))
   .settings(
     publish / skip := true
   )
@@ -182,10 +182,10 @@ def scalaJSPlugin = dev match {
   case false => ScalaJSBundlerPlugin
 }
 
-def scalajsProject(projectId: String, folder: Option[String] = None): Project =
+def scalajsProject(projectId: String, sample: Boolean): Project =
   Project(
     id = projectId,
-    base = file(s"modules/${folder.getOrElse(projectId)}")
+    base = file(s"${if (sample) "examples" else "modules"}/$projectId")
   )
     .enablePlugins(scalaJSPlugin)
     .settings(nexusNpmSettings)
@@ -202,7 +202,7 @@ def scalajsProject(projectId: String, folder: Option[String] = None): Project =
 Global / onLoad := {
   val scalaVersionValue = (example / scalaVersion).value
   val outputFile =
-    baseDirectory.value / "example" / "client" / "scala-metadata.js"
+    baseDirectory.value / "examples" / "client" / "scala-metadata.js"
   IO.writeLines(
     outputFile,
     s"""

@@ -7,7 +7,7 @@ const scalaVersion = scalaMetadata.scalaVersion
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode, ssrBuild }) => {
-    const mainJS = `/target/scala-${scalaVersion}/example-client-${mode === "production" ? "opt" : "fastopt"
+    const mainJS = `/target/scala-${scalaVersion}/client-${mode === "production" ? "opt" : "fastopt"
         }/main.js`
     console.log("mainJS", mainJS)
     const script = `<script type="module" src="${mainJS}"></script>`
