@@ -3,8 +3,6 @@ package dev.cheleb.scalamigen
 import com.raquo.laminar.api.L.*
 import magnolia1.*
 import scala.CanEqual.derived
-import be.doeraene.webcomponents.ui5.*
-import be.doeraene.webcomponents.ui5.configkeys.*
 import java.util.UUID
 import scala.util.Random
 
@@ -17,6 +15,7 @@ import com.raquo.laminar.nodes.ReactiveElement
 import org.scalajs.dom.HTMLDivElement
 import magnolia1.SealedTrait.SubtypeValue
 import com.raquo.laminar.modifiers.EventListener
+import be.doeraene.webcomponents.ui5.*
 
 trait IronTypeValidator[T, C] {
   def validate(a: String): Either[String, IronType[T, C]]
