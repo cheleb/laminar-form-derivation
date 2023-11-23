@@ -72,7 +72,7 @@ lazy val root = project
   )
 
 lazy val server = project
-  .in(file("example/server"))
+  .in(file("examples/server"))
   .enablePlugins(serverPlugins: _*)
   .settings(
     fork := true,
