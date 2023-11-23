@@ -75,7 +75,6 @@ lazy val server = project
   .in(file("example/server"))
   .enablePlugins(serverPlugins: _*)
   .settings(
-    cancelable := true,
     fork := true,
     scalaJSProjects := Seq(example),
     Assets / pipelineStages := Seq(scalaJSPipeline),
