@@ -15,7 +15,7 @@ import com.raquo.laminar.nodes.ReactiveElement
 import org.scalajs.dom.HTMLDivElement
 import magnolia1.SealedTrait.SubtypeValue
 import com.raquo.laminar.modifiers.EventListener
-import be.doeraene.webcomponents.ui5.*
+import be.doeraene.webcomponents.ui5.Select
 
 trait IronTypeValidator[T, C] {
   def validate(a: String): Either[String, IronType[T, C]]
@@ -27,12 +27,16 @@ trait Defaultable[A] {
 }
 
 trait WidgetFactory {
-  def text: HtmlElement
-  def numeric: HtmlElement
-  def button: HtmlElement
-  def link(text: String, obs: EventListener[_, _]): HtmlElement
-  def panel(headerText: String): HtmlElement
-  def ul(id: String): HtmlElement
+  def renderText: HtmlElement
+  def renderLabel(required: Boolean, name: String): HtmlElement
+  def renderNumeric: HtmlElement
+  def renderButton: HtmlElement
+  def renderLink(text: String, obs: EventListener[_, _]): HtmlElement
+  def renderPanel(headerText: String): HtmlElement
+  def renderUL(id: String): HtmlElement
+  def renderSelect(f: Int => Unit): HtmlElement
+  def renderOption(label: String, idx: Int, selected: Boolean): HtmlElement
+
 }
 
 trait Form[A] { self =>
@@ -85,7 +89,7 @@ trait Form[A] { self =>
     )(using factory: WidgetFactory): HtmlElement =
       div(
         div(
-          Label(_.required := required, _.showColon := false, name)
+          factory.renderLabel(required, name)
         ),
         div(
           self.render(variable, syncParent, values)
@@ -124,7 +128,7 @@ object Form extends AutoDerivation[Form] {
         values: List[A] = List.empty
     )(using factory: WidgetFactory): HtmlElement =
       factory
-        .panel(caseClass.typeInfo.full)
+        .renderPanel(caseClass.typeInfo.full)
         .amend(
           // _.id := caseClass.typeInfo.full,
           // _.headerText := caseClass.typeInfo.full,
@@ -178,31 +182,22 @@ object Form extends AutoDerivation[Form] {
               )
             }
         else
+          println(values)
           val valuesLabels = values.map(_.toString)
           div(
-            Select(
-              _.events.onChange
-                .map(_.detail.selectedOption.dataset) --> { ds =>
-                ds.get("idx").foreach(idx => variable.set(values(idx.toInt)))
-                syncParent()
-              },
-              sealedTrait.subtypes
-                .map(_.typeInfo.short)
-                .filter(valuesLabels.contains(_))
-                .map { label =>
-                  Select.option(
+            factory
+              .renderSelect(idx => variable.set(values(idx)))
+              .amend(
+                valuesLabels.map { label =>
+                  factory.renderOption(
                     label,
-                    dataAttr("idx") := values
+                    values
                       .map(_.toString)
-                      .indexOf(label)
-                      .toString(),
-                    _.selected <-- variable.signal.map(
-                      _.toString() == label
-                    )
+                      .indexOf(label),
+                    label == variable.now().toString
                   )
-                }
-                .toSeq
-            )
+                }.toSeq
+              )
           )
       else div("Not an enum")
 

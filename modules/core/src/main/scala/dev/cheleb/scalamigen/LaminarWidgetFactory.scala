@@ -1,20 +1,40 @@
 package dev.cheleb.scalamigen
 
-import com.raquo.laminar.api.L.{button as lbutton, ul as lul, *}
+import com.raquo.laminar.api.L.*
 import com.raquo.laminar.modifiers.EventListener
+import be.doeraene.webcomponents.ui5.Select
+import org.scalajs.dom.HTMLSelectElement
 
 object LaminarWidgetFactory extends WidgetFactory:
-  def text: HtmlElement = input(
+  def renderText: HtmlElement = input(
     tpe := "text"
   )
-  def numeric: HtmlElement = input(
+  def renderLabel(required: Boolean, name: String): HtmlElement = span(
+    name
+  )
+  def renderNumeric: HtmlElement = input(
     tpe := "number"
   )
-  def button: HtmlElement = lbutton()
-  def link(text: String, el: EventListener[_, _]): HtmlElement = a(
+  def renderButton: HtmlElement = button()
+  def renderLink(text: String, el: EventListener[_, _]): HtmlElement = a(
     text,
     href := "#",
     el
   )
-  def ul(id: String): HtmlElement = lul(idAttr := id)
-  def panel(headerText: String): HtmlElement = div(headerText)
+  def renderUL(id: String): HtmlElement = ul(idAttr := id)
+  def renderPanel(headerText: String): HtmlElement = div(headerText)
+
+  def renderSelect(f: Int => Unit): HtmlElement = select(
+    onChange.map(
+      _.target.asInstanceOf[HTMLSelectElement].selectedIndex
+    ) --> { ds =>
+      f(ds)
+    }
+  )
+
+  def renderOption(label: String, idx: Int, isSelected: Boolean): HtmlElement =
+    option(
+      label,
+      value := s"$idx",
+      selected := isSelected
+    )

@@ -46,7 +46,7 @@ given Form[String] with
       syncParent: () => Unit,
       values: List[String] = List.empty
   )(using factory: WidgetFactory): HtmlElement =
-    factory.text
+    factory.renderText
       .amend(
         value <-- variable.signal,
         onInput.mapToValue --> { v =>
@@ -65,7 +65,7 @@ def stringForm[A](to: String => A) = new Form[A]:
       syncParent: () => Unit,
       values: List[A] = List.empty
   )(using factory: WidgetFactory): HtmlElement =
-    factory.text.amend(
+    factory.renderText.amend(
       value <-- variable.signal.map(_.toString),
       onInput.mapToValue.map(to) --> { v =>
         variable.set(v)
@@ -82,7 +82,7 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
       syncParent: () => Unit,
       values: List[A] = List.empty
   )(using factory: WidgetFactory): HtmlElement =
-    factory.numeric
+    factory.renderNumeric
       .amend(
         controlled(
           value <-- variable.signal.map { str =>
@@ -135,9 +135,12 @@ given eitherOf[L, R](using
       div(
         span(
           factory
-            .link(ld.label, onClick.mapTo(Left(vl.now())) --> variable.writer),
+            .renderLink(
+              ld.label,
+              onClick.mapTo(Left(vl.now())) --> variable.writer
+            ),
           "----",
-          factory.link(
+          factory.renderLink(
             rd.label,
             onClick.mapTo(
               Right(vr.now())
@@ -181,7 +184,7 @@ given optionOfA[A](using
       }
       a.now() match
         case null =>
-          factory.button.amend(
+          factory.renderButton.amend(
             "Set",
             onClick.mapTo(Some(d.default)) --> variable.writer
           )
@@ -195,7 +198,7 @@ given optionOfA[A](using
               fa.render(a, syncParent)
             ),
             div(
-              factory.button.amend(
+              factory.renderButton.amend(
                 display <-- variable.signal.map {
                   case Some(_) => "none"
                   case None    => "block"
@@ -203,7 +206,7 @@ given optionOfA[A](using
                 "Set",
                 onClick.mapTo(Some(d.default)) --> variable.writer
               ),
-              factory.button.amend(
+              factory.renderButton.amend(
                 display <-- variable.signal.map {
                   case Some(_) => "block"
                   case None    => "none"
@@ -252,7 +255,7 @@ given listOfA[A](using fa: Form[A]): Form[List[A]] =
         )
 
       factory
-        .ul("list-of-string")
+        .renderUL("list-of-string")
         .amend(
           children <-- variable
             .zoom(_.zipWithIndex)((a, b) => b.map(_._1))

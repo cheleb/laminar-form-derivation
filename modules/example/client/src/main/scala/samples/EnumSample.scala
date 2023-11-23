@@ -13,6 +13,8 @@ val enums = {
     case White extends Color("FFF")
     case Isabelle extends Color("???")
 
+  case class Basket(@EnumValues(Color.values) color: Color, cat: Cat)
+
   case class Cat(
       name: String,
       age: Int,
@@ -21,7 +23,7 @@ val enums = {
   )
 
   val eitherVar = Var(
-    Cat("Scala", 10, Color.White)
+    Basket(Color.Black, Cat("Scala", 10, Color.White))
   )
 
   div(

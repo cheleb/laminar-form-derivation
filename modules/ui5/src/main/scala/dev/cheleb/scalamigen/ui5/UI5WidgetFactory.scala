@@ -8,22 +8,49 @@ import be.doeraene.webcomponents.ui5.configkeys.ListSeparator
 import be.doeraene.webcomponents.ui5.configkeys.TitleLevel
 
 object UI5WidgetFactory extends dev.cheleb.scalamigen.WidgetFactory:
-  def text: HtmlElement = Input(
+  def renderText: HtmlElement = Input(
     _.showClearIcon := true
   )
-  def numeric: HtmlElement = Input(
+
+  def renderLabel(required: Boolean, name: String): HtmlElement = Label(
+    _.required := required,
+    _.showColon := false
+//    _.text := name
+  ).amend(name)
+
+  def renderNumeric: HtmlElement = Input(
     _.tpe := InputType.Number,
     _.showClearIcon := true
   )
-  def button: HtmlElement = Button()
-  def link(text: String, el: EventListener[_, _]): HtmlElement = Link(text, el)
-  def panel(headerText: String): HtmlElement = Panel(
+  def renderButton: HtmlElement = Button()
+  def renderLink(text: String, el: EventListener[_, _]): HtmlElement =
+    Link(text, el)
+  def renderPanel(headerText: String): HtmlElement = Panel(
     _.headerText := headerText,
     _.headerLevel := TitleLevel.H3
   )
-  def ul(id: String): HtmlElement = UList(
+  def renderUL(id: String): HtmlElement = UList(
     _.id := id,
     width := "100%",
     _.noDataText := "No  data",
     _.separators := ListSeparator.None
   )
+
+  override def renderSelect(f: Int => Unit): HtmlElement = Select(
+    _.events.onChange
+      .map(_.detail.selectedOption.dataset) --> { ds =>
+      ds.get("idx").foreach(idx => f(idx.toInt))
+
+    }
+  )
+
+  override def renderOption(
+      label: String,
+      idx: Int,
+      selected: Boolean
+  ): HtmlElement =
+    Select.option(
+      label,
+      dataAttr("idx") := s"$idx",
+      _.selected := selected
+    )

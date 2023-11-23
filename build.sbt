@@ -80,7 +80,7 @@ lazy val server = project
     Assets / pipelineStages := Seq(scalaJSPipeline),
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio-http" % "3.0.0-RC2",
-      "io.github.iltotore" %% "iron-zio-json" % "2.2.1"
+      "io.github.iltotore" %% "iron-zio-json" % "2.3.0"
     )
   )
   .settings(serverSettings: _*)
@@ -116,9 +116,9 @@ lazy val core = scalajsProject("core")
     libraryDependencies ++= Seq(
       "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.3",
       "com.raquo" %%% "laminar" % "16.0.0",
-      "be.doeraene" %%% "web-components-ui5" % "1.17.0",
       "io.laminext" %%% "websocket" % "0.16.2",
-      "io.github.iltotore" %%% "iron" % "2.3.0"
+      "io.github.iltotore" %%% "iron" % "2.3.0",
+      "be.doeraene" %%% "web-components-ui5" % "1.17.0"
     )
   )
 
