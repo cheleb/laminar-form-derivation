@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "cd ../.. && DEV=1 sbt  'client/fullLinkJS' && cd examples/client && vite build",
+    "build": "cd ../.. && sbt 'client/fullLinkJS' && cd examples/client && vite build",
     "preview": "vite preview --port 8080"
   },
   "dependencies": {
