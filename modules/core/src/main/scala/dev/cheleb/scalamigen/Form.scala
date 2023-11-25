@@ -2,19 +2,11 @@ package dev.cheleb.scalamigen
 
 import com.raquo.laminar.api.L.*
 import magnolia1.*
-import scala.CanEqual.derived
-import java.util.UUID
-import scala.util.Random
 
-import io.github.iltotore.iron.*
-import io.github.iltotore.iron.constraint.all.*
 import scala.util.Try
 import com.raquo.airstream.state.Var
-import com.raquo.airstream.core.Source
-import com.raquo.laminar.nodes.ReactiveElement
 import org.scalajs.dom.HTMLDivElement
 import magnolia1.SealedTrait.SubtypeValue
-import com.raquo.laminar.modifiers.EventListener
 
 trait Form[A] { self =>
 

@@ -3,7 +3,7 @@
 ## Installation
 
 ```sbt
-libraryDependencies += "dev.cheleb" %% "laminar-form-derivation" % "0.1.0"
+libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation" % "{{ version }}"
 ```
 
 ### Requirements

@@ -1,4 +1,4 @@
-package model
+package samples.model
 
 opaque type CurrencyCode = String
 

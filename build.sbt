@@ -1,9 +1,6 @@
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-lazy val currentYear: String =
-  java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString
-
 val scala33 = "3.3.1"
 
 inThisBuild(
@@ -37,7 +34,6 @@ inThisBuild(
     scalacOptions ++= Seq(
       "-deprecation",
       "-feature",
-      "-Wunused:all",
       "-Xfatal-warnings"
     )
   )
@@ -102,7 +98,8 @@ val usedScalacOptions = Seq(
   "-unchecked",
   "-language:higherKinds",
   "-language:implicitConversions",
-  "-Xmax-inlines:64"
+  "-Xmax-inlines:64",
+  "-Wunused:all"
 )
 lazy val core = scalajsProject("core", false)
   .settings(
@@ -222,36 +219,3 @@ Global / onLoad := {
 
   (Global / onLoad).value
 }
-enablePlugins(
-  SiteScaladocPlugin,
-  SitePreviewPlugin,
-  ScalaUnidocPlugin,
-  GhpagesPlugin
-)
-
-ScalaUnidoc / siteSubdirName := ""
-addMappingsToSiteDir(
-  ScalaUnidoc / packageDoc / mappings,
-  ScalaUnidoc / siteSubdirName
-)
-git.remoteRepo := "git@github.com:cheleb/laminar-form-derivation.git"
-ghpagesNoJekyll := true
-Compile / doc / scalacOptions ++= Seq(
-  "-siteroot",
-  "docs",
-  "-project",
-  "Laminar Form Derivation",
-  "-groups",
-  "-project-version",
-  version.value,
-  "-revision",
-  version.value,
-  "-default-templates",
-  "static-site-main",
-  "-project-footer",
-  s"Copyright (c) 2022-$currentYear, Olivier NOUGUIER",
-  "-Ygenerate-inkuire",
-  "-skip-by-regex:demo\\..*",
-  "-skip-by-regex:samples\\..*",
-  "-snippet-compiler:compile"
-)

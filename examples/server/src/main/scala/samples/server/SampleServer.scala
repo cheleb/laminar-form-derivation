@@ -1,4 +1,4 @@
-package sampleserver
+package samples.server
 
 import zio.*
 import zio.http.*

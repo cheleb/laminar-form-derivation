@@ -8,9 +8,8 @@ import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 
 import com.raquo.airstream.state.Var
-import be.doeraene.webcomponents.ui5.Input
 
-import model.CurrencyCode
+import samples.model.CurrencyCode
 
 given Form[CurrencyCode] = stringForm(CurrencyCode(_))
 
@@ -18,7 +17,7 @@ case class IronSample(
     curenncyCode: CurrencyCode,
     optional: Option[String],
     optionalInt: Option[Int],
-    doublePositive: Double :| GreaterEqual[8.0],
+    doubleGreaterThanEight: Double :| GreaterEqual[8.0],
     optionalDoublePositive: Option[Double :| Positive]
 )
 
@@ -31,11 +30,14 @@ val ironSampleVar = Var(
   IronSample(CurrencyCode("Eur"), Some("name"), Some(1), 9.1, Some(1))
 )
 
-val validation = div(
-  child <-- ironSampleVar.signal.map { item =>
-    div(
-      s"$item"
-    )
-  },
-  Form.renderVar(ironSampleVar)
+val validation = Sample(
+  "Validation",
+  div(
+    child <-- ironSampleVar.signal.map { item =>
+      div(
+        s"$item"
+      )
+    },
+    Form.renderVar(ironSampleVar)
+  )
 )

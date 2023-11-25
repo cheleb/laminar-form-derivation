@@ -5,7 +5,6 @@ import io.github.iltotore.iron.constraint.all.*
 
 import com.raquo.laminar.api.L.*
 
-import scala.quoted.*
 import scala.util.Try
 import com.raquo.airstream.state.Var
 
@@ -52,7 +51,6 @@ given Form[String] with
         onInput.mapToValue --> { v =>
           variable.set(v)
           syncParent()
-
         }
       )
 

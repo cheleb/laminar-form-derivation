@@ -6,15 +6,10 @@ import com.raquo.laminar.api.L.*
 
 import com.raquo.airstream.state.Var
 
-val either = Sample(
-  "Either", {
+val simple = Sample(
+  "Simple", {
 
-    case class EitherSample(
-        either: Either[Cat, Dog],
-        optionalInt: Option[Int]
-    )
-
-    val eitherVar = Var(EitherSample(Left(Cat("Scala le chat", 6)), Some(1)))
+    val eitherVar = Var(Cat("Scala le chat", 6))
 
     div(
       child <-- eitherVar.signal.map { item =>

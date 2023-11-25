@@ -14,4 +14,4 @@ given Defaultable[Cat] with
 given Defaultable[Dog] with
   def default = Dog("", 0)
 
-given WidgetFactory = UI5WidgetFactory
+given WidgetFactory = if true then UI5WidgetFactory else LaminarWidgetFactory
