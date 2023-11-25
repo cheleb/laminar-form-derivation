@@ -4,7 +4,7 @@ name: Deploy static content to Pages
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["master", "fix-live-demo"]
+    branches: ["master", "website"]
     paths-ignore:
       - "**/*.md"
 
@@ -50,15 +50,20 @@ jobs:
 #        run: sbt client/fastLinkJS
       - name: Vite build
         run: |
-          cd examples/client
+          pushd examples/client
           npm run build
+          popd
+          sbt makeSite
+        env:
+          NODE_OPTIONS: "--openssl-legacy-provider"
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
           # Upload dist repository
-          path: "./examples/client/dist"
+          path: "target/site"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
+        

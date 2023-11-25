@@ -22,9 +22,9 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
                 }
             }
         }),
-        base: "/laminar-form-derivation/",
+        base: "/laminar-form-derivation/demo",
         server: {
-            open: '/laminar-form-derivation'
+            open: '/laminar-form-derivation/demo'
         }
     }
 })
