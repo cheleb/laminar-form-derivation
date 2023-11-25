@@ -16,28 +16,6 @@ import org.scalajs.dom.HTMLDivElement
 import magnolia1.SealedTrait.SubtypeValue
 import com.raquo.laminar.modifiers.EventListener
 
-trait IronTypeValidator[T, C] {
-  def validate(a: String): Either[String, IronType[T, C]]
-}
-
-trait Defaultable[A] {
-  def default: A
-  def label: String = default.getClass.getSimpleName()
-}
-
-trait WidgetFactory {
-  def renderText: HtmlElement
-  def renderLabel(required: Boolean, name: String): HtmlElement
-  def renderNumeric: HtmlElement
-  def renderButton: HtmlElement
-  def renderLink(text: String, obs: EventListener[_, _]): HtmlElement
-  def renderPanel(headerText: String): HtmlElement
-  def renderUL(id: String): HtmlElement
-  def renderSelect(f: Int => Unit): HtmlElement
-  def renderOption(label: String, idx: Int, selected: Boolean): HtmlElement
-
-}
-
 trait Form[A] { self =>
 
   def isAnyRef = false
@@ -144,7 +122,11 @@ object Form extends AutoDerivation[Form] {
             param.typeclass
               .labelled(param.label, !isOption)
               .render(
-                variable.zoom(a => param.deref(a))((_, value) =>
+                variable.zoom { a =>
+                  Try(param.deref(a))
+                    .getOrElse(param.default)
+                    .asInstanceOf[param.PType]
+                }((_, value) =>
                   caseClass.construct { p =>
                     if (p.label == param.label) value
                     else p.deref(variable.now())
@@ -181,7 +163,6 @@ object Form extends AutoDerivation[Form] {
               )
             }
         else
-          println(values)
           val valuesLabels = values.map(_.toString)
           div(
             factory

@@ -2,12 +2,6 @@ package sampleserver
 
 import zio.*
 import zio.http.*
-//import zio.http.socket.{WebSocketChannelEvent, WebSocketFrame}
-
-import zio.stream.ZStream
-import zio.http.Path.Segment
-
-//import zio.http.ChannelEvent.ChannelRead
 
 object HH:
   def contentType(path: Path): Option[Header] =

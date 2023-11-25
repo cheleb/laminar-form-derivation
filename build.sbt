@@ -1,4 +1,3 @@
-//import ProjectDef._
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
@@ -38,6 +37,7 @@ inThisBuild(
     scalacOptions ++= Seq(
       "-deprecation",
       "-feature",
+      "-Wunused:all",
       "-Xfatal-warnings"
     )
   )
@@ -252,5 +252,6 @@ Compile / doc / scalacOptions ++= Seq(
   s"Copyright (c) 2022-$currentYear, Olivier NOUGUIER",
   "-Ygenerate-inkuire",
   "-skip-by-regex:demo\\..*",
-  "-skip-by-regex:samples\\..*"
+  "-skip-by-regex:samples\\..*",
+  "-snippet-compiler:compile"
 )
