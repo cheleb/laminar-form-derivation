@@ -19,14 +19,13 @@ object SampleServer extends ZIOAppDefault {
     case Method.GET -> Root =>
       Http
         .fromResource("public/index.html")
-
     case Method.GET -> Root / "index.html" =>
       Http
         .fromResource("public/index.html")
-
-    case Method.GET -> Root / "js" =>
+    case Method.GET -> Root / "public" / path =>
       Http
-        .fromResource("public/client-fastopt-bundle.js")
+        .fromResource(s"public/$path")
+
     case Method.GET -> "" /: "images" /: path =>
       Http
         .fromResource(s"public/images/$path")

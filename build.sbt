@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
@@ -39,6 +40,15 @@ inThisBuild(
   )
 )
 
+val generator = project
+  .in(file("examples/generator"))
+  .enablePlugins(SbtTwirl)
+  .settings(
+    libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0",
+    libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.9.2",
+    libraryDependencies += "org.slf4j" % "slf4j-simple" % "1.7.32"
+  )
+
 val dev = sys.env.get("DEV").isDefined
 
 val serverPlugins = dev match {
@@ -59,6 +69,7 @@ val serverSettings = dev match {
 lazy val root = project
   .in(file("."))
   .aggregate(
+    generator,
     server,
     core,
     ui5,
@@ -73,6 +84,26 @@ lazy val root = project
 lazy val server = project
   .in(file("examples/server"))
   .enablePlugins(serverPlugins: _*)
+  .settings(
+    Assets / resourceGenerators += Def
+      .taskDyn[Seq[File]] {
+        val baseDir = baseDirectory.value
+        val rootFolder = (Assets / resourceManaged).value / "public"
+        rootFolder.mkdirs()
+        (generator / Compile / runMain)
+          .toTask {
+            Seq(
+              "BuildIndex",
+              "--title",
+              s""""Laminar Form Derivation v ${version.value}"""",
+              "--resource-managed",
+              rootFolder
+            ).mkString(" ", " ", "")
+          }
+          .map(_ => (rootFolder ** "*.html").get)
+      }
+      .taskValue
+  )
   .settings(
     fork := true,
     scalaJSProjects := Seq(example),
