@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
@@ -40,7 +39,7 @@ inThisBuild(
   )
 )
 
-val generator = project
+lazy val generator = project
   .in(file("examples/generator"))
   .enablePlugins(SbtTwirl)
   .settings(
