@@ -31,5 +31,6 @@ Compile / doc / scalacOptions ++= Seq(
   s"Copyright (c) 2022-$currentYear, Olivier NOUGUIER",
   "-Ygenerate-inkuire",
   "-skip-by-regex:samples\\..*",
+  "-skip-by-regex:html\\..*",
   "-snippet-compiler:compile"
 )
