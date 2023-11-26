@@ -1,13 +1,7 @@
-package sampleserver
+package samples.server
 
 import zio.*
 import zio.http.*
-//import zio.http.socket.{WebSocketChannelEvent, WebSocketFrame}
-
-import zio.stream.ZStream
-import zio.http.Path.Segment
-
-//import zio.http.ChannelEvent.ChannelRead
 
 object HH:
   def contentType(path: Path): Option[Header] =
@@ -25,14 +19,13 @@ object SampleServer extends ZIOAppDefault {
     case Method.GET -> Root =>
       Http
         .fromResource("public/index.html")
-
     case Method.GET -> Root / "index.html" =>
       Http
         .fromResource("public/index.html")
-
-    case Method.GET -> Root / "js" =>
+    case Method.GET -> Root / "public" / path =>
       Http
-        .fromResource("public/client-fastopt-bundle.js")
+        .fromResource(s"public/$path")
+
     case Method.GET -> "" /: "images" /: path =>
       Http
         .fromResource(s"public/images/$path")

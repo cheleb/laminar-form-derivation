@@ -1,9 +1,5 @@
-//import ProjectDef._
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
-
-lazy val currentYear: String =
-  java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString
 
 val scala33 = "3.3.1"
 
@@ -43,6 +39,15 @@ inThisBuild(
   )
 )
 
+lazy val generator = project
+  .in(file("examples/generator"))
+  .enablePlugins(SbtTwirl)
+  .settings(
+    libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0",
+    libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.9.2",
+    libraryDependencies += "org.slf4j" % "slf4j-simple" % "1.7.32"
+  )
+
 val dev = sys.env.get("DEV").isDefined
 
 val serverPlugins = dev match {
@@ -63,6 +68,7 @@ val serverSettings = dev match {
 lazy val root = project
   .in(file("."))
   .aggregate(
+    generator,
     server,
     core,
     ui5,
@@ -74,9 +80,36 @@ lazy val root = project
     publish / skip := true
   )
 
+val staticGenerationSettings =
+  if (dev) Seq()
+  else
+    Seq(
+      Assets / resourceGenerators += Def
+        .taskDyn[Seq[File]] {
+          val baseDir = baseDirectory.value
+          val rootFolder = (Assets / resourceManaged).value / "public"
+          rootFolder.mkdirs()
+          (generator / Compile / runMain)
+            .toTask {
+              Seq(
+                "BuildIndex",
+                "--title",
+                s""""Laminar Form Derivation v ${version.value}"""",
+                "--resource-managed",
+                rootFolder
+              ).mkString(" ", " ", "")
+            }
+            .map(_ => (rootFolder ** "*.html").get)
+        }
+        .taskValue
+    )
+
 lazy val server = project
   .in(file("examples/server"))
   .enablePlugins(serverPlugins: _*)
+  .settings(
+    staticGenerationSettings
+  )
   .settings(
     fork := true,
     scalaJSProjects := Seq(example),
@@ -102,7 +135,8 @@ val usedScalacOptions = Seq(
   "-unchecked",
   "-language:higherKinds",
   "-language:implicitConversions",
-  "-Xmax-inlines:64"
+  "-Xmax-inlines:64",
+  "-Wunused:all"
 )
 lazy val core = scalajsProject("core", false)
   .settings(
@@ -222,35 +256,3 @@ Global / onLoad := {
 
   (Global / onLoad).value
 }
-enablePlugins(
-  SiteScaladocPlugin,
-  SitePreviewPlugin,
-  ScalaUnidocPlugin,
-  GhpagesPlugin
-)
-
-ScalaUnidoc / siteSubdirName := ""
-addMappingsToSiteDir(
-  ScalaUnidoc / packageDoc / mappings,
-  ScalaUnidoc / siteSubdirName
-)
-git.remoteRepo := "git@github.com:cheleb/laminar-form-derivation.git"
-ghpagesNoJekyll := true
-Compile / doc / scalacOptions ++= Seq(
-  "-siteroot",
-  "docs",
-  "-project",
-  "Laminar Form Derivation",
-  "-groups",
-  "-project-version",
-  version.value,
-  "-revision",
-  version.value,
-  "-default-templates",
-  "static-site-main",
-  "-project-footer",
-  s"Copyright (c) 2022-$currentYear, Olivier NOUGUIER",
-  "-Ygenerate-inkuire",
-  "-skip-by-regex:demo\\..*",
-  "-skip-by-regex:samples\\..*"
-)

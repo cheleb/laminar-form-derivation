@@ -2,41 +2,11 @@ package dev.cheleb.scalamigen
 
 import com.raquo.laminar.api.L.*
 import magnolia1.*
-import scala.CanEqual.derived
-import java.util.UUID
-import scala.util.Random
 
-import io.github.iltotore.iron.*
-import io.github.iltotore.iron.constraint.all.*
 import scala.util.Try
 import com.raquo.airstream.state.Var
-import com.raquo.airstream.core.Source
-import com.raquo.laminar.nodes.ReactiveElement
 import org.scalajs.dom.HTMLDivElement
 import magnolia1.SealedTrait.SubtypeValue
-import com.raquo.laminar.modifiers.EventListener
-
-trait IronTypeValidator[T, C] {
-  def validate(a: String): Either[String, IronType[T, C]]
-}
-
-trait Defaultable[A] {
-  def default: A
-  def label: String = default.getClass.getSimpleName()
-}
-
-trait WidgetFactory {
-  def renderText: HtmlElement
-  def renderLabel(required: Boolean, name: String): HtmlElement
-  def renderNumeric: HtmlElement
-  def renderButton: HtmlElement
-  def renderLink(text: String, obs: EventListener[_, _]): HtmlElement
-  def renderPanel(headerText: String): HtmlElement
-  def renderUL(id: String): HtmlElement
-  def renderSelect(f: Int => Unit): HtmlElement
-  def renderOption(label: String, idx: Int, selected: Boolean): HtmlElement
-
-}
 
 trait Form[A] { self =>
 
@@ -144,7 +114,11 @@ object Form extends AutoDerivation[Form] {
             param.typeclass
               .labelled(param.label, !isOption)
               .render(
-                variable.zoom(a => param.deref(a))((_, value) =>
+                variable.zoom { a =>
+                  Try(param.deref(a))
+                    .getOrElse(param.default)
+                    .asInstanceOf[param.PType]
+                }((_, value) =>
                   caseClass.construct { p =>
                     if (p.label == param.label) value
                     else p.deref(variable.now())
@@ -181,7 +155,6 @@ object Form extends AutoDerivation[Form] {
               )
             }
         else
-          println(values)
           val valuesLabels = values.map(_.toString)
           div(
             factory

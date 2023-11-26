@@ -4,6 +4,8 @@ import com.raquo.laminar.api.L.*
 import com.raquo.laminar.modifiers.EventListener
 import org.scalajs.dom.HTMLSelectElement
 
+/** This is raw laminar implementation of the widget factory.
+  */
 object LaminarWidgetFactory extends WidgetFactory:
   def renderText: HtmlElement = input(
     tpe := "text"

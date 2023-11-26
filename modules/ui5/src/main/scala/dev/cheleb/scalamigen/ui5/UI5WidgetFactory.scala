@@ -1,6 +1,6 @@
 package dev.cheleb.scalamigen.ui5
 
-import com.raquo.laminar.api.L.{button as lbutton, ul as lul, *}
+import com.raquo.laminar.api.L.*
 import be.doeraene.webcomponents.ui5.*
 import be.doeraene.webcomponents.ui5.configkeys.InputType
 import com.raquo.laminar.modifiers.EventListener
