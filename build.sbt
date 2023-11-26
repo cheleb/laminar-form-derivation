@@ -81,28 +81,35 @@ lazy val root = project
     publish / skip := true
   )
 
+val staticGenerationSettings =
+  if (dev) Seq()
+  else
+    Seq(
+      Assets / resourceGenerators += Def
+        .taskDyn[Seq[File]] {
+          val baseDir = baseDirectory.value
+          val rootFolder = (Assets / resourceManaged).value / "public"
+          rootFolder.mkdirs()
+          (generator / Compile / runMain)
+            .toTask {
+              Seq(
+                "BuildIndex",
+                "--title",
+                s""""Laminar Form Derivation v ${version.value}"""",
+                "--resource-managed",
+                rootFolder
+              ).mkString(" ", " ", "")
+            }
+            .map(_ => (rootFolder ** "*.html").get)
+        }
+        .taskValue
+    )
+
 lazy val server = project
   .in(file("examples/server"))
   .enablePlugins(serverPlugins: _*)
   .settings(
-    Assets / resourceGenerators += Def
-      .taskDyn[Seq[File]] {
-        val baseDir = baseDirectory.value
-        val rootFolder = (Assets / resourceManaged).value / "public"
-        rootFolder.mkdirs()
-        (generator / Compile / runMain)
-          .toTask {
-            Seq(
-              "BuildIndex",
-              "--title",
-              s""""Laminar Form Derivation v ${version.value}"""",
-              "--resource-managed",
-              rootFolder
-            ).mkString(" ", " ", "")
-          }
-          .map(_ => (rootFolder ** "*.html").get)
-      }
-      .taskValue
+    staticGenerationSettings
   )
   .settings(
     fork := true,
