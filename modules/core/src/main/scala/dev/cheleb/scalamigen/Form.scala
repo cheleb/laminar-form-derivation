@@ -97,11 +97,9 @@ object Form extends AutoDerivation[Form] {
         values: List[A] = List.empty
     )(using factory: WidgetFactory): HtmlElement =
       factory
-        .renderPanel(caseClass.typeInfo.full)
+        .renderPanel(caseClass.typeInfo.short)
         .amend(
-          // _.id := caseClass.typeInfo.full,
-          // _.headerText := caseClass.typeInfo.full,
-          // _.headerLevel := TitleLevel.H3,
+          className := "panel panel-default",
           caseClass.params.map { param =>
             val isOption = param.deref(variable.now()).isInstanceOf[Option[_]]
 
