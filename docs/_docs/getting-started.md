@@ -3,7 +3,10 @@
 ## Installation
 
 ```sbt
-libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation" % "{{ version }}"
+// With raw Laminar widgets (html only)
+libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui" % "0.11.0"
+// With UI5 Web Components
+libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui5" % "0.11.0"
 ```
 
 

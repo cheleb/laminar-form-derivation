@@ -2,15 +2,22 @@
 
 This project derive UI Form for [laminar](https://laminar.dev/) with magnolia.
 
+## Docs
+
+See [Documentation](https://cheleb.github.io/laminar-form-derivation/docs/index.html).
 
 ## Demo
 
-[Live demo](https://cheleb.github.io/laminar-form-derivation/)
+For the very impatient, here is a [live demo](https://cheleb.github.io/laminar-form-derivation/demo/index.html).
 
 ## Installation
 
-libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation" % "0.4.3"
-
+```sbt
+// With raw Laminar widgets (html only)
+libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui" % "0.11.0"
+// With UI5 Web Components
+libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui5" % "0.11.0"
+```
 ## Run the example
 
 
