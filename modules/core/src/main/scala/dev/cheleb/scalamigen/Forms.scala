@@ -8,21 +8,35 @@ import com.raquo.laminar.api.L.*
 import scala.util.Try
 import com.raquo.airstream.state.Var
 
+/** Default value for Int is 0.
+  */
 given Defaultable[Int] with
   def default = 0
 
+/** Default value for String is "".
+  */
 given Defaultable[String] with
   def default = ""
 
+/** Default value for [Iron type Double
+  * positive](https://iltotore.github.io/iron/io/github/iltotore/iron/constraint/numeric$.html#Positive-0)
+  * is 0.0.
+  */
 given Defaultable[IronType[Double, Positive]] with
   def default = 1.0.refine[Positive]
 
+/** Validator for [Iron type Double
+  * positive](https://iltotore.github.io/iron/io/github/iltotore/iron/constraint/numeric$.html#Positive-0).
+  */
 given IronTypeValidator[Double, Positive] with
   def validate(a: String): Either[String, IronType[Double, Positive]] =
     a.toDoubleOption match
       case None         => Left("Not a number")
       case Some(double) => double.refineEither[Positive]
 
+/** Form for an Iron type. This is a form for a type that can be validated with
+  * an Iron type.
+  */
 given [T, C](using fv: IronTypeValidator[T, C]): Form[IronType[T, C]] =
   new Form[IronType[T, C]] {
 
@@ -39,6 +53,8 @@ given [T, C](using fv: IronTypeValidator[T, C]): Form[IronType[T, C]] =
           variable.set(value)
   }
 
+/** Form for to a string, aka without validation.
+  */
 given Form[String] with
   override def render(
       variable: Var[String],
@@ -71,6 +87,8 @@ def stringForm[A](to: String => A) = new Form[A]:
       }
     )
 
+/** Form for a numeric type.
+  */
 def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
   self =>
   override def fromString(s: String): Option[A] =

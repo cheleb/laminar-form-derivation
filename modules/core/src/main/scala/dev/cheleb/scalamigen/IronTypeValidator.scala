@@ -2,10 +2,10 @@ package dev.cheleb.scalamigen
 
 import io.github.iltotore.iron.IronType
 
-/** Type validator for IronType.
+/** Type validator for
+  * [IronType](https://iltotore.github.io/iron/docs/index.html).
   *
-  * Iron is a library for compile-time type validation. See
-  * https://iltotore.github.io/iron/ for more information.
+  * Iron is a library for compile-time or runtime type validation.
   */
 trait IronTypeValidator[T, C] {
 

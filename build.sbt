@@ -92,7 +92,7 @@ val staticGenerationSettings =
           (generator / Compile / runMain)
             .toTask {
               Seq(
-                "BuildIndex",
+                "samples.BuildIndex",
                 "--title",
                 s""""Laminar Form Derivation v ${version.value}"""",
                 "--resource-managed",

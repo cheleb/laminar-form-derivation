@@ -19,7 +19,7 @@
         {
             "label": "npmInstall",
             "type": "shell",
-            "command": "pushd examples/client; npm i; popd; NODE_OPTIONS='--openssl-legacy-provider' DEV=1 sbt \"client/fastLinkJS\"",
+            "command": "pushd examples/client; npm i; popd; NODE_OPTIONS='--openssl-legacy-provider' DEV=1 sbt \"generator/compile; client/fastLinkJS\"",
             "presentation": {
                 "panel": "dedicated",
                 "group": "runDevCmd",

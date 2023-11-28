@@ -1,3 +1,5 @@
+package samples
+
 import java.io.File
 
 import io.*

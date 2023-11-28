@@ -7,6 +7,12 @@ import com.raquo.laminar.modifiers.EventListener
 import be.doeraene.webcomponents.ui5.configkeys.ListSeparator
 import be.doeraene.webcomponents.ui5.configkeys.TitleLevel
 
+/** UI5WidgetFactory is a factory for [SAP UI5
+  * widgets](https://sap.github.io/ui5-webcomponents/).
+  *
+  * It relies on [Laminar UI5
+  * bindings](https://github.com/sherpal/LaminarSAPUI5Bindings).
+  */
 object UI5WidgetFactory extends dev.cheleb.scalamigen.WidgetFactory:
   def renderText: HtmlElement = Input(
     _.showClearIcon := true
