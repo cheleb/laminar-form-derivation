@@ -6,9 +6,8 @@
 libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation" % "{{ version }}"
 ```
 
-### Requirements
 
-### Sample
+## Sample
 
 ```scala sc:nocompile
 
@@ -19,29 +18,31 @@ import com.raquo.laminar.api.L.*
 
 import com.raquo.airstream.state.Var
 
+// Declare WidgetFactory for UI5 Web Components
 given WidgetFactory = UI5WidgetFactory
 
+// Declare model case class
 case class Cat(name: String, age: Int)
 case class Dog(name: String, age: Int)
 
-val either = {
+case class EitherSample(
+    either: Either[Cat, Dog],
+    optionalInt: Option[Int]
+)
 
-  case class EitherSample(
-      either: Either[Cat, Dog],
-      optionalInt: Option[Int]
-  )
+// Laminar variable binding
+val eitherVar = Var(EitherSample(Left(Cat("Scala le chat", 6)), Some(1)))
 
-  val eitherVar = Var(EitherSample(Left(Cat("Scala le chat", 6)), Some(1)))
-
-  div(
-    child <-- eitherVar.signal.map { item =>
-      div(
-        s"$item"
-      )
-    },
-    Form.renderVar(eitherVar)
-  )
-}
+div(
+  // Debug output of the model as soon as it changes.
+  child <-- eitherVar.signal.map { item =>
+    div(
+      s"$item"
+    )
+  },
+  // Render the forms
+  Form.renderVar(eitherVar)
+)
 
 
 ```
