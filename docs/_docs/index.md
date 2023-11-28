@@ -20,3 +20,12 @@ It depends on:
 
 Optionaly:
 * [UI5 Web Components](https://sap.github.io/ui5-webcomponents/) and [ScalaJS binding](https://github.com/sherpal/laminarsapui5bindings)
+
+
+## Credits
+
+Incredible thanks to incredible people who made this possible, authors and contributors of:
+
+* librairies this project depends on !
+* Strongly inspired by non less incredible [Kit](https://www.youtube.com/watch?v=JHriftPO62I) 
+
