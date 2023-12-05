@@ -159,8 +159,8 @@ lazy val core = scalajsProject("core", false)
     libraryDependencies ++= Seq(
       "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.4",
       "com.raquo" %%% "laminar" % "16.0.0",
-      "com.raquo" %%% "airstream" % "17.0.0-M1",
-      "io.laminext" %%% "websocket" % "0.16.2",
+      "com.raquo" %%% "airstream" % "17.0.0-M2",
+      "io.laminext" %%% "websocket" % "0.17.0-M2",
       "io.github.iltotore" %%% "iron" % "2.4.0"
     )
   )
