@@ -19,7 +19,7 @@ jobs:
           cd examples/client
           npm install
       - name: Setup JVM
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: "19"
           distribution: "zulu"
