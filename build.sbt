@@ -116,7 +116,7 @@ lazy val server = project
     Assets / pipelineStages := Seq(scalaJSPipeline),
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio-http" % "3.0.0-RC2",
-      "io.github.iltotore" %% "iron-zio-json" % "2.3.0"
+      "io.github.iltotore" %% "iron-zio-json" % "2.4.0"
     )
   )
   .settings(serverSettings: _*)
