@@ -3,6 +3,8 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 val scala33 = "3.3.1"
 
+val tapirVersion = "1.9.6"
+
 inThisBuild(
   List(
     scalaVersion := scala33,
@@ -116,7 +118,11 @@ lazy val server = project
     Assets / pipelineStages := Seq(scalaJSPipeline),
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio-http" % "3.0.0-RC2",
-      "io.github.iltotore" %% "iron-zio-json" % "2.4.0"
+      "io.github.iltotore" %% "iron-zio-json" % "2.4.0",
+      "com.softwaremill.sttp.tapir" %% "tapir-zio" % tapirVersion,
+      "com.softwaremill.sttp.tapir" %% "tapir-zio-http-server" % tapirVersion,
+      "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion,
+      "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server" % tapirVersion % "test"
     )
   )
   .settings(serverSettings: _*)
@@ -141,7 +147,7 @@ val usedScalacOptions = Seq(
 lazy val core = scalajsProject("core", false)
   .settings(
     name := "laminar-form-derivation",
-    scalaJSUseMainModuleInitializer := true,
+    //  scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
       _.withModuleKind(scalaJSModule)
         .withSourceMap(true)
@@ -161,7 +167,7 @@ lazy val core = scalajsProject("core", false)
 lazy val ui5 = scalajsProject("ui5", false)
   .settings(
     name := "laminar-form-derivation-ui5",
-    scalaJSUseMainModuleInitializer := true,
+    //   scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
       _.withModuleKind(scalaJSModule)
         .withSourceMap(true)

@@ -43,7 +43,7 @@ object App extends App {
             val el = name
               .flatMap(n => demos.find(_.name == n))
 
-            sample.set(el.map(_.component).getOrElse(div("Not found")))
+            sample.set(el.map(_.component).getOrElse(div("Not found!")))
 
           },
           demos.map(_.name).map(item)
