@@ -36,7 +36,7 @@ object UI5WidgetFactory extends dev.cheleb.scalamigen.WidgetFactory:
     _.headerLevel := TitleLevel.H3
   )
   def renderUL(id: String): HtmlElement = UList(
-    _.id := id,
+    // _.id := id,
     width := "100%",
     _.noDataText := "No  data",
     _.separators := ListSeparator.None
