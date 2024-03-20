@@ -1,7 +1,7 @@
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-val scala33 = "3.3.1"
+val scala33 = "3.3.3"
 
 val tapirVersion = "1.9.10"
 
