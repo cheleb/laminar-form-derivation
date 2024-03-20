@@ -160,7 +160,7 @@ lazy val core = scalajsProject("core", false)
       "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.4",
       "com.raquo" %%% "laminar" % "16.0.0",
       "io.laminext" %%% "websocket" % "0.16.2",
-      "io.github.iltotore" %%% "iron" % "2.4.0"
+      "io.github.iltotore" %%% "iron" % "2.5.0"
     )
   )
 
