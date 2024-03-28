@@ -24,7 +24,7 @@ trait WidgetFactory:
 
   /** Render a link.
     */
-  def renderLink(text: String, obs: EventListener[_, _]): HtmlElement
+  def renderLink(text: String, obs: EventListener[?, ?]): HtmlElement
 
   /** Render a panel. This is a container for other widgets derived from a case
     * class.

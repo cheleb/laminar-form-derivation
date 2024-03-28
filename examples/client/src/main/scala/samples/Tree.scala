@@ -17,7 +17,7 @@ object Tree:
         Node(f(value), homomorphism(f)(left), homomorphism(f)(right))
   def isomorphic[A, B](f: A => B, g: B => A)(tree: Tree[A]): Tree[B] =
     homomorphism(f)(tree)
-  def isSameStructure(tree1: Tree[_], tree2: Tree[_]): Boolean =
+  def isSameStructure(tree1: Tree[?], tree2: Tree[?]): Boolean =
     (tree1, tree2) match
       case (Empty, Empty)         => true
       case (Node(_, _, _), Empty) => false
