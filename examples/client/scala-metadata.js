@@ -1,5 +1,5 @@
 
-const scalaVersion = "3.3.3"
+const scalaVersion = "3.4.0"
 
 exports.scalaMetadata = {
   scalaVersion: scalaVersion

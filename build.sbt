@@ -1,9 +1,12 @@
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-val scala33 = "3.3.3"
+val scala33 = "3.4.0"
 
 val tapirVersion = "1.9.10"
+
+val laminarVersion = "17.0.0-RC1"
+//val laminarVersion = "17.0.0-M8"
 
 inThisBuild(
   List(
@@ -158,8 +161,8 @@ lazy val core = scalajsProject("core", false)
   .settings(
     libraryDependencies ++= Seq(
       "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.4",
-      "com.raquo" %%% "laminar" % "16.0.0",
-      "io.laminext" %%% "websocket" % "0.16.2",
+      "com.raquo" %%% "laminar" % laminarVersion,
+      // "io.laminext" %%% "websocket" % laminarVersion,
       "io.github.iltotore" %%% "iron" % "2.5.0"
     )
   )
@@ -178,7 +181,7 @@ lazy val ui5 = scalajsProject("ui5", false)
   .dependsOn(core)
   .settings(
     libraryDependencies ++= Seq(
-      "be.doeraene" %%% "web-components-ui5" % "1.17.0"
+      "be.doeraene" %%% "web-components-ui5" % "1.21.0"
     )
   )
 

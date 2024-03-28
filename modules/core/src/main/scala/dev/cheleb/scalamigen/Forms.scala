@@ -100,15 +100,13 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
   )(using factory: WidgetFactory): HtmlElement =
     factory.renderNumeric
       .amend(
-        controlled(
-          value <-- variable.signal.map { str =>
-            str.toString()
-          },
-          onInput.mapToValue --> { v =>
-            fromString(v).foreach(variable.set)
-            syncParent()
-          }
-        )
+        value <-- variable.signal.map { str =>
+          str.toString()
+        },
+        onInput.mapToValue --> { v =>
+          fromString(v).foreach(variable.set)
+          syncParent()
+        }
       )
 }
 

@@ -101,11 +101,11 @@ object Form extends AutoDerivation[Form] {
         .amend(
           className := "panel panel-default",
           caseClass.params.map { param =>
-            val isOption = param.deref(variable.now()).isInstanceOf[Option[_]]
+            val isOption = param.deref(variable.now()).isInstanceOf[Option[?]]
 
             val enumValues =
               if param.annotations.isEmpty then List.empty[A]
-              else if param.annotations(0).isInstanceOf[EnumValues[_]] then
+              else if param.annotations(0).isInstanceOf[EnumValues[?]] then
                 param.annotations(0).asInstanceOf[EnumValues[A]].values.toList
               else List.empty[A]
 

@@ -17,7 +17,7 @@ object LaminarWidgetFactory extends WidgetFactory:
     tpe := "number"
   )
   def renderButton: HtmlElement = button()
-  def renderLink(text: String, el: EventListener[_, _]): HtmlElement = a(
+  def renderLink(text: String, el: EventListener[?, ?]): HtmlElement = a(
     text,
     href := "#",
     el
