@@ -6,7 +6,6 @@ import magnolia1.*
 import scala.util.Try
 import com.raquo.airstream.state.Var
 import org.scalajs.dom.HTMLDivElement
-import magnolia1.SealedTrait.SubtypeValue
 
 trait Form[A] { self =>
 
@@ -132,6 +131,11 @@ object Form extends AutoDerivation[Form] {
         )
   }
 
+  /** Split a sealed trait into a form
+    *
+    * @param sealedTrait
+    * @return
+    */
   def split[A](sealedTrait: SealedTrait[Form, A]): Form[A] = new Form[A] {
 
     override def isAnyRef: Boolean = true
@@ -141,17 +145,9 @@ object Form extends AutoDerivation[Form] {
         values: List[A] = List.empty
     )(using factory: WidgetFactory): HtmlElement =
       if sealedTrait.isEnum then
-        if values.isEmpty then
-          sealedTrait
-            .choose(variable.now()) { case o =>
-              val vo = Var(o.value)
-              o.typeclass.render(
-                vo,
-                () =>
-                  variable.set(vo.now())
-                  syncParent()
-              )
-            }
+        if values.isEmpty
+        then // No enum values provided, than render as constant
+          div(variable.now().toString())
         else
           val valuesLabels = values.map(_.toString)
           div(
@@ -169,7 +165,7 @@ object Form extends AutoDerivation[Form] {
                 }.toSeq
               )
           )
-      else div("Not an enum")
+      else div("Not an enum.")
 
   }
 
