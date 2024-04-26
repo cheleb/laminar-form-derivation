@@ -121,7 +121,7 @@ lazy val server = project
     Assets / pipelineStages := Seq(scalaJSPipeline),
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio-http" % "3.0.0-RC6",
-      "io.github.iltotore" %% "iron-zio-json" % "2.4.0",
+      "io.github.iltotore" %% "iron-zio-json" % "2.5.0",
       "com.softwaremill.sttp.tapir" %% "tapir-zio" % tapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-zio-http-server" % tapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion,
@@ -160,7 +160,7 @@ lazy val core = scalajsProject("core", false)
   .settings(scalacOptions ++= usedScalacOptions)
   .settings(
     libraryDependencies ++= Seq(
-      "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.4",
+      "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.6",
       "com.raquo" %%% "laminar" % laminarVersion,
       // "io.laminext" %%% "websocket" % laminarVersion,
       "io.github.iltotore" %%% "iron" % "2.5.0"
