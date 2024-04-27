@@ -250,7 +250,7 @@ def scalajsProject(projectId: String, sample: Boolean): Project =
 Global / onLoad := {
   val scalaVersionValue = (example / scalaVersion).value
   val outputFile =
-    baseDirectory.value / "scripts" / "build-env.sh"
+    target.value / "build-env.sh"
   IO.writeLines(
     outputFile,
     s"""  

@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 . ./scripts/env.sh
 
 until [ -e $NPM_DEV_STARTED ]; do
@@ -14,10 +16,14 @@ done
 
 filename=examples/client/target/scala-$SCALA_VERSION/client-fastopt/main.js
 
+echo "Waiting for client-fastopt/main.js to be compiled..."
 until [ -e $filename ]; do
-    echo "Waiting for client-fastopt/main.js to be compiled..."
-    sleep 2
+    sleep 1
+    echo -n "."
 done
 
-echo "Compiling client-fastopt/main.js..."
-DEV=1 sbt '~client/fastLinkJS'
+echo "Watching client-fastopt/main.js for changes..."
+
+sleep 3
+
+DEV=1 sbt --client '~client/fastLinkJS'
