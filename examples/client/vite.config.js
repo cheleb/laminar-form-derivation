@@ -1,11 +1,6 @@
 import { defineConfig } from "vite";
 import scalaJSPlugin from "@scala-js/vite-plugin-scalajs";
 
-//import { scalaMetadata } from "./scala-metadata"
-
-//const scalaVersion = scalaMetadata.scalaVersion
-
-
 export default defineConfig({
     plugins: [scalaJSPlugin({
         // path to the directory containing the sbt build
@@ -21,30 +16,4 @@ export default defineConfig({
         uriPrefix: 'scalajs',
     })],
 });
-
-
-/* https://vitejs.dev/config/
-export default defineConfig(({ command, mode, ssrBuild }) => {
-    const mainJS = `/target/scala-${scalaVersion}/client-${mode === "production" ? "opt" : "fastopt"
-        }/main.js`
-    console.log("mainJS", mainJS)
-    const script = `<script type="module" src="${mainJS}"></script>`
-
-    return {
-        publicDir: "./public",
-        plugins: createHtmlPlugin({
-            minify: process.env.NODE_ENV === 'production',
-            inject: {
-                data: {
-                    script
-                }
-            }
-        }),
-        base: "/laminar-form-derivation/demo",
-        server: {
-            open: '/laminar-form-derivation/demo'
-        }
-    }
-})
-*/
 

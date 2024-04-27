@@ -250,15 +250,12 @@ def scalajsProject(projectId: String, sample: Boolean): Project =
 Global / onLoad := {
   val scalaVersionValue = (example / scalaVersion).value
   val outputFile =
-    baseDirectory.value / "examples" / "client" / "scala-metadata.js"
+    baseDirectory.value / "scripts" / "build-env.sh"
   IO.writeLines(
     outputFile,
-    s"""
-  |const scalaVersion = "$scalaVersionValue"
-  |
-  |exports.scalaMetadata = {
-  |  scalaVersion: scalaVersion
-  |}
+    s"""  
+  |# Generated file see build.sbt
+  |SCALA_VERSION="$scalaVersionValue"
   |""".stripMargin.split("\n").toList,
     StandardCharsets.UTF_8
   )

@@ -8,7 +8,7 @@
             },
             "dependsOrder": "sequence",
             "dependsOn": [
-                "npmInstall",
+                "setup",
                 "runDemo"
             ],
             "problemMatcher": [],
@@ -17,9 +17,9 @@
             }
         },
         {
-            "label": "npmInstall",
+            "label": "setup",
             "type": "shell",
-            "command": "./scripts/npmInstall.sh",
+            "command": "./scripts/setup.sh",
             "presentation": {
                 "panel": "dedicated",
                 "group": "runDevCmd",
