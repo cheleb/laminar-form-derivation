@@ -1,11 +1,29 @@
-import { scalaMetadata } from "./scala-metadata"
-import { createHtmlPlugin } from 'vite-plugin-html'
+import { defineConfig } from "vite";
+import scalaJSPlugin from "@scala-js/vite-plugin-scalajs";
 
-import { defineConfig } from 'vite'
+//import { scalaMetadata } from "./scala-metadata"
 
-const scalaVersion = scalaMetadata.scalaVersion
+//const scalaVersion = scalaMetadata.scalaVersion
 
-// https://vitejs.dev/config/
+
+export default defineConfig({
+    plugins: [scalaJSPlugin({
+        // path to the directory containing the sbt build
+        // default: '.'
+        cwd: '../..',
+
+        // sbt project ID from within the sbt build to get fast/fullLinkJS from
+        // default: the root project of the sbt build
+        projectID: 'client',
+
+        // URI prefix of imports that this plugin catches (without the trailing ':')
+        // default: 'scalajs' (so the plugin recognizes URIs starting with 'scalajs:')
+        uriPrefix: 'scalajs',
+    })],
+});
+
+
+/* https://vitejs.dev/config/
 export default defineConfig(({ command, mode, ssrBuild }) => {
     const mainJS = `/target/scala-${scalaVersion}/client-${mode === "production" ? "opt" : "fastopt"
         }/main.js`
@@ -28,3 +46,5 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
         }
     }
 })
+*/
+
