@@ -25,27 +25,7 @@ trait Form[A] { self =>
       variable: Var[A],
       syncParent: () => Unit,
       values: List[A] = List.empty
-  )(using factory: WidgetFactory): HtmlElement =
-    val errorVar = Var("")
-    div(
-      div(child <-- errorVar.signal.map { item =>
-        div(
-          s"$item"
-        )
-      }),
-      input(
-        // _.showClearIcon := true,
-        backgroundColor <-- errorVar.signal.map {
-          case "" => "white"
-          case _  => "red"
-        },
-        value <-- variable.signal.map(toString(_)),
-        onInput.mapToValue --> { str =>
-          fromString(str, variable, errorVar)
-
-        }
-      )
-    )
+  )(using factory: WidgetFactory): HtmlElement
 
   given Owner = unsafeWindowOwner
 
