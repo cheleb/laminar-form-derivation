@@ -28,7 +28,7 @@ Client code is in [example/client](./example/client/src/main/scala/HelloWorld.sc
 
 ### Development
 
-* VSCode with metals
+#### VSCode with metals
 
 Just open the project with vscode and enjoy [the magic](.vscode/tasks.json)
 
@@ -36,7 +36,20 @@ Just open the project with vscode and enjoy [the magic](.vscode/tasks.json)
  code .
  ```
 
-* Manual
+As soon as you open the project, you will be prompted to import the build, click on the "Import build" button.
+
+![Import build](./docs/_assets/images/import-project.png)
+
+Then wait a few seconds for the build to import ...
+
+You will have the following tasks:
+
+ * sbt fastLink client
+ * vite dev hot reloading
+
+![Tasks](./docs/_assets/images/dev-terminals.png) 
+
+#### Manual
 
 With vite hot reload
 
