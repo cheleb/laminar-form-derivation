@@ -8,15 +8,8 @@ import com.raquo.airstream.state.Var
 
 enum Tree[+T]:
   case Empty extends Tree[Nothing]
-  case Node(value: T, left: Tree[T] = Empty, right: Tree[T] = Empty)
+  case Node(value: T, left: Tree[T], right: Tree[T])
 object Tree:
-  def homomorphism[A, B](f: A => B)(tree: Tree[A]): Tree[B] =
-    tree match
-      case Empty => Empty
-      case Node(value, left, right) =>
-        Node(f(value), homomorphism(f)(left), homomorphism(f)(right))
-  def isomorphic[A, B](f: A => B, g: B => A)(tree: Tree[A]): Tree[B] =
-    homomorphism(f)(tree)
   def isSameStructure(tree1: Tree[?], tree2: Tree[?]): Boolean =
     (tree1, tree2) match
       case (Empty, Empty)         => true
@@ -27,7 +20,7 @@ object Tree:
 implicit def treeInstance[A](using
     default: Defaultable[A]
 )(using Form[A]): Form[Tree[A]] =
-  new Form[Tree[A]] {
+  new Form[Tree[A]] { self =>
     override def isAnyRef = true
     override def render(
         variable: Var[Tree[A]],
@@ -38,16 +31,60 @@ implicit def treeInstance[A](using
         case Tree.Empty =>
           button(
             "Add me",
-            onClick.mapTo(
-              Tree.Node(default.default, Tree.Empty, Tree.Empty)
-            ) --> variable.writer
+            onClick.mapToUnit --> { _ =>
+              variable.set(Tree.Node(default.default, Tree.Empty, Tree.Empty))
+              syncParent()
+            }
           )
         case Tree.Node(value, left, right) =>
           div(
-            button("drop", onClick.mapTo(Tree.Empty) --> variable.writer),
-            summon[Form[Tree.Node[A]]].render(
-              variable.asInstanceOf[Var[Tree.Node[A]]]
-            )
+            button(
+              "drop",
+              onClick.mapToUnit --> { _ =>
+                variable.set(Tree.Empty)
+                syncParent()
+
+              }
+            ),
+            if false then
+              summon[Form[Tree.Node[A]]].render(
+                variable.asInstanceOf[Var[Tree.Node[A]]]
+              )
+            else
+              val vVar = Var(value)
+              val lVar = Var(left)
+              val rVar = Var(right)
+
+              Seq(
+                Form.renderVar(
+                  vVar,
+                  () => {
+                    variable.set(Tree.Node(vVar.now(), left, right))
+                    syncParent()
+                  }
+                ),
+                div(
+                  "left",
+                  Form.renderVar(
+                    lVar,
+                    () => {
+                      variable.set(Tree.Node(value, lVar.now(), right))
+                      syncParent()
+                    }
+                  )
+                ),
+                div(
+                  "right",
+                  Form.renderVar(
+                    rVar,
+                    () => {
+                      variable.set(Tree.Node(value, left, rVar.now()))
+
+                      syncParent()
+                    }
+                  )
+                )
+              )
           )
   }
 
@@ -62,7 +99,7 @@ val tree = Sample(
         def default = Person("--", 0)
     }
     val treeVar2 = Var(
-      Node(Person("agnes", 40), Empty, Empty)
+      Node(Person("agnes", 50), Node(Person("Zozo", 53), Empty, Empty), Empty)
     )
     div(
       child <-- treeVar2.signal.map { item =>

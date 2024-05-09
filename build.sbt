@@ -5,8 +5,7 @@ val scala33 = "3.4.1"
 
 val tapirVersion = "1.10.6"
 
-val laminarVersion = "17.0.0-RC1"
-//val laminarVersion = "17.0.0-M8"
+val laminarVersion = "17.0.0"
 
 inThisBuild(
   List(

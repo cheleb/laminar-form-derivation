@@ -15,5 +15,9 @@ export default defineConfig({
         // default: 'scalajs' (so the plugin recognizes URIs starting with 'scalajs:')
         uriPrefix: 'scalajs',
     })],
+    build: {
+        sourcemap: true,
+    },
+
 });
 
