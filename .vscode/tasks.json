@@ -8,7 +8,7 @@
             },
             "dependsOrder": "sequence",
             "dependsOn": [
-                "npmInstall",
+                "setup",
                 "runDemo"
             ],
             "problemMatcher": [],
@@ -17,9 +17,9 @@
             }
         },
         {
-            "label": "npmInstall",
+            "label": "setup",
             "type": "shell",
-            "command": "pushd examples/client; npm i; popd; NODE_OPTIONS='--openssl-legacy-provider' DEV=1 sbt \"generator/compile; client/fastLinkJS\"",
+            "command": "./scripts/setup.sh",
             "presentation": {
                 "panel": "dedicated",
                 "group": "runDevCmd",
@@ -42,7 +42,7 @@
         {
             "label": "fastLink",
             "type": "shell",
-            "command": "NODE_OPTIONS='--openssl-legacy-provider' DEV=1 sbt \"~client/fastLinkJS\"",
+            "command": "./scripts/fastLink.sh",
             "presentation": {
                 "panel": "dedicated",
                 "group": "runDevCmd"
@@ -52,7 +52,7 @@
         {
             "label": "npmDev",
             "type": "shell",
-            "command": "cd examples/client; npm run dev",
+            "command": "./scripts/npmDev.sh",
             "presentation": {
                 "panel": "dedicated",
                 "group": "runDevCmd"

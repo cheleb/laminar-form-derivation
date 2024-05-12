@@ -1,13 +1,13 @@
 package samples
 
-import com.raquo.laminar.api.L.*
-import be.doeraene.webcomponents.ui5.*
-import be.doeraene.webcomponents.ui5.configkeys.*
-import io.laminext.websocket._
-import org.scalajs.dom.KeyCode
+//import com.raquo.laminar.api.L.*
+//import be.doeraene.webcomponents.ui5.*
+//import be.doeraene.webcomponents.ui5.configkeys.*
+//import io.laminext.websocket._
+//import org.scalajs.dom.KeyCode
 
 object WebSocketDemo {
-
+/*
   private def sherpal =
     img(src := "images/avatars/ono.png", alt := "Ono")
 
@@ -55,4 +55,5 @@ object WebSocketDemo {
       )
     )
   )
+*/
 }

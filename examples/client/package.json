@@ -1,19 +1,23 @@
 {
-  "private": true,
+  "name": "laminar-form-derivation",
+  "version": "0.0.1",
+  "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "cd ../.. && DEV=1 sbt 'client/fullLinkJS' && cd examples/client && vite build && mv dist ../../docs/_assets/demo",
-    "preview": "vite preview --port 8080"
+    "build": "vite build",
+    "preview": "vite preview"
   },
+  "license": "MIT",
   "dependencies": {
-    "@ui5/webcomponents": "1.17.2",
-    "@ui5/webcomponents-fiori": "1.17.2",
-    "@ui5/webcomponents-icons": "1.17.2",
+    "@ui5/webcomponents": "1.24.0",
+    "@ui5/webcomponents-fiori": "1.24.0",
+    "@ui5/webcomponents-icons": "1.24.0",
     "highlight.js": "^11.8.0",
     "jsdom": "^9.9.0"
   },
   "devDependencies": {
-    "vite": "4.4.11",
-    "vite-plugin-html": "3.2.0"
+    "@scala-js/vite-plugin-scalajs": "^1.0.0",
+    "vite": "^4.1.0"
   }
 }

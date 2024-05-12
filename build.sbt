@@ -1,9 +1,11 @@
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-val scala33 = "3.3.3"
+val scala33 = "3.4.1"
 
-val tapirVersion = "1.9.10"
+val tapirVersion = "1.10.6"
+
+val laminarVersion = "17.0.0"
 
 inThisBuild(
   List(
@@ -46,7 +48,7 @@ lazy val generator = project
   .enablePlugins(SbtTwirl)
   .settings(
     libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0",
-    libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.9.3",
+    libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.10.0",
     libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.13"
   )
 
@@ -118,7 +120,7 @@ lazy val server = project
     Assets / pipelineStages := Seq(scalaJSPipeline),
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio-http" % "3.0.0-RC6",
-      "io.github.iltotore" %% "iron-zio-json" % "2.4.0",
+      "io.github.iltotore" %% "iron-zio-json" % "2.5.0",
       "com.softwaremill.sttp.tapir" %% "tapir-zio" % tapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-zio-http-server" % tapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion,
@@ -157,9 +159,9 @@ lazy val core = scalajsProject("core", false)
   .settings(scalacOptions ++= usedScalacOptions)
   .settings(
     libraryDependencies ++= Seq(
-      "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.4",
-      "com.raquo" %%% "laminar" % "16.0.0",
-      "io.laminext" %%% "websocket" % "0.16.2",
+      "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.6",
+      "com.raquo" %%% "laminar" % laminarVersion,
+      // "io.laminext" %%% "websocket" % laminarVersion,
       "io.github.iltotore" %%% "iron" % "2.5.0"
     )
   )
@@ -178,7 +180,7 @@ lazy val ui5 = scalajsProject("ui5", false)
   .dependsOn(core)
   .settings(
     libraryDependencies ++= Seq(
-      "be.doeraene" %%% "web-components-ui5" % "1.17.0"
+      "be.doeraene" %%% "web-components-ui5" % "1.21.0"
     )
   )
 
@@ -247,15 +249,12 @@ def scalajsProject(projectId: String, sample: Boolean): Project =
 Global / onLoad := {
   val scalaVersionValue = (example / scalaVersion).value
   val outputFile =
-    baseDirectory.value / "examples" / "client" / "scala-metadata.js"
+    target.value / "build-env.sh"
   IO.writeLines(
     outputFile,
-    s"""
-  |const scalaVersion = "$scalaVersionValue"
-  |
-  |exports.scalaMetadata = {
-  |  scalaVersion: scalaVersion
-  |}
+    s"""  
+  |# Generated file see build.sbt
+  |SCALA_VERSION="$scalaVersionValue"
   |""".stripMargin.split("\n").toList,
     StandardCharsets.UTF_8
   )

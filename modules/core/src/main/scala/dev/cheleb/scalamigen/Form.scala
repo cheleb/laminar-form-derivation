@@ -6,7 +6,6 @@ import magnolia1.*
 import scala.util.Try
 import com.raquo.airstream.state.Var
 import org.scalajs.dom.HTMLDivElement
-import magnolia1.SealedTrait.SubtypeValue
 
 trait Form[A] { self =>
 
@@ -26,27 +25,7 @@ trait Form[A] { self =>
       variable: Var[A],
       syncParent: () => Unit,
       values: List[A] = List.empty
-  )(using factory: WidgetFactory): HtmlElement =
-    val errorVar = Var("")
-    div(
-      div(child <-- errorVar.signal.map { item =>
-        div(
-          s"$item"
-        )
-      }),
-      input(
-        // _.showClearIcon := true,
-        backgroundColor <-- errorVar.signal.map {
-          case "" => "white"
-          case _  => "red"
-        },
-        value <-- variable.signal.map(toString(_)),
-        onInput.mapToValue --> { str =>
-          fromString(str, variable, errorVar)
-
-        }
-      )
-    )
+  )(using factory: WidgetFactory): HtmlElement
 
   given Owner = unsafeWindowOwner
 
@@ -101,11 +80,11 @@ object Form extends AutoDerivation[Form] {
         .amend(
           className := "panel panel-default",
           caseClass.params.map { param =>
-            val isOption = param.deref(variable.now()).isInstanceOf[Option[_]]
+            val isOption = param.deref(variable.now()).isInstanceOf[Option[?]]
 
             val enumValues =
               if param.annotations.isEmpty then List.empty[A]
-              else if param.annotations(0).isInstanceOf[EnumValues[_]] then
+              else if param.annotations(0).isInstanceOf[EnumValues[?]] then
                 param.annotations(0).asInstanceOf[EnumValues[A]].values.toList
               else List.empty[A]
 
@@ -132,6 +111,11 @@ object Form extends AutoDerivation[Form] {
         )
   }
 
+  /** Split a sealed trait into a form
+    *
+    * @param sealedTrait
+    * @return
+    */
   def split[A](sealedTrait: SealedTrait[Form, A]): Form[A] = new Form[A] {
 
     override def isAnyRef: Boolean = true
@@ -141,17 +125,9 @@ object Form extends AutoDerivation[Form] {
         values: List[A] = List.empty
     )(using factory: WidgetFactory): HtmlElement =
       if sealedTrait.isEnum then
-        if values.isEmpty then
-          sealedTrait
-            .choose(variable.now()) { case o =>
-              val vo = Var(o.value)
-              o.typeclass.render(
-                vo,
-                () =>
-                  variable.set(vo.now())
-                  syncParent()
-              )
-            }
+        if values.isEmpty
+        then // No enum values provided, than render as constant
+          div(variable.now().toString())
         else
           val valuesLabels = values.map(_.toString)
           div(
@@ -169,7 +145,7 @@ object Form extends AutoDerivation[Form] {
                 }.toSeq
               )
           )
-      else div("Not an enum")
+      else div("Not an enum.")
 
   }
 

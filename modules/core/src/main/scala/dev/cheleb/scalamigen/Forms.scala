@@ -7,6 +7,7 @@ import com.raquo.laminar.api.L.*
 
 import scala.util.Try
 import com.raquo.airstream.state.Var
+import com.raquo.laminar.api.L
 
 /** Default value for Int is 0.
   */
@@ -39,6 +40,33 @@ given IronTypeValidator[Double, Positive] with
   */
 given [T, C](using fv: IronTypeValidator[T, C]): Form[IronType[T, C]] =
   new Form[IronType[T, C]] {
+
+    override def render(
+        variable: Var[IronType[T, C]],
+        syncParent: () => Unit,
+        values: List[IronType[T, C]]
+    )(using factory: WidgetFactory): L.HtmlElement =
+
+      val errorVar = Var("")
+      div(
+        div(child <-- errorVar.signal.map { item =>
+          div(
+            s"$item"
+          )
+        }),
+        input(
+          // _.showClearIcon := true,
+          backgroundColor <-- errorVar.signal.map {
+            case "" => "white"
+            case _  => "red"
+          },
+          value <-- variable.signal.map(toString(_)),
+          onInput.mapToValue --> { str =>
+            fromString(str, variable, errorVar)
+
+          }
+        )
+      )
 
     override def fromString(
         str: String,
@@ -100,15 +128,13 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
   )(using factory: WidgetFactory): HtmlElement =
     factory.renderNumeric
       .amend(
-        controlled(
-          value <-- variable.signal.map { str =>
-            str.toString()
-          },
-          onInput.mapToValue --> { v =>
-            fromString(v).foreach(variable.set)
-            syncParent()
-          }
-        )
+        value <-- variable.signal.map { str =>
+          str.toString()
+        },
+        onInput.mapToValue --> { v =>
+          fromString(v).foreach(variable.set)
+          syncParent()
+        }
       )
 }
 
