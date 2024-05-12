@@ -3,7 +3,7 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 val scala33 = "3.4.1"
 
-val tapirVersion = "1.10.6"
+val tapirVersion = "1.10.7"
 
 val laminarVersion = "17.0.0"
 
