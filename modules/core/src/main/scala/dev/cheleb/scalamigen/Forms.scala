@@ -24,7 +24,7 @@ given Defaultable[String] with
   * is 0.0.
   */
 given Defaultable[IronType[Double, Positive]] with
-  def default = 1.0.refine[Positive]
+  def default = 1.0.refineUnsafe[Positive]
 
 /** Validator for [Iron type Double
   * positive](https://iltotore.github.io/iron/io/github/iltotore/iron/constraint/numeric$.html#Positive-0).
