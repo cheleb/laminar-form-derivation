@@ -35,19 +35,17 @@ jobs:
       - name: Setup JVM
         uses: actions/setup-java@v4
         with:
-          java-version: "19"
+          java-version: "22"
           distribution: "zulu"
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-      #          cache: 'npm'
+          node-version: 20
+          cache: 'npm'
       - name: Install dependencies
         run: |
           cd examples/client
-          npm install
-#      - name: ScalaJS build
-#        run: sbt client/fastLinkJS
+          npm ci
       - name: Vite build
         run: |
           pushd examples/client

@@ -52,21 +52,27 @@ lazy val generator = project
     libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.13"
   )
 
-val dev = sys.env.get("DEV").isDefined
+val dev = sys.env.get("DEV").getOrElse("demo")
 
 val serverPlugins = dev match {
-  case true  => Seq()
-  case false => Seq(SbtWeb, SbtTwirl, JavaAppPackaging, WebScalaJSBundlerPlugin)
+  case "prod" =>
+    Seq(SbtWeb, SbtTwirl, JavaAppPackaging, WebScalaJSBundlerPlugin)
+  case _ => Seq()
+}
+
+def scalaJSModule = dev match {
+  case "prod" => ModuleKind.CommonJSModule
+  case _      => ModuleKind.ESModule
 }
 
 val serverSettings = dev match {
-  case true => Seq()
-  case false =>
+  case "prod" =>
     Seq(
       Compile / compile := ((Compile / compile) dependsOn scalaJSPipeline).value,
       Assets / WebKeys.packagePrefix := "public/",
       Runtime / managedClasspath += (Assets / packageBin).value
     )
+  case _ => Seq()
 }
 
 lazy val root = project
@@ -85,8 +91,7 @@ lazy val root = project
   )
 
 val staticGenerationSettings =
-  if (dev) Seq()
-  else
+  if (dev == "prod")
     Seq(
       Assets / resourceGenerators += Def
         .taskDyn[Seq[File]] {
@@ -107,6 +112,8 @@ val staticGenerationSettings =
         }
         .taskValue
     )
+  else
+    Seq()
 
 lazy val server = project
   .in(file("examples/server"))
@@ -133,10 +140,6 @@ lazy val server = project
     publish / skip := true
   )
 
-def scalaJSModule = dev match {
-  case true  => ModuleKind.ESModule
-  case false => ModuleKind.CommonJSModule
-}
 val usedScalacOptions = Seq(
   "-encoding",
   "utf8",
@@ -153,7 +156,7 @@ lazy val core = scalajsProject("core", false)
     scalaJSLinkerConfig ~= {
       _.withModuleKind(scalaJSModule)
         .withSourceMap(true)
-        .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("core")))
+        .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
     }
   )
   .settings(scalacOptions ++= usedScalacOptions)
@@ -173,7 +176,7 @@ lazy val ui5 = scalajsProject("ui5", false)
     scalaJSLinkerConfig ~= {
       _.withModuleKind(scalaJSModule)
         .withSourceMap(true)
-        .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("ui5")))
+        .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
     }
   )
   .settings(scalacOptions ++= usedScalacOptions)
@@ -190,7 +193,7 @@ lazy val example = scalajsProject("client", true)
     scalaJSLinkerConfig ~= {
       _.withModuleKind(scalaJSModule)
         .withSourceMap(true)
-        .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("client")))
+        .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
     }
   )
   .settings(scalacOptions ++= usedScalacOptions)
@@ -225,8 +228,8 @@ def nexusNpmSettings =
     .toSeq
 
 def scalaJSPlugin = dev match {
-  case true  => ScalaJSPlugin
-  case false => ScalaJSBundlerPlugin
+  case "prod" => ScalaJSBundlerPlugin
+  case _      => ScalaJSPlugin
 }
 
 def scalajsProject(projectId: String, sample: Boolean): Project =
