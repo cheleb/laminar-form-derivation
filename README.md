@@ -8,7 +8,7 @@ See [Documentation](https://cheleb.github.io/laminar-form-derivation/docs/index.
 
 ## Demo
 
-For the very impatient, here is a [live demo](https://cheleb.github.io/laminar-form-derivation/demo.html).
+For the very impatient, here is a [live demo](https://cheleb.github.io/laminar-form-derivation/demo/index.html).
 
 ## Installation
 
