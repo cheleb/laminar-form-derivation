@@ -155,7 +155,7 @@ lazy val core = scalajsProject("core", false)
     //  scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
       _.withModuleKind(scalaJSModule)
-        .withSourceMap(true)
+        .withSourceMap(false)
         .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
     }
   )
@@ -175,7 +175,7 @@ lazy val ui5 = scalajsProject("ui5", false)
     //   scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
       _.withModuleKind(scalaJSModule)
-        .withSourceMap(true)
+        .withSourceMap(false)
         .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
     }
   )
@@ -190,10 +190,16 @@ lazy val ui5 = scalajsProject("ui5", false)
 lazy val example = scalajsProject("client", true)
   .settings(
     scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig ~= {
-      _.withModuleKind(scalaJSModule)
-        .withSourceMap(true)
-        .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
+    scalaJSLinkerConfig ~= { config =>
+      dev match {
+        case "prod" =>
+          config.withModuleKind(scalaJSModule)
+        case _ =>
+          config
+            .withModuleKind(scalaJSModule)
+            .withSourceMap(false)
+            .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
+      }
     }
   )
   .settings(scalacOptions ++= usedScalacOptions)
