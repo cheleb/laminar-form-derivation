@@ -25,7 +25,7 @@ jobs:
           distribution: "zulu"
       # - name: Tests
       #   run: sbt +test
-      - name: DEV=prod server/dist
-        run: sbt server/dist
+      - name: server/dist
+        run: DEV=prod sbt server/dist
         env:
           NODE_OPTIONS: "--openssl-legacy-provider"
