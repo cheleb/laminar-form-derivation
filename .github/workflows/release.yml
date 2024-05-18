@@ -15,16 +15,16 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 19
+          node-version: 20
       - name: Setup JVM
         uses: actions/setup-java@v4
         with:
-          java-version: "19"
+          java-version: "22"
           distribution: "zulu"
       # - name: Tests
       #   run: sbt +test
       - name: Release
-        run: sbt ci-release
+        run: DEV=prod sbt ci-release
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}

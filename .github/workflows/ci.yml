@@ -13,7 +13,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 19
+          node-version: 20
       - name: Install dependencies
         run: |
           cd examples/client
@@ -21,11 +21,11 @@ jobs:
       - name: Setup JVM
         uses: actions/setup-java@v4
         with:
-          java-version: "19"
+          java-version: "22"
           distribution: "zulu"
       # - name: Tests
       #   run: sbt +test
-      - name: server/dist
+      - name: DEV=prod server/dist
         run: sbt server/dist
         env:
           NODE_OPTIONS: "--openssl-legacy-provider"
