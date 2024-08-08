@@ -49,7 +49,7 @@ lazy val generator = project
   .settings(
     libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0",
     libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.10.3",
-    libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.13"
+    libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.14"
   )
 
 val dev = sys.env.get("DEV").getOrElse("demo")
@@ -182,7 +182,7 @@ lazy val ui5 = scalajsProject("ui5", false)
   .dependsOn(core)
   .settings(
     libraryDependencies ++= Seq(
-      "be.doeraene" %%% "web-components-ui5" % "1.21.0"
+      "be.doeraene" %%% "web-components-ui5" % "2.0.0-RC1"
     )
   )
 
