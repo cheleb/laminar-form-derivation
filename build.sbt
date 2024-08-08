@@ -49,7 +49,7 @@ lazy val generator = project
   .settings(
     libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0",
     libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.10.3",
-    libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.13"
+    libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.15"
   )
 
 val dev = sys.env.get("DEV").getOrElse("demo")
