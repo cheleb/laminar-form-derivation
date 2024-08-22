@@ -260,7 +260,7 @@ given optionOfA[A](using
           )
   }
 
-given listOfA[A](using fa: Form[A]): Form[List[A]] =
+given listOfA[A, K](using fa: Form[A], idOf: A => K): Form[List[A]] =
   new Form[List[A]] {
 
     override def render(
@@ -268,40 +268,14 @@ given listOfA[A](using fa: Form[A]): Form[List[A]] =
         syncParent: () => Unit,
         values: List[List[A]] = List.empty
     )(using factory: WidgetFactory): HtmlElement =
-
-      def renderNewA(
-          index: Int,
-          initialAatIdx: (A, Int),
-          aSignalAt: Signal[(A, Int)]
-      ) =
-        val va = Var(initialAatIdx._1)
-
-        val formOfA =
-          if (fa.isAnyRef)
-            fa.render(va, () => variable.update(_.updated(index, va.now())))
-          else
-            fa.render(va, syncParent)
-              .amend(
-                onInput.mapToValue --> { v =>
-                  fa.fromString(v).foreach { v =>
-                    variable.update(_.updated(index, v))
-                  }
-                }
-              )
-
-        div(
-          idAttr := s"list-item-$index",
+      div(
+        children <-- variable.split(idOf)((id, initial, aVar) => {
           div(
-            formOfA
+            idAttr := s"list-item-$id",
+            div(
+              fa.render(aVar, syncParent)
+            )
           )
-        )
-
-      factory
-        .renderUL("list-of-string")
-        .amend(
-          children <-- variable
-            .zoom(_.zipWithIndex)((a, b) => b.map(_._1))
-            .signal
-            .split(_._2)(renderNewA)
-        )
+        })
+      )
   }
