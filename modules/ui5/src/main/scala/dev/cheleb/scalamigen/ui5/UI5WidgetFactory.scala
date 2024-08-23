@@ -8,6 +8,8 @@ import be.doeraene.webcomponents.ui5.configkeys.ListSeparator
 import be.doeraene.webcomponents.ui5.configkeys.TitleLevel
 
 import dev.cheleb.scalamigen.WidgetFactory
+import com.raquo.laminar.api.L
+import be.doeraene.webcomponents.ui5.configkeys.InputType.Password
 
 /** UI5WidgetFactory is a factory for [SAP UI5
   * widgets](https://sap.github.io/ui5-webcomponents/).
@@ -16,6 +18,11 @@ import dev.cheleb.scalamigen.WidgetFactory
   * bindings](https://github.com/sherpal/LaminarSAPUI5Bindings).
   */
 object UI5WidgetFactory extends WidgetFactory:
+
+  override def renderSecret: L.HtmlElement = Input(
+    _.tpe := Password
+  )
+
   def renderText: HtmlElement = Input(
     _.showClearIcon := true
   )

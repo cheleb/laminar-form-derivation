@@ -3,10 +3,16 @@ package dev.cheleb.scalamigen
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.modifiers.EventListener
 import org.scalajs.dom.HTMLSelectElement
+import com.raquo.laminar.api.L
 
 /** This is raw laminar implementation of the widget factory.
   */
 object LaminarWidgetFactory extends WidgetFactory:
+
+  override def renderSecret: L.HtmlElement = input(
+    tpe := "password"
+  )
+
   def renderText: HtmlElement = input(
     tpe := "text"
   )

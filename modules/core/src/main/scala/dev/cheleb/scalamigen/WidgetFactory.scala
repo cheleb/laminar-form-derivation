@@ -10,6 +10,10 @@ trait WidgetFactory:
     */
   def renderText: HtmlElement
 
+  /** Render a password input, for secret strings.
+    */
+  def renderSecret: HtmlElement
+
   /** Render a label for a widget.
     */
   def renderLabel(required: Boolean, name: String): HtmlElement

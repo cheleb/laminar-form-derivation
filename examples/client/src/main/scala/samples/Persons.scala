@@ -7,10 +7,12 @@ import magnolia1.*
 
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
+import samples.model.Password
 
 // Define some models
 case class Person(
     name: String,
+    password: Password,
     fav: Pet,
     pet: Option[Pet],
     email: Option[String],
@@ -34,6 +36,7 @@ given Defaultable[Pet] with
 val vlad =
   Person(
     "Vlad",
+    Password("not a password"),
     Pet("Batman", 666, House(2), 169),
     Some(Pet("Wolfy", 12, House(1), 42)),
     Some("vlad.dracul@gmail.com"),
