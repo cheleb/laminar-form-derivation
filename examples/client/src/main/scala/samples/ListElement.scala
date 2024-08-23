@@ -25,7 +25,7 @@ val list = Sample(
         s"$item"
       )
     },
-    Form.renderVar(listPersonVar),
+    listPersonVar.asForm,
     child <-- listIntVar.signal.map { item =>
       div(
         s"$item"

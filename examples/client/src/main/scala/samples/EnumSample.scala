@@ -33,7 +33,7 @@ val enums = Sample(
           s"$item"
         )
       },
-      Form.renderVar(eitherVar)
+      eitherVar.asForm
     )
   }
 )

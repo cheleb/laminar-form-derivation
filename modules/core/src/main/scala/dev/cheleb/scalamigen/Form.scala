@@ -6,6 +6,11 @@ import magnolia1.*
 import scala.util.Try
 import com.raquo.airstream.state.Var
 import org.scalajs.dom.HTMLDivElement
+import org.scalajs.dom.HTMLElement
+import com.raquo.laminar.nodes.ReactiveHtmlElement
+
+extension [A](v: Var[A])
+  def asForm(using WidgetFactory, Form[A]) = Form.renderVar(v)
 
 trait Form[A] { self =>
 
@@ -62,9 +67,9 @@ object Form extends AutoDerivation[Form] {
       WidgetFactory
   )(using
       fa: Form[A]
-  ) = {
+  ): ReactiveHtmlElement[HTMLElement] =
     fa.render(v, syncParent)
-  }
+
   def join[A](
       caseClass: CaseClass[Typeclass, A]
   ): Form[A] = new Form[A] {
@@ -149,4 +154,44 @@ object Form extends AutoDerivation[Form] {
 
   }
 
+}
+
+/** Use this form to render a string that can be converted to A, can be used for
+  * Opaque types.
+  */
+def stringForm[A](to: String => A) = new Form[A]:
+  override def render(
+      variable: Var[A],
+      syncParent: () => Unit,
+      values: List[A] = List.empty
+  )(using factory: WidgetFactory): HtmlElement =
+    factory.renderText.amend(
+      value <-- variable.signal.map(_.toString),
+      onInput.mapToValue.map(to) --> { v =>
+        variable.set(v)
+        syncParent()
+      }
+    )
+
+/** Form for a numeric type.
+  */
+def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
+  self =>
+  override def fromString(s: String): Option[A] =
+    f(s).orElse(Some(zero))
+  override def render(
+      variable: Var[A],
+      syncParent: () => Unit,
+      values: List[A] = List.empty
+  )(using factory: WidgetFactory): HtmlElement =
+    factory.renderNumeric
+      .amend(
+        value <-- variable.signal.map { str =>
+          str.toString()
+        },
+        onInput.mapToValue --> { v =>
+          fromString(v).foreach(variable.set)
+          syncParent()
+        }
+      )
 }

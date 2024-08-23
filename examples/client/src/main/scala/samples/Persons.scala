@@ -54,6 +54,6 @@ val person = Sample(
         s"$item"
       )
     },
-    Form.renderVar(personVar)
+    personVar.asForm
   )
 )

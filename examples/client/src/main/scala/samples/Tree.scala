@@ -110,7 +110,7 @@ val tree = Sample(
       child <-- treeVar2.signal
         .distinctByFn(Tree.isSameStructure)
         .map { item =>
-          Form.renderVar(treeVar2)
+          treeVar2.asForm
         }
     )
   }

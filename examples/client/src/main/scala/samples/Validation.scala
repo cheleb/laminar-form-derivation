@@ -38,6 +38,6 @@ val validation = Sample(
         s"$item"
       )
     },
-    Form.renderVar(ironSampleVar)
+    ironSampleVar.asForm
   )
 )
