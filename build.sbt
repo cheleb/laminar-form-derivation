@@ -5,7 +5,7 @@ val scala33 = "3.5.0"
 
 val tapirVersion = "1.11.1"
 
-val laminarVersion = "17.0.0"
+val laminarVersion = "17.1.0"
 
 inThisBuild(
   List(
@@ -161,6 +161,7 @@ lazy val core = scalajsProject("core", false)
   .settings(scalacOptions ++= usedScalacOptions)
   .settings(
     libraryDependencies ++= Seq(
+      "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
       "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.7",
       "com.raquo" %%% "laminar" % laminarVersion,
       // "io.laminext" %%% "websocket" % laminarVersion,
@@ -182,7 +183,7 @@ lazy val ui5 = scalajsProject("ui5", false)
   .dependsOn(core)
   .settings(
     libraryDependencies ++= Seq(
-      "be.doeraene" %%% "web-components-ui5" % "1.21.0"
+      "be.doeraene" %%% "web-components-ui5" % "2.0.0-RC1"
     )
   )
 
