@@ -3,35 +3,39 @@ package dev.cheleb.scalamigen
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.modifiers.EventListener
 import org.scalajs.dom.HTMLSelectElement
-import com.raquo.laminar.api.L
 
 /** This is raw laminar implementation of the widget factory.
   */
 object LaminarWidgetFactory extends WidgetFactory:
 
-  override def renderSecret: L.HtmlElement = input(
+  override def renderDatePicker: HtmlElement = input(
+    tpe := "date"
+  )
+
+  override def renderSecret: HtmlElement = input(
     tpe := "password"
   )
 
-  def renderText: HtmlElement = input(
+  override def renderText: HtmlElement = input(
     tpe := "text"
   )
-  def renderLabel(required: Boolean, name: String): HtmlElement = span(
+  override def renderLabel(required: Boolean, name: String): HtmlElement = span(
     name
   )
-  def renderNumeric: HtmlElement = input(
+  override def renderNumeric: HtmlElement = input(
     tpe := "number"
   )
-  def renderButton: HtmlElement = button()
-  def renderLink(text: String, el: EventListener[?, ?]): HtmlElement = a(
-    text,
-    href := "#",
-    el
-  )
-  def renderUL(id: String): HtmlElement = ul(idAttr := id)
-  def renderPanel(headerText: String): HtmlElement = div(headerText)
+  override def renderButton: HtmlElement = button()
+  override def renderLink(text: String, el: EventListener[?, ?]): HtmlElement =
+    a(
+      text,
+      href := "#",
+      el
+    )
+  override def renderUL(id: String): HtmlElement = ul(idAttr := id)
+  override def renderPanel(headerText: String): HtmlElement = div(headerText)
 
-  def renderSelect(f: Int => Unit): HtmlElement = select(
+  override def renderSelect(f: Int => Unit): HtmlElement = select(
     onChange.map(
       _.target.asInstanceOf[HTMLSelectElement].selectedIndex
     ) --> { ds =>
@@ -39,7 +43,11 @@ object LaminarWidgetFactory extends WidgetFactory:
     }
   )
 
-  def renderOption(label: String, idx: Int, isSelected: Boolean): HtmlElement =
+  override def renderOption(
+      label: String,
+      idx: Int,
+      isSelected: Boolean
+  ): HtmlElement =
     option(
       label,
       value := s"$idx",

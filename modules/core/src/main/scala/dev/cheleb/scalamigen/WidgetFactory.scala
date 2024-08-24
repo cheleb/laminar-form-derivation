@@ -6,6 +6,9 @@ import com.raquo.laminar.modifiers.EventListener
 /** This is a trait that defines the interface for the widget factory.
   */
 trait WidgetFactory:
+
+  def renderDatePicker: HtmlElement
+
   /** Render a text input, for strings.
     */
   def renderText: HtmlElement

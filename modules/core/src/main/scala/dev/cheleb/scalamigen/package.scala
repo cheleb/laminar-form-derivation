@@ -7,7 +7,8 @@ import com.raquo.laminar.api.L.*
 
 import scala.util.Try
 import com.raquo.airstream.state.Var
-import com.raquo.laminar.api.L
+
+import java.time.LocalDate
 
 /** Default value for Int is 0.
   */
@@ -45,7 +46,7 @@ given [T, C](using fv: IronTypeValidator[T, C]): Form[IronType[T, C]] =
         variable: Var[IronType[T, C]],
         syncParent: () => Unit,
         values: List[IronType[T, C]]
-    )(using factory: WidgetFactory): L.HtmlElement =
+    )(using factory: WidgetFactory): HtmlElement =
 
       val errorVar = Var("")
       div(
@@ -114,6 +115,8 @@ given Form[BigInt] =
   numericForm(str => Try(BigInt(str)).toOption, BigInt(0))
 given Form[BigDecimal] =
   numericForm(str => Try(BigDecimal(str)).toOption, BigDecimal(0))
+
+//given
 
 given eitherOf[L, R](using
     lf: Form[L],
@@ -239,3 +242,21 @@ given listOfA[A, K](using fa: Form[A], idOf: A => K): Form[List[A]] =
         })
       )
   }
+
+given Form[LocalDate] = new Form[LocalDate] {
+  override def render(
+      variable: Var[LocalDate],
+      syncParent: () => Unit,
+      values: List[LocalDate] = List.empty
+  )(using factory: WidgetFactory): HtmlElement =
+    div(
+      factory.renderDatePicker
+        .amend(
+          value <-- variable.signal.map(_.toString),
+          onChange.mapToValue --> { v =>
+            variable.set(LocalDate.parse(v))
+            syncParent()
+          }
+        )
+    )
+}
