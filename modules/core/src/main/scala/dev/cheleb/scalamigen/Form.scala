@@ -88,13 +88,20 @@ object Form extends AutoDerivation[Form] {
             val isOption = param.deref(variable.now()).isInstanceOf[Option[?]]
 
             val enumValues =
-              if param.annotations.isEmpty then List.empty[A]
-              else if param.annotations(0).isInstanceOf[EnumValues[?]] then
-                param.annotations(0).asInstanceOf[EnumValues[A]].values.toList
-              else List.empty[A]
+              param.annotations
+                .find(_.isInstanceOf[EnumValues[?]]) match
+                case None => List.empty
+                case Some(value) =>
+                  value.asInstanceOf[EnumValues[A]].values.toList
+
+            val fieldName = param.annotations
+              .find(_.isInstanceOf[FieldName]) match
+              case None => param.label
+              case Some(value) =>
+                value.asInstanceOf[FieldName].value
 
             param.typeclass
-              .labelled(param.label, !isOption)
+              .labelled(fieldName, !isOption)
               .render(
                 variable.zoom { a =>
                   Try(param.deref(a))

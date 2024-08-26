@@ -11,7 +11,9 @@ import samples.model.Password
 import java.time.LocalDate
 
 // Define some models
+@Panel(true, "Person")
 case class Person(
+    @FieldName("First Name")
     name: String,
     password: Password,
     birthDate: LocalDate,
