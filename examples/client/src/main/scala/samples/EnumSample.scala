@@ -19,7 +19,7 @@ val enums = Sample(
     case class Cat(
         name: String,
         age: Int,
-        @EnumValues(Color.values)
+        // @EnumValues(Color.values)
         color: Color
     )
 

@@ -150,35 +150,51 @@ object Form extends AutoDerivation[Form] {
         syncParent: () => Unit,
         values: List[A] = List.empty
     )(using factory: WidgetFactory): HtmlElement =
-      if sealedTrait.isEnum then
-        if values.isEmpty
-        then // No enum values provided, than render as constant
-          div(variable.now().toString())
-        else
-          val valuesLabels = values.map(_.toString)
-          div(
-            factory
-              .renderSelect(idx => variable.set(values(idx)))
-              .amend(
-                valuesLabels.map { label =>
-                  factory.renderOption(
-                    label,
-                    values
-                      .map(_.toString)
-                      .indexOf(label),
-                    label == variable.now().toString
-                  )
-                }.toSeq
-              )
-          )
+      val ops = sealedTrait.subtypes.map { sub =>
+        getSubtypeLabel(sub) -> sub
+      }.toMap
+
+      if values.isEmpty
+      then // No enum values provided, than render as constant
+        val valuesLabels = ops.keys.toSeq
+        val values = ops.values.toSeq //  .map(_.typeclass.widen[A])
+        div(
+          factory
+            .renderSelect { idx =>
+              println(s"idx: $idx")
+              println(values)
+
+              variable.set(values(idx)(variable.now()))
+            }
+            .amend(
+              valuesLabels.map { label =>
+                factory.renderOption(
+                  label,
+                  values
+                    .map(_.toString)
+                    .indexOf(label),
+                  label == variable.now().toString
+                )
+              }.toSeq
+            )
+        )
       else
-        val ops = sealedTrait.subtypes.map { sub =>
-          getSubtypeLabel(sub) -> sub
-        }.toMap
-
-        println(ops)
-
-        div("Not an enum.")
+        val valuesLabels = values.map(_.toString)
+        div(
+          factory
+            .renderSelect(idx => variable.set(values(idx)))
+            .amend(
+              valuesLabels.map { label =>
+                factory.renderOption(
+                  label,
+                  values
+                    .map(_.toString)
+                    .indexOf(label),
+                  label == variable.now().toString
+                )
+              }.toSeq
+            )
+        )
 
   }
 
