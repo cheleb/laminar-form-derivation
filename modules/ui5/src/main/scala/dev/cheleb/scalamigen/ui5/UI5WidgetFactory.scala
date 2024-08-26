@@ -28,7 +28,8 @@ object UI5WidgetFactory extends WidgetFactory:
   )
 
   override def renderText: HtmlElement = Input(
-    _.showClearIcon := true
+    _.showClearIcon := true,
+    _.placeholder := "Enter text"
   )
   override def renderLabel(required: Boolean, name: String): HtmlElement =
     Label(
@@ -38,7 +39,8 @@ object UI5WidgetFactory extends WidgetFactory:
     ).amend(name)
 
   override def renderNumeric: HtmlElement = Input(
-    tpe := "number"
+    tpe := "number",
+    _.placeholder := "Enter number"
   )
   override def renderButton: HtmlElement = Button()
   override def renderLink(text: String, el: EventListener[?, ?]): HtmlElement =
@@ -49,10 +51,14 @@ object UI5WidgetFactory extends WidgetFactory:
     _.noDataText := "No  data",
     _.separators := ListSeparator.None
   )
-  override def renderPanel(headerText: String): HtmlElement = Panel(
-    _.headerText := headerText,
-    _.headerLevel := TitleLevel.H3
-  )
+  override def renderPanel(headerText: Option[String]): HtmlElement =
+    headerText match
+      case Some(headerText) =>
+        Panel(
+          _.headerText := headerText,
+          _.headerLevel := TitleLevel.H3
+        )
+      case None => Panel()
 
   override def renderSelect(f: Int => Unit): HtmlElement = Select(
     _.events.onChange

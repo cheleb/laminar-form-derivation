@@ -14,4 +14,5 @@ class EnumValues[A](val values: Array[A]) extends StaticAnnotation
   */
 class FieldName(val value: String) extends StaticAnnotation
 
-class Panel(val show: Boolean, val label: String) extends StaticAnnotation
+class PanelName(val value: String) extends StaticAnnotation
+class NoPanel extends StaticAnnotation

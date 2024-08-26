@@ -8,6 +8,7 @@ import com.raquo.airstream.state.Var
 import org.scalajs.dom.HTMLDivElement
 import org.scalajs.dom.HTMLElement
 import com.raquo.laminar.nodes.ReactiveHtmlElement
+import magnolia1.SealedTrait.Subtype
 
 extension [A](v: Var[A])
   def asForm(using WidgetFactory, Form[A]) = Form.renderVar(v)
@@ -79,9 +80,21 @@ object Form extends AutoDerivation[Form] {
         variable: Var[A],
         syncParent: () => Unit = () => (),
         values: List[A] = List.empty
-    )(using factory: WidgetFactory): HtmlElement =
+    )(using factory: WidgetFactory): HtmlElement = {
+
+      val panel =
+        caseClass.annotations.find(_.isInstanceOf[PanelName]) match
+          case None =>
+            caseClass.annotations.find(_.isInstanceOf[NoPanel]) match
+              case None =>
+                Some(caseClass.typeInfo.short)
+              case Some(_) =>
+                None
+          case Some(value) =>
+            Option(value.asInstanceOf[PanelName].value)
+
       factory
-        .renderPanel(caseClass.typeInfo.short)
+        .renderPanel(panel)
         .amend(
           className := "panel panel-default",
           caseClass.params.map { param =>
@@ -121,6 +134,7 @@ object Form extends AutoDerivation[Form] {
               )
           }.toSeq
         )
+    }
   }
 
   /** Split a sealed trait into a form
@@ -157,9 +171,26 @@ object Form extends AutoDerivation[Form] {
                 }.toSeq
               )
           )
-      else div("Not an enum.")
+      else
+        val ops = sealedTrait.subtypes.map { sub =>
+          getSubtypeLabel(sub) -> sub
+        }.toMap
+
+        println(ops)
+
+        div("Not an enum.")
 
   }
+
+  private def getSubtypeLabel[T](sub: Subtype[Typeclass, T, ?]): String =
+    sub.annotations
+      .collectFirst { case label: FieldName => label.value }
+      .getOrElse(titleCase(sub.typeInfo.short))
+
+  /** someParameterName -> Some Parameter Name camelCase -> Title Case
+    */
+  private def titleCase(string: String): String =
+    string.split("(?=[A-Z])").map(_.capitalize).mkString(" ")
 
 }
 

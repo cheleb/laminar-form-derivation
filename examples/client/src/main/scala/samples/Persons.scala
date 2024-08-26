@@ -11,7 +11,7 @@ import samples.model.Password
 import java.time.LocalDate
 
 // Define some models
-@Panel(true, "Person")
+@NoPanel
 case class Person(
     @FieldName("First Name")
     name: String,
@@ -39,7 +39,7 @@ given Defaultable[Pet] with
 // Instance your model
 val vlad =
   Person(
-    "Vlad",
+    "",
     Password("not a password"),
     LocalDate.of(1431, 11, 8),
     Pet("Batman", 666, House(2), 169),
