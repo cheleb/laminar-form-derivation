@@ -171,18 +171,11 @@ object Form extends AutoDerivation[Form] {
                 }.toSeq
               )
           )
-      else
-        val ops = sealedTrait.subtypes.map { sub =>
-          getSubtypeLabel(sub) -> sub
-        }.toMap
-
-        println(ops)
-
-        div("Not an enum.")
+      else div("Not an enum.")
 
   }
 
-  private def getSubtypeLabel[T](sub: Subtype[Typeclass, T, ?]): String =
+  def getSubtypeLabel[T](sub: Subtype[Typeclass, T, ?]): String =
     sub.annotations
       .collectFirst { case label: FieldName => label.value }
       .getOrElse(titleCase(sub.typeInfo.short))
