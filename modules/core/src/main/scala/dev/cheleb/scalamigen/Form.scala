@@ -8,6 +8,7 @@ import com.raquo.airstream.state.Var
 import org.scalajs.dom.HTMLDivElement
 import org.scalajs.dom.HTMLElement
 import com.raquo.laminar.nodes.ReactiveHtmlElement
+import magnolia1.SealedTrait.Subtype
 
 extension [A](v: Var[A])
   def asForm(using WidgetFactory, Form[A]) = Form.renderVar(v)
@@ -79,22 +80,41 @@ object Form extends AutoDerivation[Form] {
         variable: Var[A],
         syncParent: () => Unit = () => (),
         values: List[A] = List.empty
-    )(using factory: WidgetFactory): HtmlElement =
+    )(using factory: WidgetFactory): HtmlElement = {
+
+      val panel =
+        caseClass.annotations.find(_.isInstanceOf[PanelName]) match
+          case None =>
+            caseClass.annotations.find(_.isInstanceOf[NoPanel]) match
+              case None =>
+                Some(caseClass.typeInfo.short)
+              case Some(_) =>
+                None
+          case Some(value) =>
+            Option(value.asInstanceOf[PanelName].value)
+
       factory
-        .renderPanel(caseClass.typeInfo.short)
+        .renderPanel(panel)
         .amend(
           className := "panel panel-default",
           caseClass.params.map { param =>
             val isOption = param.deref(variable.now()).isInstanceOf[Option[?]]
 
             val enumValues =
-              if param.annotations.isEmpty then List.empty[A]
-              else if param.annotations(0).isInstanceOf[EnumValues[?]] then
-                param.annotations(0).asInstanceOf[EnumValues[A]].values.toList
-              else List.empty[A]
+              param.annotations
+                .find(_.isInstanceOf[EnumValues[?]]) match
+                case None => List.empty
+                case Some(value) =>
+                  value.asInstanceOf[EnumValues[A]].values.toList
+
+            val fieldName = param.annotations
+              .find(_.isInstanceOf[FieldName]) match
+              case None => param.label
+              case Some(value) =>
+                value.asInstanceOf[FieldName].value
 
             param.typeclass
-              .labelled(param.label, !isOption)
+              .labelled(fieldName, !isOption)
               .render(
                 variable.zoom { a =>
                   Try(param.deref(a))
@@ -114,6 +134,7 @@ object Form extends AutoDerivation[Form] {
               )
           }.toSeq
         )
+    }
   }
 
   /** Split a sealed trait into a form
@@ -153,6 +174,16 @@ object Form extends AutoDerivation[Form] {
       else div("Not an enum.")
 
   }
+
+  def getSubtypeLabel[T](sub: Subtype[Typeclass, T, ?]): String =
+    sub.annotations
+      .collectFirst { case label: FieldName => label.value }
+      .getOrElse(titleCase(sub.typeInfo.short))
+
+  /** someParameterName -> Some Parameter Name camelCase -> Title Case
+    */
+  private def titleCase(string: String): String =
+    string.split("(?=[A-Z])").map(_.capitalize).mkString(" ")
 
 }
 
@@ -195,3 +226,17 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
         }
       )
 }
+
+def secretForm[A <: String](to: String => A) = new Form[A]:
+  override def render(
+      variable: Var[A],
+      syncParent: () => Unit,
+      values: List[A] = List.empty
+  )(using factory: WidgetFactory): HtmlElement =
+    factory.renderSecret.amend(
+      value <-- variable.signal,
+      onInput.mapToValue.map(to) --> { v =>
+        variable.set(v)
+        syncParent()
+      }
+    )
