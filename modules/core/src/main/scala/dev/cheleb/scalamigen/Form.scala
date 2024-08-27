@@ -233,3 +233,17 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
         }
       )
 }
+
+def secretForm[A <: String](to: String => A) = new Form[A]:
+  override def render(
+      variable: Var[A],
+      syncParent: () => Unit,
+      values: List[A] = List.empty
+  )(using factory: WidgetFactory): HtmlElement =
+    factory.renderSecret.amend(
+      value <-- variable.signal,
+      onInput.mapToValue.map(to) --> { v =>
+        variable.set(v)
+        syncParent()
+      }
+    )
