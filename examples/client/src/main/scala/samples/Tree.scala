@@ -24,8 +24,7 @@ implicit def treeInstance[A](using
     override def isAnyRef = true
     override def render(
         variable: Var[Tree[A]],
-        syncParent: () => Unit,
-        values: List[Tree[A]]
+        syncParent: () => Unit
     )(using WidgetFactory): HtmlElement =
       variable.now() match
         case Tree.Empty =>

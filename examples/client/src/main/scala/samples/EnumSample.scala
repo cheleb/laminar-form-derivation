@@ -6,6 +6,8 @@ import com.raquo.laminar.api.L.*
 
 import com.raquo.airstream.state.Var
 
+import com.raquo.laminar.api.L
+
 val enums = Sample(
   "Enums", {
 
@@ -14,12 +16,13 @@ val enums = Sample(
       case White extends Color("FFF")
       case Isabelle extends Color("???")
 
-    case class Basket(@EnumValues(Color.values) color: Color, cat: Cat)
+    case class Basket(color: Color, cat: Cat)
+
+    given colorForm: Form[Color] = enumForm(Color.values, Color.fromOrdinal)
 
     case class Cat(
         name: String,
         age: Int,
-        @EnumValues(Color.values)
         color: Color
     )
 

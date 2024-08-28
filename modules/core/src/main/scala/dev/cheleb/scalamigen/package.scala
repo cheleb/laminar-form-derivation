@@ -44,8 +44,7 @@ given [T, C](using fv: IronTypeValidator[T, C]): Form[IronType[T, C]] =
 
     override def render(
         variable: Var[IronType[T, C]],
-        syncParent: () => Unit,
-        values: List[IronType[T, C]]
+        syncParent: () => Unit
     )(using factory: WidgetFactory): HtmlElement =
 
       val errorVar = Var("")
@@ -87,8 +86,7 @@ given [T, C](using fv: IronTypeValidator[T, C]): Form[IronType[T, C]] =
 given Form[String] with
   override def render(
       variable: Var[String],
-      syncParent: () => Unit,
-      values: List[String] = List.empty
+      syncParent: () => Unit
   )(using factory: WidgetFactory): HtmlElement =
     factory.renderText
       .amend(
@@ -102,8 +100,7 @@ given Form[String] with
 given Form[Nothing] = new Form[Nothing] {
   override def render(
       variable: Var[Nothing],
-      syncParent: () => Unit,
-      values: List[Nothing] = List.empty
+      syncParent: () => Unit
   )(using factory: WidgetFactory): HtmlElement =
     div()
 }
@@ -127,8 +124,7 @@ given eitherOf[L, R](using
   new Form[Either[L, R]] {
     override def render(
         variable: Var[Either[L, R]],
-        syncParent: () => Unit,
-        values: List[Either[L, R]] = List.empty
+        syncParent: () => Unit
     )(using factory: WidgetFactory): HtmlElement =
 
       val (vl, vr) = variable.now() match
@@ -177,8 +173,7 @@ given optionOfA[A](using
   new Form[Option[A]] {
     override def render(
         variable: Var[Option[A]],
-        syncParent: () => Unit,
-        values: List[Option[A]] = List.empty
+        syncParent: () => Unit
     )(using factory: WidgetFactory): HtmlElement =
       val a = variable.zoom {
         case Some(a) =>
@@ -228,8 +223,7 @@ given listOfA[A, K](using fa: Form[A], idOf: A => K): Form[List[A]] =
 
     override def render(
         variable: Var[List[A]],
-        syncParent: () => Unit,
-        values: List[List[A]] = List.empty
+        syncParent: () => Unit
     )(using factory: WidgetFactory): HtmlElement =
       div(
         children <-- variable.split(idOf)((id, initial, aVar) => {
@@ -246,8 +240,7 @@ given listOfA[A, K](using fa: Form[A], idOf: A => K): Form[List[A]] =
 given Form[LocalDate] = new Form[LocalDate] {
   override def render(
       variable: Var[LocalDate],
-      syncParent: () => Unit,
-      values: List[LocalDate] = List.empty
+      syncParent: () => Unit
   )(using factory: WidgetFactory): HtmlElement =
     div(
       factory.renderDatePicker
