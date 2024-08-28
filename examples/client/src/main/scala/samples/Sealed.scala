@@ -15,7 +15,7 @@ case class Owner(name: String, pet: Animal)
 val sealedClasses = Sample(
   "Sealed", {
 
-    val eitherVar = Var(Owner("Agnes", Horse("Scala le chat", 6)))
+    val eitherVar = Var(Owner("Agnes", Horse("Niram <3", 6)))
 
     div(
       child <-- eitherVar.signal.map { item =>
