@@ -17,6 +17,7 @@ object App extends App {
 
   private val demos = Seq(
     samples.simple,
+    samples.sealedClasses,
     samples.either,
     samples.enums,
     samples.person,

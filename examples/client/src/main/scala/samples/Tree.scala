@@ -17,7 +17,8 @@ object Tree:
       case (Empty, Node(_, _, _)) => false
       case (Node(_, left1, right1), Node(_, left2, right2)) =>
         isSameStructure(left1, left2) && isSameStructure(right1, right2)
-implicit def treeInstance[A](using
+
+given treeInstance[A](using
     default: Defaultable[A]
 )(using Form[A]): Form[Tree[A]] =
   new Form[Tree[A]] { self =>
