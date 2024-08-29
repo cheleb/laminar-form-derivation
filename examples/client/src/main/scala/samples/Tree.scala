@@ -6,22 +6,23 @@ import com.raquo.laminar.api.L.*
 
 import com.raquo.airstream.state.Var
 
-enum Tree[+T]:
-  case Empty extends Tree[Nothing]
-  case Node(value: T, left: Tree[T], right: Tree[T])
-object Tree:
-  def isSameStructure(tree1: Tree[?], tree2: Tree[?]): Boolean =
-    (tree1, tree2) match
-      case (Empty, Empty)         => true
-      case (Node(_, _, _), Empty) => false
-      case (Empty, Node(_, _, _)) => false
-      case (Node(_, left1, right1), Node(_, left2, right2)) =>
-        isSameStructure(left1, left2) && isSameStructure(right1, right2)
+val tree = {
 
-given treeInstance[A](using
-    default: Defaultable[A]
-)(using Form[A]): Form[Tree[A]] =
-  new Form[Tree[A]] { self =>
+  enum Tree[+T]:
+    case Empty extends Tree[Nothing]
+    case Node(value: T, left: Tree[T], right: Tree[T])
+  object Tree:
+    def isSameStructure(tree1: Tree[?], tree2: Tree[?]): Boolean =
+      (tree1, tree2) match
+        case (Empty, Empty)         => true
+        case (Node(_, _, _), Empty) => false
+        case (Empty, Node(_, _, _)) => false
+        case (Node(_, left1, right1), Node(_, left2, right2)) =>
+          isSameStructure(left1, left2) && isSameStructure(right1, right2)
+
+  given treeInstance[A](using
+      default: Defaultable[A]
+  )(using Form[A]): Form[Tree[A]] = new Form[Tree[A]] { self =>
     override def isAnyRef = true
     override def render(
         variable: Var[Tree[A]],
@@ -88,30 +89,35 @@ given treeInstance[A](using
           )
   }
 
-val tree = Sample(
-  "Tree", {
+  Sample(
+    "Tree", {
 
-    import Tree.*
+      import Tree.*
 
-    case class Person(name: String, age: Int)
-    object Person {
-      given Defaultable[Person] with
-        def default = Person("--", 0)
-    }
-    val treeVar2 = Var(
-      Node(Person("agnes", 50), Node(Person("Zozo", 53), Empty, Empty), Empty)
-    )
-    div(
-      child <-- treeVar2.signal.map { item =>
-        div(
-          s"$item zozo"
+      case class Person(name: String, age: Int)
+      object Person {
+        given Defaultable[Person] with
+          def default = Person("--", 0)
+      }
+      val treeVar2 = Var(
+        Node(
+          Person("agnes", 50),
+          Node(Person("Zozo", 53), Empty, Empty),
+          Empty
         )
-      },
-      child <-- treeVar2.signal
-        .distinctByFn(Tree.isSameStructure)
-        .map { item =>
-          treeVar2.asForm
-        }
-    )
-  }
-)
+      )
+      div(
+        child <-- treeVar2.signal.map { item =>
+          div(
+            s"$item zozo"
+          )
+        },
+        child <-- treeVar2.signal
+          .distinctByFn(Tree.isSameStructure)
+          .map { item =>
+            treeVar2.asForm
+          }
+      )
+    }
+  )
+}
