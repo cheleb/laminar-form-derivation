@@ -18,14 +18,10 @@ trait Form[A] { self =>
   def isAnyRef = false
 
   def fromString(s: String): Option[A] = None
+
   def fromString(s: String, variable: Var[A], errorVar: Var[String]): Unit = ()
 
   def toString(a: A) = a.toString
-
-  def render(
-      variable: Var[A]
-  )(using factory: WidgetFactory): HtmlElement =
-    render(variable, () => ())
 
   def render(
       variable: Var[A],
@@ -75,7 +71,7 @@ object Form extends AutoDerivation[Form] {
     override def isAnyRef: Boolean = true
     override def render(
         variable: Var[A],
-        syncParent: () => Unit = () => ()
+        syncParent: () => Unit
     )(using factory: WidgetFactory): HtmlElement = {
 
       val panel =
@@ -137,11 +133,16 @@ object Form extends AutoDerivation[Form] {
         variable: Var[A],
         syncParent: () => Unit
     )(using factory: WidgetFactory): HtmlElement =
-      sealedTrait.choose(variable.now()) { sub =>
+      val a = variable.now()
+      sealedTrait.choose(a) { sub =>
+        val va = Var(sub.cast(a))
         sub.typeclass
           .render(
-            Var(sub.cast(variable.now())),
-            syncParent
+            va,
+            () => {
+              variable.set(va.now())
+              syncParent()
+            }
           )
           .amend(
             idAttr := sub.typeInfo.short
