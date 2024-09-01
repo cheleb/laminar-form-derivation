@@ -48,9 +48,8 @@ val tree = {
               }
             ),
             if false then
-              summon[Form[Tree.Node[A]]].render(
-                variable.asInstanceOf[Var[Tree.Node[A]]]
-              )
+              summon[Form[Tree.Node[A]]]
+                .render(variable.asInstanceOf[Var[Tree.Node[A]]], () => ())
             else
               val vVar = Var(value)
               val lVar = Var(left)
