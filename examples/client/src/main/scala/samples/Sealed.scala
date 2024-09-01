@@ -24,7 +24,25 @@ val sealedClasses = {
             s"$item"
           )
         },
-        eitherVar.asForm
+        child <-- eitherVar.signal
+          .distinctByFn((old, nw) => old.pet.getClass == nw.pet.getClass)
+          .map { item =>
+            eitherVar.asForm
+          },
+        div(
+          button(
+            "Change to Lama",
+            onClick.mapToUnit --> (_ =>
+              eitherVar.update(_.copy(pet = Lama("Lama", 3, 2)))
+            )
+          ),
+          button(
+            "Change to Horse",
+            onClick.mapToUnit --> (_ =>
+              eitherVar.update(_.copy(pet = Horse("Niram", 13)))
+            )
+          )
+        )
       )
     }
   )

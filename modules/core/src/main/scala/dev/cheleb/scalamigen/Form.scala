@@ -134,6 +134,24 @@ object Form extends AutoDerivation[Form] {
         syncParent: () => Unit
     )(using factory: WidgetFactory): HtmlElement =
       val a = variable.now()
+      // val values = sealedTrait.subtypes.map(_.typeInfo.short)
+      // div(
+      //   factory
+      //     .renderSelect(_ => ())
+      //     .amend(
+      //       sealedTrait.subtypes
+      //         .map(_.typeInfo.short)
+      //         .map { label =>
+      //           factory.renderOption(
+      //             label,
+      //             values
+      //               .map(_.toString)
+      //               .indexOf(label),
+      //             label == variable.now().toString
+      //           )
+      //         }
+      //         .toSeq
+      //     ),
       sealedTrait.choose(a) { sub =>
         val va = Var(sub.cast(a))
         sub.typeclass
@@ -148,7 +166,7 @@ object Form extends AutoDerivation[Form] {
             idAttr := sub.typeInfo.short
           )
       }
-
+      // )
   }
 
   def getSubtypeLabel[T](sub: Subtype[Typeclass, T, ?]): String =
