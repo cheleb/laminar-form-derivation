@@ -183,7 +183,7 @@ lazy val ui5 = scalajsProject("ui5", false)
   .dependsOn(core)
   .settings(
     libraryDependencies ++= Seq(
-      "be.doeraene" %%% "web-components-ui5" % "2.0.0-RC1"
+      "be.doeraene" %%% "web-components-ui5" % "2.0.0-RC2"
     )
   )
 
