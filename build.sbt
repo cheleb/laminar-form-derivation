@@ -48,7 +48,7 @@ lazy val generator = project
   .enablePlugins(SbtTwirl)
   .settings(
     libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0",
-    libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.10.4",
+    libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.10.5",
     libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.16"
   )
 
