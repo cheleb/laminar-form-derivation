@@ -1,9 +1,17 @@
 package samples
 
-import dev.cheleb.scalamigen.Defaultable
+import dev.cheleb.scalamigen.*
 import dev.cheleb.scalamigen.ui5.UI5WidgetFactory
-import dev.cheleb.scalamigen.WidgetFactory
-import dev.cheleb.scalamigen.LaminarWidgetFactory
+
+opaque type CurrencyCode = String
+
+object CurrencyCode:
+  def apply(code: String): CurrencyCode = code
+
+opaque type Password = String
+object Password:
+  def apply(password: String): Password = password
+  given Form[Password] = secretForm(apply)
 
 case class Cat(name: String, weight: Int)
 case class Dog(name: String, weight: Int)

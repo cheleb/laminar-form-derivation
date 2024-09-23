@@ -2,8 +2,11 @@ package dev.cheleb.scalamigen
 
 import scala.annotation.StaticAnnotation
 
-/** Annotation for enum values
+/** Annotation for field names
   *
-  * Use this annotation to specify enum values for sealed traits.
+  * Use this annotation to specify field names for case class fields.
   */
-class EnumValues[A](val values: Array[A]) extends StaticAnnotation
+class FieldName(val value: String) extends StaticAnnotation
+
+class PanelName(val value: String) extends StaticAnnotation
+class NoPanel extends StaticAnnotation

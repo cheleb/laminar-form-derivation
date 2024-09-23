@@ -6,9 +6,16 @@ import com.raquo.laminar.modifiers.EventListener
 /** This is a trait that defines the interface for the widget factory.
   */
 trait WidgetFactory:
+
+  def renderDatePicker: HtmlElement
+
   /** Render a text input, for strings.
     */
   def renderText: HtmlElement
+
+  /** Render a password input, for secret strings.
+    */
+  def renderSecret: HtmlElement
 
   /** Render a label for a widget.
     */
@@ -29,7 +36,7 @@ trait WidgetFactory:
   /** Render a panel. This is a container for other widgets derived from a case
     * class.
     */
-  def renderPanel(headerText: String): HtmlElement
+  def renderPanel(headerText: Option[String]): HtmlElement
 
   /** Render an unordered list. This is a container for other widgets derived
     * from a case class.

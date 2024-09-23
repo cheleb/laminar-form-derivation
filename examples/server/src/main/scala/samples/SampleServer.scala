@@ -15,7 +15,6 @@ object SampleServer extends ZIOAppDefault {
 
   val serrverProgram =
     for
-      _ <- ZIO.succeed(println("Hello world"))
       endpoints <- HttpApi.endpointsZIO
       _ <- Server.serve(
         ZioHttpInterpreter(ZioHttpServerOptions.default)

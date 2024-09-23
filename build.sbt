@@ -1,11 +1,11 @@
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-val scala33 = "3.4.2"
+val scala33 = "3.5.1"
 
-val tapirVersion = "1.11.1"
+val tapirVersion = "1.11.5"
 
-val laminarVersion = "17.0.0"
+val laminarVersion = "17.1.0"
 
 inThisBuild(
   List(
@@ -48,8 +48,8 @@ lazy val generator = project
   .enablePlugins(SbtTwirl)
   .settings(
     libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0",
-    libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.10.3",
-    libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.14"
+    libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.10.7",
+    libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.16"
   )
 
 val dev = sys.env.get("DEV").getOrElse("demo")
@@ -161,6 +161,7 @@ lazy val core = scalajsProject("core", false)
   .settings(scalacOptions ++= usedScalacOptions)
   .settings(
     libraryDependencies ++= Seq(
+      "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
       "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.7",
       "com.raquo" %%% "laminar" % laminarVersion,
       // "io.laminext" %%% "websocket" % laminarVersion,
@@ -182,7 +183,7 @@ lazy val ui5 = scalajsProject("ui5", false)
   .dependsOn(core)
   .settings(
     libraryDependencies ++= Seq(
-      "be.doeraene" %%% "web-components-ui5" % "2.0.0-RC1"
+      "be.doeraene" %%% "web-components-ui5" % "2.0.0-RC2"
     )
   )
 

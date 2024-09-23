@@ -8,7 +8,7 @@ case class Sample(name: String, component: HtmlElement)
 
 object App extends App {
 
-  val sample = Var(samples.tree.component)
+  val sample = Var(samples.sealedClasses.component)
 
   private def item(name: String) = SideNavigation.item(
     _.text := name,
@@ -17,6 +17,7 @@ object App extends App {
 
   private val demos = Seq(
     samples.simple,
+    samples.sealedClasses,
     samples.either,
     samples.enums,
     samples.person,

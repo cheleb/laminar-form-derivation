@@ -6,25 +6,26 @@ import magnolia1.*
 import scala.util.Try
 import com.raquo.airstream.state.Var
 import org.scalajs.dom.HTMLDivElement
+import org.scalajs.dom.HTMLElement
+import com.raquo.laminar.nodes.ReactiveHtmlElement
+import magnolia1.SealedTrait.Subtype
+
+extension [A](v: Var[A])
+  def asForm(using WidgetFactory, Form[A]) = Form.renderVar(v)
 
 trait Form[A] { self =>
 
   def isAnyRef = false
 
   def fromString(s: String): Option[A] = None
+
   def fromString(s: String, variable: Var[A], errorVar: Var[String]): Unit = ()
 
   def toString(a: A) = a.toString
 
   def render(
-      variable: Var[A]
-  )(using factory: WidgetFactory): HtmlElement =
-    render(variable, () => ())
-
-  def render(
       variable: Var[A],
-      syncParent: () => Unit,
-      values: List[A] = List.empty
+      syncParent: () => Unit
   )(using factory: WidgetFactory): HtmlElement
 
   given Owner = unsafeWindowOwner
@@ -32,15 +33,14 @@ trait Form[A] { self =>
   def labelled(name: String, required: Boolean): Form[A] = new Form[A] {
     override def render(
         variable: Var[A],
-        syncParent: () => Unit,
-        values: List[A] = List.empty
+        syncParent: () => Unit
     )(using factory: WidgetFactory): HtmlElement =
       div(
         div(
           factory.renderLabel(required, name)
         ),
         div(
-          self.render(variable, syncParent, values)
+          self.render(variable, syncParent)
         )
       )
 
@@ -48,10 +48,9 @@ trait Form[A] { self =>
   def xmap[B](to: (B, A) => B)(from: B => A): Form[B] = new Form[B] {
     override def render(
         variable: Var[B],
-        syncParent: () => Unit,
-        values: List[B] = List.empty
+        syncParent: () => Unit
     )(using factory: WidgetFactory): HtmlElement =
-      self.render(variable.zoom(from)(to), syncParent, values.map(from))
+      self.render(variable.zoom(from)(to), syncParent)
   }
 
 }
@@ -62,9 +61,9 @@ object Form extends AutoDerivation[Form] {
       WidgetFactory
   )(using
       fa: Form[A]
-  ) = {
+  ): ReactiveHtmlElement[HTMLElement] =
     fa.render(v, syncParent)
-  }
+
   def join[A](
       caseClass: CaseClass[Typeclass, A]
   ): Form[A] = new Form[A] {
@@ -72,24 +71,35 @@ object Form extends AutoDerivation[Form] {
     override def isAnyRef: Boolean = true
     override def render(
         variable: Var[A],
-        syncParent: () => Unit = () => (),
-        values: List[A] = List.empty
-    )(using factory: WidgetFactory): HtmlElement =
+        syncParent: () => Unit
+    )(using factory: WidgetFactory): HtmlElement = {
+
+      val panel =
+        caseClass.annotations.find(_.isInstanceOf[PanelName]) match
+          case None =>
+            caseClass.annotations.find(_.isInstanceOf[NoPanel]) match
+              case None =>
+                Some(caseClass.typeInfo.short)
+              case Some(_) =>
+                None
+          case Some(value) =>
+            Option(value.asInstanceOf[PanelName].value)
+
       factory
-        .renderPanel(caseClass.typeInfo.short)
+        .renderPanel(panel)
         .amend(
           className := "panel panel-default",
           caseClass.params.map { param =>
             val isOption = param.deref(variable.now()).isInstanceOf[Option[?]]
 
-            val enumValues =
-              if param.annotations.isEmpty then List.empty[A]
-              else if param.annotations(0).isInstanceOf[EnumValues[?]] then
-                param.annotations(0).asInstanceOf[EnumValues[A]].values.toList
-              else List.empty[A]
+            val fieldName = param.annotations
+              .find(_.isInstanceOf[FieldName]) match
+              case None => param.label
+              case Some(value) =>
+                value.asInstanceOf[FieldName].value
 
             param.typeclass
-              .labelled(param.label, !isOption)
+              .labelled(fieldName, !isOption)
               .render(
                 variable.zoom { a =>
                   Try(param.deref(a))
@@ -101,14 +111,14 @@ object Form extends AutoDerivation[Form] {
                     else p.deref(variable.now())
                   }
                 )(unsafeWindowOwner),
-                syncParent,
-                enumValues.map(_.asInstanceOf[param.PType])
+                syncParent
               )
               .amend(
                 idAttr := param.label
               )
           }.toSeq
         )
+    }
   }
 
   /** Split a sealed trait into a form
@@ -121,32 +131,128 @@ object Form extends AutoDerivation[Form] {
     override def isAnyRef: Boolean = true
     override def render(
         variable: Var[A],
-        syncParent: () => Unit,
-        values: List[A] = List.empty
+        syncParent: () => Unit
     )(using factory: WidgetFactory): HtmlElement =
-      if sealedTrait.isEnum then
-        if values.isEmpty
-        then // No enum values provided, than render as constant
-          div(variable.now().toString())
-        else
-          val valuesLabels = values.map(_.toString)
-          div(
-            factory
-              .renderSelect(idx => variable.set(values(idx)))
-              .amend(
-                valuesLabels.map { label =>
-                  factory.renderOption(
-                    label,
-                    values
-                      .map(_.toString)
-                      .indexOf(label),
-                    label == variable.now().toString
-                  )
-                }.toSeq
-              )
+      val a = variable.now()
+      // val values = sealedTrait.subtypes.map(_.typeInfo.short)
+      // div(
+      //   factory
+      //     .renderSelect(_ => ())
+      //     .amend(
+      //       sealedTrait.subtypes
+      //         .map(_.typeInfo.short)
+      //         .map { label =>
+      //           factory.renderOption(
+      //             label,
+      //             values
+      //               .map(_.toString)
+      //               .indexOf(label),
+      //             label == variable.now().toString
+      //           )
+      //         }
+      //         .toSeq
+      //     ),
+      sealedTrait.choose(a) { sub =>
+        val va = Var(sub.cast(a))
+        sub.typeclass
+          .render(
+            va,
+            () => {
+              variable.set(va.now())
+              syncParent()
+            }
           )
-      else div("Not an enum.")
-
+          .amend(
+            idAttr := sub.typeInfo.short
+          )
+      }
+      // )
   }
+
+  def getSubtypeLabel[T](sub: Subtype[Typeclass, T, ?]): String =
+    sub.annotations
+      .collectFirst { case label: FieldName => label.value }
+      .getOrElse(titleCase(sub.typeInfo.short))
+
+  /** someParameterName -> Some Parameter Name camelCase -> Title Case
+    */
+  private def titleCase(string: String): String =
+    string.split("(?=[A-Z])").map(_.capitalize).mkString(" ")
+
+}
+
+/** Use this form to render a string that can be converted to A, can be used for
+  * Opaque types.
+  */
+def stringForm[A](to: String => A) = new Form[A]:
+  override def render(
+      variable: Var[A],
+      syncParent: () => Unit
+  )(using factory: WidgetFactory): HtmlElement =
+    factory.renderText.amend(
+      value <-- variable.signal.map(_.toString),
+      onInput.mapToValue.map(to) --> { v =>
+        variable.set(v)
+        syncParent()
+      }
+    )
+
+/** Form for a numeric type.
+  */
+def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
+  self =>
+  override def fromString(s: String): Option[A] =
+    f(s).orElse(Some(zero))
+  override def render(
+      variable: Var[A],
+      syncParent: () => Unit
+  )(using factory: WidgetFactory): HtmlElement =
+    factory.renderNumeric
+      .amend(
+        value <-- variable.signal.map { str =>
+          str.toString()
+        },
+        onInput.mapToValue --> { v =>
+          fromString(v).foreach(variable.set)
+          syncParent()
+        }
+      )
+}
+
+def secretForm[A <: String](to: String => A) = new Form[A]:
+  override def render(
+      variable: Var[A],
+      syncParent: () => Unit
+  )(using factory: WidgetFactory): HtmlElement =
+    factory.renderSecret.amend(
+      value <-- variable.signal,
+      onInput.mapToValue.map(to) --> { v =>
+        variable.set(v)
+        syncParent()
+      }
+    )
+
+def enumForm[A](values: Array[A], f: Int => A) = new Form[A] {
+
+  override def render(
+      variable: Var[A],
+      syncParent: () => Unit
+  )(using factory: WidgetFactory): HtmlElement =
+    val valuesLabels = values.map(_.toString)
+    div(
+      factory
+        .renderSelect(idx => variable.set(f(idx)))
+        .amend(
+          valuesLabels.map { label =>
+            factory.renderOption(
+              label,
+              values
+                .map(_.toString)
+                .indexOf(label),
+              label == variable.now().toString
+            )
+          }.toSeq
+        )
+    )
 
 }
