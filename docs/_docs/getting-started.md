@@ -4,9 +4,9 @@
 
 ```sbt
 // With raw Laminar widgets (html only)
-libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui" % "0.11.0"
+libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui" % "{{ projectVersion }}"
 // With UI5 Web Components
-libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui5" % "0.11.0"
+libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui5" % "{{ projectVersion}}"
 ```
 
 
