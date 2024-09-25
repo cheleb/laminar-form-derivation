@@ -23,7 +23,7 @@ val validation = {
 
   given IronTypeValidator[Double, GreaterEqual[8.0]] =
     _.toDoubleOption match
-      case None         => Left("Nots a number")
+      case None         => Left("Not a number")
       case Some(double) => double.refineEither[GreaterEqual[8.0]]
 
   val ironSampleVar = Var(

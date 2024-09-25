@@ -23,7 +23,6 @@ val tree = {
   given treeInstance[A](using
       default: Defaultable[A]
   )(using Form[A]): Form[Tree[A]] = new Form[Tree[A]] { self =>
-    override def isAnyRef = true
     override def render(
         variable: Var[Tree[A]],
         syncParent: () => Unit

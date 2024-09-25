@@ -10,19 +10,44 @@ import org.scalajs.dom.HTMLElement
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import magnolia1.SealedTrait.Subtype
 
-extension [A](v: Var[A])
-  def asForm(using WidgetFactory, Form[A]) = Form.renderVar(v)
-
+/** A form for a type A.
+  */
 trait Form[A] { self =>
 
-  def isAnyRef = false
+//  def isAnyRef = false
 
+  /** Parse a string and return an Option[A].
+    *
+    * @param s
+    * @return
+    */
   def fromString(s: String): Option[A] = None
 
+  /** Parse a string and set t he variable to the parsed value or set the
+    * errorVar to an error message.
+    *
+    * @param s
+    * @param variable
+    * @param errorVar
+    */
   def fromString(s: String, variable: Var[A], errorVar: Var[String]): Unit = ()
 
   def toString(a: A) = a.toString
 
+  /** Render a form for a variable.
+    *
+    * Sometimes the form is a part of a larger form and the parent form needs to
+    * be updated when the variable changes. This is the purpose of the
+    * syncParent function.
+    *
+    * @param variable
+    *   the variable to render
+    * @param syncParent
+    *   a function to sync the parent state
+    * @param factory
+    *   the widget factory
+    * @return
+    */
   def render(
       variable: Var[A],
       syncParent: () => Unit
@@ -68,7 +93,6 @@ object Form extends AutoDerivation[Form] {
       caseClass: CaseClass[Typeclass, A]
   ): Form[A] = new Form[A] {
 
-    override def isAnyRef: Boolean = true
     override def render(
         variable: Var[A],
         syncParent: () => Unit
@@ -128,7 +152,6 @@ object Form extends AutoDerivation[Form] {
     */
   def split[A](sealedTrait: SealedTrait[Form, A]): Form[A] = new Form[A] {
 
-    override def isAnyRef: Boolean = true
     override def render(
         variable: Var[A],
         syncParent: () => Unit
@@ -178,81 +201,5 @@ object Form extends AutoDerivation[Form] {
     */
   private def titleCase(string: String): String =
     string.split("(?=[A-Z])").map(_.capitalize).mkString(" ")
-
-}
-
-/** Use this form to render a string that can be converted to A, can be used for
-  * Opaque types.
-  */
-def stringForm[A](to: String => A) = new Form[A]:
-  override def render(
-      variable: Var[A],
-      syncParent: () => Unit
-  )(using factory: WidgetFactory): HtmlElement =
-    factory.renderText.amend(
-      value <-- variable.signal.map(_.toString),
-      onInput.mapToValue.map(to) --> { v =>
-        variable.set(v)
-        syncParent()
-      }
-    )
-
-/** Form for a numeric type.
-  */
-def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
-  self =>
-  override def fromString(s: String): Option[A] =
-    f(s).orElse(Some(zero))
-  override def render(
-      variable: Var[A],
-      syncParent: () => Unit
-  )(using factory: WidgetFactory): HtmlElement =
-    factory.renderNumeric
-      .amend(
-        value <-- variable.signal.map { str =>
-          str.toString()
-        },
-        onInput.mapToValue --> { v =>
-          fromString(v).foreach(variable.set)
-          syncParent()
-        }
-      )
-}
-
-def secretForm[A <: String](to: String => A) = new Form[A]:
-  override def render(
-      variable: Var[A],
-      syncParent: () => Unit
-  )(using factory: WidgetFactory): HtmlElement =
-    factory.renderSecret.amend(
-      value <-- variable.signal,
-      onInput.mapToValue.map(to) --> { v =>
-        variable.set(v)
-        syncParent()
-      }
-    )
-
-def enumForm[A](values: Array[A], f: Int => A) = new Form[A] {
-
-  override def render(
-      variable: Var[A],
-      syncParent: () => Unit
-  )(using factory: WidgetFactory): HtmlElement =
-    val valuesLabels = values.map(_.toString)
-    div(
-      factory
-        .renderSelect(idx => variable.set(f(idx)))
-        .amend(
-          valuesLabels.map { label =>
-            factory.renderOption(
-              label,
-              values
-                .map(_.toString)
-                .indexOf(label),
-              label == variable.now().toString
-            )
-          }.toSeq
-        )
-    )
 
 }
