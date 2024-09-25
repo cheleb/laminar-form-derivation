@@ -105,6 +105,22 @@ given Form[Nothing] = new Form[Nothing] {
     div()
 }
 
+given Form[Boolean] = new Form[Boolean] {
+  override def render(
+      variable: Var[Boolean],
+      syncParent: () => Unit
+  )(using factory: WidgetFactory): HtmlElement =
+    div(
+      factory.renderCheckbox
+        .amend(
+          checked <-- variable.signal,
+          onChange.mapToChecked --> { v =>
+            variable.set(v)
+            syncParent()
+          }
+        )
+    )
+}
 given Form[Double] = numericForm(_.toDoubleOption, 0)
 given Form[Int] = numericForm(_.toIntOption, 0)
 given Form[Float] = numericForm(_.toFloatOption, 0)

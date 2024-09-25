@@ -7,6 +7,12 @@ import com.raquo.laminar.modifiers.EventListener
   */
 trait WidgetFactory:
 
+  /** Render a checkbox.
+    */
+  def renderCheckbox: HtmlElement
+
+  /** Render a date picker.
+    */
   def renderDatePicker: HtmlElement
 
   /** Render a text input, for strings.

@@ -19,6 +19,8 @@ import be.doeraene.webcomponents.ui5.configkeys.InputType.Password
   */
 object UI5WidgetFactory extends WidgetFactory:
 
+  override def renderCheckbox: L.HtmlElement = CheckBox()
+
   override def renderDatePicker: L.HtmlElement = DatePicker(
     _.formatPattern := "yyyy-MM-dd"
   )
