@@ -23,7 +23,7 @@ else
             echo "(Refreshing dependencies: package-lock.json is older than $npmRefresh seconds ($age_lock).)"
         fi
 
-        npm i
+        npm ci
         cd ../..
     else
         echo "Skipping npm install... $filename_lock is less than an $npmRefresh seconds old ($age)."
