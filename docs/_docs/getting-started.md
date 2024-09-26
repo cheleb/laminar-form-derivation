@@ -9,6 +9,11 @@ libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui" % "{{ proje
 libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui5" % "{{ projectVersion}}"
 ```
 
+Annoations allow to customize the form rendering. They are part of the `laminar-form-derivation-shared` package.
+
+```sbt
+libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-shared" % "{{ projectVersion }}"
+```
 
 ## Sample
 
@@ -31,21 +36,25 @@ case class Dog(name: String, age: Int)
 case class EitherSample(
     either: Either[Cat, Dog],
     optionalInt: Option[Int]
+    kind: Boolean = true
 )
 
 // Laminar variable binding
 val eitherVar = Var(EitherSample(Left(Cat("Scala le chat", 6)), Some(1)))
 
 div(
-  // Debug output of the model as soon as it changes.
+  // (1) Debug output of the model as soon as it changes.
   child <-- eitherVar.signal.map { item =>
     div(
       s"$item"
     )
   },
-  // Render the forms
+  // (2) Render the forms
   Form.renderVar(eitherVar)
 )
 
-
 ```
+
+Will be rendered as:
+
+![Sample Form](../_assets/images/simple-form.png)
