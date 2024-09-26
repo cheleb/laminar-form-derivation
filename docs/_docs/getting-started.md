@@ -19,16 +19,6 @@ libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-shared" % "{{ p
 
 ```scala sc:nocompile
 
-import dev.cheleb.scalamigen.{*, given}
-import dev.cheleb.scalamigen.ui5.UI5WidgetFactory
-
-import com.raquo.laminar.api.L.*
-
-import com.raquo.airstream.state.Var
-
-// Declare WidgetFactory for UI5 Web Components
-given WidgetFactory = UI5WidgetFactory
-
 // Declare model case class
 case class Cat(name: String, age: Int)
 case class Dog(name: String, age: Int)
