@@ -47,4 +47,4 @@ div(
 
 Will be rendered as:
 
-![Sample Form](../_assets/images/simple-form.png)
+![Sample Form](../images/simple-form.png)
