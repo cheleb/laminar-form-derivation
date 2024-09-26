@@ -51,6 +51,9 @@ lazy val generator = project
     libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.10.7",
     libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.16"
   )
+  .settings(
+    publish / skip := true
+  )
 
 val dev = sys.env.get("DEV").getOrElse("demo")
 
@@ -81,9 +84,9 @@ lazy val root = project
     generator,
     server,
     core,
+    coreSharedJs,
+    coreSharedJvm,
     ui5,
-    sharedJs,
-    sharedJvm,
     example
   )
   .settings(
@@ -134,7 +137,7 @@ lazy val server = project
     )
   )
   .settings(serverSettings: _*)
-  .dependsOn(sharedJvm, core)
+  .dependsOn(exampleSharedJvm, core)
   .settings(
     publish / skip := true
   )
@@ -149,6 +152,7 @@ val usedScalacOptions = Seq(
   "-Wunused:all"
 )
 lazy val core = scalajsProject("core", false)
+  .dependsOn(coreSharedJs)
   .settings(
     name := "laminar-form-derivation",
     //  scalaJSUseMainModuleInitializer := true,
@@ -168,6 +172,15 @@ lazy val core = scalajsProject("core", false)
       "io.github.iltotore" %%% "iron" % "2.6.0"
     )
   )
+
+lazy val coreShared = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("modules/shared"))
+  .settings(
+    name := "laminar-form-derivation-shared"
+  )
+lazy val coreSharedJvm = coreShared.jvm
+lazy val coreSharedJs = coreShared.js
 
 lazy val ui5 = scalajsProject("ui5", false)
   .settings(
@@ -203,19 +216,19 @@ lazy val example = scalajsProject("client", true)
     }
   )
   .settings(scalacOptions ++= usedScalacOptions)
-  .dependsOn(ui5, sharedJs)
+  .dependsOn(ui5, exampleSharedJs)
   .settings(
     publish / skip := true
   )
 
-lazy val shared = crossProject(JSPlatform, JVMPlatform)
+lazy val exampleShared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("examples/shared"))
   .settings(
     publish / skip := true
   )
-lazy val sharedJvm = shared.jvm
-lazy val sharedJs = shared.js
+lazy val exampleSharedJvm = exampleShared.jvm
+lazy val exampleSharedJs = exampleShared.js
 
 //Global / cancelable := true
 //Global / fork := true
