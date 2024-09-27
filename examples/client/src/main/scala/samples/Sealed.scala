@@ -8,14 +8,14 @@ import com.raquo.airstream.state.Var
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 
 val sealedClasses = {
-  sealed trait Animal derives Form
+  sealed trait Animal
 
-  case class Horse(name: String, age: Int) extends Animal derives Form
+  case class Horse(name: String, age: Int) extends Animal
   case class Lama(name: String, age: Int, splitDistance: Int) extends Animal
-      derives Form
-  case class Otter(name: String, age: Int) extends Animal derives Form
 
-  case class Owner(name: String, pet: Animal) derives Form
+  case class Otter(name: String, age: Int) extends Animal
+
+  case class Owner(name: String, pet: Animal)
 
   Sample(
     "Sealed", {

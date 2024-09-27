@@ -16,6 +16,18 @@ def stringForm[A](to: String => A) = new Form[A]:
         syncParent()
       }
     )
+def secretForm[A <: String](to: String => A) = new Form[A]:
+  override def render(
+      variable: Var[A],
+      syncParent: () => Unit
+  )(using factory: WidgetFactory): HtmlElement =
+    factory.renderSecret.amend(
+      value <-- variable.signal,
+      onInput.mapToValue.map(to) --> { v =>
+        variable.set(v)
+        syncParent()
+      }
+    )
 
 /** Form for a numeric type.
   */

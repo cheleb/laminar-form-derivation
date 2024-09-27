@@ -12,7 +12,7 @@ val either = {
       either: Either[Cat, Dog],
       primitiveEither: Either[Cat, String],
       optionalInt: Option[Int]
-  ) derives Form
+  )
 
   val eitherVar = Var(
     EitherSample(

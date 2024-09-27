@@ -5,11 +5,11 @@ import dev.cheleb.scalamigen.*
 import com.raquo.laminar.api.L.*
 
 val list = {
-  case class Person2(id: Int, name: String, age: Int) derives Form
+  case class Person2(id: Int, name: String, age: Int)
 
   case class ListElement(
       ints: List[Person2]
-  ) derives Form
+  )
 
   given (Person2 => Int) = _.id
 

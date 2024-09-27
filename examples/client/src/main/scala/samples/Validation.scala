@@ -19,7 +19,7 @@ val validation = {
       optionalInt: Option[Int],
       doubleGreaterThanEight: Double :| GreaterEqual[8.0],
       optionalDoublePositive: Option[Double :| Positive]
-  ) derives Form
+  )
 
   given IronTypeValidator[Double, GreaterEqual[8.0]] =
     _.toDoubleOption match

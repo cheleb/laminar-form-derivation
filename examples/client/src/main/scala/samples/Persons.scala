@@ -23,15 +23,15 @@ val person = {
       email: Option[String],
       age: BigInt,
       size: Double
-  ) derives Form
+  )
   case class Pet(
       name: String,
       age: BigInt,
       House: House,
       size: Double :| Positive
-  ) derives Form
+  )
 
-  case class House(capacity: Int) derives Form
+  case class House(capacity: Int)
 
   // Provide default for optional
   given Defaultable[Pet] with
