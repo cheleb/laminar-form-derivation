@@ -12,6 +12,8 @@ import magnolia1.SealedTrait.Subtype
 import java.time.LocalDate
 import io.github.iltotore.iron.*
 
+import config.PanelConfig
+
 /** A form for a type A.
   */
 trait Form[A] { self =>
@@ -431,54 +433,65 @@ object Form extends AutoDerivation[Form] {
           case None =>
             caseClass.annotations.find(_.isInstanceOf[NoPanel]) match
               case None =>
-                Some(caseClass.typeInfo.short)
-              case Some(_) =>
-                None
+                PanelConfig(Some(caseClass.typeInfo.short), true)
+              case Some(annot) =>
+                val asTable = annot.asInstanceOf[NoPanel].asTable
+                PanelConfig(None, asTable)
+
           case Some(value) =>
-            Option(value.asInstanceOf[Panel].name)
+            val panel = value.asInstanceOf[Panel]
+            PanelConfig(Option(panel.name), panel.asTable)
 
       def renderAsTable() =
-        table(caseClass.params.map { param =>
+        factory
+          .renderPanel(panel.label)
+          .amend(
+            className := "panel panel-default",
+            table(
+              caseClass.params.map { param =>
 
-          val isOption = param.deref(variable.now()).isInstanceOf[Option[?]]
+                val isOption =
+                  param.deref(variable.now()).isInstanceOf[Option[?]]
 
-          val fieldName = param.annotations
-            .find(_.isInstanceOf[FieldName]) match
-            case None => param.label
-            case Some(value) =>
-              value.asInstanceOf[FieldName].value
-          tr(
-            td(
-              factory.renderLabel(
-                !isOption,
-                fieldName
-              )
-            ),
-            td(
-              param.typeclass
-                .render(
-                  variable.zoom { a =>
-                    Try(param.deref(a))
-                      .getOrElse(param.default)
-                      .asInstanceOf[param.PType]
-                  }((_, value) =>
-                    caseClass.construct { p =>
-                      if (p.label == param.label) value
-                      else p.deref(variable.now())
-                    }
-                  )(unsafeWindowOwner),
-                  syncParent
+                val fieldName = param.annotations
+                  .find(_.isInstanceOf[FieldName]) match
+                  case None => param.label
+                  case Some(value) =>
+                    value.asInstanceOf[FieldName].value
+                tr(
+                  td(
+                    factory.renderLabel(
+                      !isOption,
+                      fieldName
+                    )
+                  ),
+                  td(
+                    param.typeclass
+                      .render(
+                        variable.zoom { a =>
+                          Try(param.deref(a))
+                            .getOrElse(param.default)
+                            .asInstanceOf[param.PType]
+                        }((_, value) =>
+                          caseClass.construct { p =>
+                            if (p.label == param.label) value
+                            else p.deref(variable.now())
+                          }
+                        )(unsafeWindowOwner),
+                        syncParent
+                      )
+                      .amend(
+                        idAttr := param.label
+                      )
+                  )
                 )
-                .amend(
-                  idAttr := param.label
-                )
+              }.toSeq
             )
           )
-        }.toSeq)
 
       def renderAsPanel() =
         factory
-          .renderPanel(panel)
+          .renderPanel(panel.label)
           .amend(
             className := "panel panel-default",
             caseClass.params.map { param =>
@@ -511,8 +524,8 @@ object Form extends AutoDerivation[Form] {
             }.toSeq
           )
 
-      if true then renderAsPanel()
-      else renderAsTable()
+      if panel.asTable then renderAsTable()
+      else renderAsPanel()
     }
   }
 

@@ -8,5 +8,10 @@ import scala.annotation.StaticAnnotation
   */
 class FieldName(val value: String) extends StaticAnnotation
 
-class Panel(val name: String) extends StaticAnnotation
-class NoPanel extends StaticAnnotation
+/** @param name
+  */
+class Panel(val name: String, val asTable: Boolean = true)
+    extends StaticAnnotation
+
+/** */
+class NoPanel(val asTable: Boolean = true) extends StaticAnnotation
