@@ -1,6 +1,6 @@
 package samples
 
-import dev.cheleb.scalamigen.{*, given}
+import dev.cheleb.scalamigen.*
 
 import com.raquo.laminar.api.L.*
 import magnolia1.*
@@ -23,15 +23,15 @@ val person = {
       email: Option[String],
       age: BigInt,
       size: Double
-  )
+  ) derives Form
   case class Pet(
       name: String,
       age: BigInt,
       House: House,
       size: Double :| Positive
-  )
+  ) derives Form
 
-  case class House(capacity: Int)
+  case class House(capacity: Int) derives Form
 
   // Provide default for optional
   given Defaultable[Pet] with

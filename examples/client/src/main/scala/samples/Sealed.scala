@@ -1,6 +1,6 @@
 package samples
 
-import dev.cheleb.scalamigen.{*, given}
+import dev.cheleb.scalamigen.*
 
 import com.raquo.laminar.api.L.*
 
@@ -8,13 +8,14 @@ import com.raquo.airstream.state.Var
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 
 val sealedClasses = {
-  sealed trait Animal
+  sealed trait Animal derives Form
 
-  case class Horse(name: String, age: Int) extends Animal
+  case class Horse(name: String, age: Int) extends Animal derives Form
   case class Lama(name: String, age: Int, splitDistance: Int) extends Animal
-  case class Otter(name: String, age: Int) extends Animal
+      derives Form
+  case class Otter(name: String, age: Int) extends Animal derives Form
 
-  case class Owner(name: String, pet: Animal)
+  case class Owner(name: String, pet: Animal) derives Form
 
   Sample(
     "Sealed", {

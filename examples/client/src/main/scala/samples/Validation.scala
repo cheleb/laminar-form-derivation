@@ -1,6 +1,6 @@
 package samples
 
-import dev.cheleb.scalamigen.{*, given}
+import dev.cheleb.scalamigen.*
 
 import com.raquo.laminar.api.L.*
 
@@ -19,7 +19,7 @@ val validation = {
       optionalInt: Option[Int],
       doubleGreaterThanEight: Double :| GreaterEqual[8.0],
       optionalDoublePositive: Option[Double :| Positive]
-  )
+  ) derives Form
 
   given IronTypeValidator[Double, GreaterEqual[8.0]] =
     _.toDoubleOption match

@@ -1,6 +1,6 @@
 package samples
 
-import dev.cheleb.scalamigen.{*, given}
+import dev.cheleb.scalamigen.*
 
 import com.raquo.laminar.api.L.*
 

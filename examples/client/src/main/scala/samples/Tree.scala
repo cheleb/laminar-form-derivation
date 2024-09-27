@@ -1,14 +1,14 @@
 package samples
 
-import dev.cheleb.scalamigen.{*, given}
+import dev.cheleb.scalamigen.*
 
 import com.raquo.laminar.api.L.*
 
 import com.raquo.airstream.state.Var
-
+import dev.cheleb.scalamigen.FormDerive.autoDerived
 val tree = {
 
-  enum Tree[+T]:
+  enum Tree[+T] derives Form:
     case Empty extends Tree[Nothing]
     case Node(value: T, left: Tree[T], right: Tree[T])
   object Tree:
