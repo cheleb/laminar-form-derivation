@@ -14,9 +14,9 @@ val enums = {
     case White extends Color("FFF")
     case Isabelle extends Color("???")
 
-  case class Basket(color: Color, cat: Cat)
-
   given colorForm: Form[Color] = enumForm(Color.values, Color.fromOrdinal)
+
+  case class Basket(color: Color, cat: Cat)
 
   case class Cat(
       name: String,

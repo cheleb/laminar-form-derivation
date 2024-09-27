@@ -8,7 +8,7 @@ import com.raquo.airstream.state.Var
 
 val either = {
 
-  @Panel("Either", true)
+  @Panel("Either", false)
   case class EitherSample(
       either: Either[Cat, Dog],
       primitiveEither: Either[Cat, String],

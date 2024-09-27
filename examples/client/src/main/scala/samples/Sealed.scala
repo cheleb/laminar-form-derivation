@@ -8,10 +8,24 @@ import com.raquo.airstream.state.Var
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 
 val sealedClasses = {
+
+  enum Color(val code: String):
+    case Black extends Color("000")
+    case White extends Color("FFF")
+    case Isabelle extends Color("???")
+
+  given colorForm: Form[Color] = enumForm(Color.values, Color.fromOrdinal)
+
   sealed trait Animal
 
-  case class Horse(name: String, age: Int) extends Animal
-  case class Lama(name: String, age: Int, splitDistance: Int) extends Animal
+  case class Horse(name: String, age: Int, color: Color) extends Animal
+
+  case class Lama(
+      name: String,
+      age: Int,
+      splitDistance: Int,
+      color: Color = Color.Isabelle
+  ) extends Animal
 
   case class Otter(name: String, age: Int) extends Animal
 
@@ -20,7 +34,7 @@ val sealedClasses = {
   Sample(
     "Sealed", {
 
-      val eitherVar = Var(Owner("Agnes", Horse("Niram <3", 6)))
+      val eitherVar = Var(Owner("Agnes", Horse("Niram <3", 6, Color.Isabelle)))
 
       case class Switcher(
           name: String,
@@ -42,7 +56,7 @@ val sealedClasses = {
 
       val switchers = List(
         Switcher(
-          Horse("Niram", 13)
+          Horse("Niram", 13, Color.Black)
         ),
         Switcher(
           Lama("Lama", 3, 2)

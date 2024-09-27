@@ -10,8 +10,18 @@ class FieldName(val value: String) extends StaticAnnotation
 
 /** @param name
   */
-class Panel(val name: String, val asTable: Boolean = true)
-    extends StaticAnnotation
+case class Panel(
+    name: String,
+    asTable: Boolean = true,
+    fieldCss: String = "srf-field",
+    labelCss: String = "srf-label",
+    panelCss: String = "srf-panel"
+) extends StaticAnnotation
 
 /** */
-class NoPanel(val asTable: Boolean = true) extends StaticAnnotation
+case class NoPanel(
+    asTable: Boolean = true,
+    fieldCss: String = "srf-field",
+    labelCss: String = "srf-label",
+    panelCss: String = "srf-panel"
+) extends StaticAnnotation

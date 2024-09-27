@@ -460,6 +460,8 @@ object Form extends AutoDerivation[Form] {
                   !isOption,
                   fieldName
                 )
+              ).amend(
+                className := panel.fieldCss
               ),
               td(
                 param.typeclass
@@ -517,7 +519,7 @@ object Form extends AutoDerivation[Form] {
       factory
         .renderPanel(panel.label)
         .amend(
-          className := "panel panel-default",
+          className := panel.panelCss,
           if panel.asTable then renderAsTable()
           else renderAsPanel()
         )

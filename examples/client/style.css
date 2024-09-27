@@ -8,6 +8,16 @@ body {
   margin: 0;
 }
 
+.srf-panel {
+
+  border: 1px solid #d9d9d9;
+}
+
+.srf-field {
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
 /** Reducing the size of ui5 inputs of type number to only 100px */
 ui5-input[type="Number"] {
   width: 100px;
