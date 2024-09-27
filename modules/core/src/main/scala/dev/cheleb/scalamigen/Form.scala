@@ -443,89 +443,84 @@ object Form extends AutoDerivation[Form] {
             PanelConfig(Option(panel.name), panel.asTable)
 
       def renderAsTable() =
-        factory
-          .renderPanel(panel.label)
-          .amend(
-            className := "panel panel-default",
-            table(
-              caseClass.params.map { param =>
+        table(
+          caseClass.params.map { param =>
 
-                val isOption =
-                  param.deref(variable.now()).isInstanceOf[Option[?]]
+            val isOption =
+              param.deref(variable.now()).isInstanceOf[Option[?]]
 
-                val fieldName = param.annotations
-                  .find(_.isInstanceOf[FieldName]) match
-                  case None => param.label
-                  case Some(value) =>
-                    value.asInstanceOf[FieldName].value
-                tr(
-                  td(
-                    factory.renderLabel(
-                      !isOption,
-                      fieldName
-                    )
-                  ),
-                  td(
-                    param.typeclass
-                      .render(
-                        variable.zoom { a =>
-                          Try(param.deref(a))
-                            .getOrElse(param.default)
-                            .asInstanceOf[param.PType]
-                        }((_, value) =>
-                          caseClass.construct { p =>
-                            if (p.label == param.label) value
-                            else p.deref(variable.now())
-                          }
-                        )(unsafeWindowOwner),
-                        syncParent
-                      )
-                      .amend(
-                        idAttr := param.label
-                      )
-                  )
+            val fieldName = param.annotations
+              .find(_.isInstanceOf[FieldName]) match
+              case None => param.label
+              case Some(value) =>
+                value.asInstanceOf[FieldName].value
+            tr(
+              td(
+                factory.renderLabel(
+                  !isOption,
+                  fieldName
                 )
-              }.toSeq
+              ),
+              td(
+                param.typeclass
+                  .render(
+                    variable.zoom { a =>
+                      Try(param.deref(a))
+                        .getOrElse(param.default)
+                        .asInstanceOf[param.PType]
+                    }((_, value) =>
+                      caseClass.construct { p =>
+                        if (p.label == param.label) value
+                        else p.deref(variable.now())
+                      }
+                    )(unsafeWindowOwner),
+                    syncParent
+                  )
+                  .amend(
+                    idAttr := param.label
+                  )
+              )
             )
-          )
+          }.toSeq
+        )
 
       def renderAsPanel() =
-        factory
-          .renderPanel(panel.label)
-          .amend(
-            className := "panel panel-default",
-            caseClass.params.map { param =>
-              val isOption = param.deref(variable.now()).isInstanceOf[Option[?]]
+        caseClass.params.map { param =>
+          val isOption = param.deref(variable.now()).isInstanceOf[Option[?]]
 
-              val fieldName = param.annotations
-                .find(_.isInstanceOf[FieldName]) match
-                case None => param.label
-                case Some(value) =>
-                  value.asInstanceOf[FieldName].value
+          val fieldName = param.annotations
+            .find(_.isInstanceOf[FieldName]) match
+            case None => param.label
+            case Some(value) =>
+              value.asInstanceOf[FieldName].value
 
-              param.typeclass
-                .labelled(fieldName, !isOption)
-                .render(
-                  variable.zoom { a =>
-                    Try(param.deref(a))
-                      .getOrElse(param.default)
-                      .asInstanceOf[param.PType]
-                  }((_, value) =>
-                    caseClass.construct { p =>
-                      if (p.label == param.label) value
-                      else p.deref(variable.now())
-                    }
-                  )(unsafeWindowOwner),
-                  syncParent
-                )
-                .amend(
-                  idAttr := param.label
-                )
-            }.toSeq
-          )
+          param.typeclass
+            .labelled(fieldName, !isOption)
+            .render(
+              variable.zoom { a =>
+                Try(param.deref(a))
+                  .getOrElse(param.default)
+                  .asInstanceOf[param.PType]
+              }((_, value) =>
+                caseClass.construct { p =>
+                  if (p.label == param.label) value
+                  else p.deref(variable.now())
+                }
+              )(unsafeWindowOwner),
+              syncParent
+            )
+            .amend(
+              idAttr := param.label
+            )
+        }.toSeq
 
-      if panel.asTable then renderAsTable()
-      else renderAsPanel()
+      factory
+        .renderPanel(panel.label)
+        .amend(
+          className := "panel panel-default",
+          if panel.asTable then renderAsTable()
+          else renderAsPanel()
+        )
     }
   }
 
