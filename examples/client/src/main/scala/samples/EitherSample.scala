@@ -1,10 +1,7 @@
 package samples
 
 import dev.cheleb.scalamigen.*
-
 import com.raquo.laminar.api.L.*
-
-import com.raquo.airstream.state.Var
 
 val either = {
 

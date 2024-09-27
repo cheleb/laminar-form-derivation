@@ -1,8 +1,7 @@
 package samples
 
-import dev.cheleb.scalamigen.*
-
 import com.raquo.laminar.api.L.*
+import dev.cheleb.scalamigen.*
 
 val list = {
   case class Person2(id: Int, name: String, age: Int)

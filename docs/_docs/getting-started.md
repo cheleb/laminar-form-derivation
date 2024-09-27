@@ -18,31 +18,18 @@ libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-shared" % "{{ p
 ## Sample
 
 ```scala sc:nocompile
+import com.raquo.laminar.api.L.*
+import dev.cheleb.scalamigen.*
 
-// Declare model case class
-case class Cat(name: String, age: Int)
-case class Dog(name: String, age: Int)
-
-case class EitherSample(
-    either: Either[Cat, Dog],
-    optionalInt: Option[Int]
-    kind: Boolean = true
-)
-
-// Laminar variable binding
-val eitherVar = Var(EitherSample(Left(Cat("Scala le chat", 6)), Some(1)))
-
+val eitherVar = Var(Cat("Scala le chat", 6))
 div(
-  // (1) Debug output of the model as soon as it changes.
   child <-- eitherVar.signal.map { item =>
     div(
-      s"$item"
+      s"$item"      // (1) debug case class
     )
   },
-  // (2) Render the forms
-  Form.renderVar(eitherVar)
+  eitherVar.asForm  // (2) form rendering
 )
-
 ```
 
 Will be rendered as:

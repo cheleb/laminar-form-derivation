@@ -1,12 +1,7 @@
 package samples
 
-import dev.cheleb.scalamigen.*
-
 import com.raquo.laminar.api.L.*
-
-import com.raquo.airstream.state.Var
-
-import com.raquo.laminar.api.L
+import dev.cheleb.scalamigen.*
 
 val enums = {
   enum Color(val code: String):

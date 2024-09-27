@@ -7,8 +7,6 @@ import com.raquo.laminar.api.L.*
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 
-import com.raquo.airstream.state.Var
-
 val validation = {
 
   given Form[CurrencyCode] = stringForm(CurrencyCode(_))

@@ -4,7 +4,6 @@ import dev.cheleb.scalamigen.*
 
 import com.raquo.laminar.api.L.*
 
-import com.raquo.airstream.state.Var
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 
 val sealedClasses = {

@@ -1,13 +1,11 @@
 package samples
 
-import dev.cheleb.scalamigen.*
-
 import com.raquo.laminar.api.L.*
-import magnolia1.*
+import dev.cheleb.scalamigen.*
+import java.time.LocalDate
 
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
-import java.time.LocalDate
 
 val person = {
   // Define some models
