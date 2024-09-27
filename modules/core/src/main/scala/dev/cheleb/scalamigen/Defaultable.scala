@@ -1,5 +1,8 @@
 package dev.cheleb.scalamigen
 
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.constraint.all.*
+
 /** Typeclass for default values.
   *
   * This typeclass is used to provide default values for a given type. It is
@@ -18,4 +21,25 @@ trait Defaultable[A] {
   /** The label for the type.
     */
   def label: String = default.getClass.getSimpleName()
+}
+
+object Defaultable {
+
+  /** Default value for Int is 0.
+    */
+  inline given Defaultable[Int] with
+    def default = 0
+
+  /** Default value for String is "".
+    */
+  inline given Defaultable[String] with
+    def default = ""
+
+    /** Default value for [Iron type Double
+      * positive](https://iltotore.github.io/iron/io/github/iltotore/iron/constraint/numeric$.html#Positive-0)
+      * is 0.0.
+      */
+  inline given Defaultable[IronType[Double, Positive]] with
+    def default = 1.0.refineUnsafe[Positive]
+
 }

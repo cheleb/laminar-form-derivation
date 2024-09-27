@@ -1,8 +1,7 @@
 package samples
 
-import dev.cheleb.scalamigen.{*, given}
-
 import com.raquo.laminar.api.L.*
+import dev.cheleb.scalamigen.*
 
 val list = {
   case class Person2(id: Int, name: String, age: Int)
@@ -11,11 +10,12 @@ val list = {
       ints: List[Person2]
   )
 
+  given (Person2 => Int) = _.id
+
   val listPersonVar = Var(
     ListElement(List(1, 2, 3).map(id => Person2(id, "Vlad", 20)))
   )
 
-  given (Person2 => Int) = _.id
   Sample(
     "List",
     div(
@@ -27,4 +27,5 @@ val list = {
       listPersonVar.asForm
     )
   )
+
 }

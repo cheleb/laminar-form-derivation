@@ -1,12 +1,7 @@
 package samples
 
-import dev.cheleb.scalamigen.{*, given}
-
 import com.raquo.laminar.api.L.*
-
-import com.raquo.airstream.state.Var
-
-import com.raquo.laminar.api.L
+import dev.cheleb.scalamigen.*
 
 val enums = {
   enum Color(val code: String):
@@ -14,9 +9,9 @@ val enums = {
     case White extends Color("FFF")
     case Isabelle extends Color("???")
 
-  case class Basket(color: Color, cat: Cat)
-
   given colorForm: Form[Color] = enumForm(Color.values, Color.fromOrdinal)
+
+  case class Basket(color: Color, cat: Cat)
 
   case class Cat(
       name: String,
