@@ -427,7 +427,7 @@ object Form extends AutoDerivation[Form] {
     )(using factory: WidgetFactory): HtmlElement = {
 
       val panel =
-        caseClass.annotations.find(_.isInstanceOf[PanelName]) match
+        caseClass.annotations.find(_.isInstanceOf[Panel]) match
           case None =>
             caseClass.annotations.find(_.isInstanceOf[NoPanel]) match
               case None =>
@@ -435,41 +435,84 @@ object Form extends AutoDerivation[Form] {
               case Some(_) =>
                 None
           case Some(value) =>
-            Option(value.asInstanceOf[PanelName].value)
+            Option(value.asInstanceOf[Panel].name)
 
-      factory
-        .renderPanel(panel)
-        .amend(
-          className := "panel panel-default",
-          caseClass.params.map { param =>
-            val isOption = param.deref(variable.now()).isInstanceOf[Option[?]]
+      def renderAsTable() =
+        table(caseClass.params.map { param =>
 
-            val fieldName = param.annotations
-              .find(_.isInstanceOf[FieldName]) match
-              case None => param.label
-              case Some(value) =>
-                value.asInstanceOf[FieldName].value
+          val isOption = param.deref(variable.now()).isInstanceOf[Option[?]]
 
-            param.typeclass
-              .labelled(fieldName, !isOption)
-              .render(
-                variable.zoom { a =>
-                  Try(param.deref(a))
-                    .getOrElse(param.default)
-                    .asInstanceOf[param.PType]
-                }((_, value) =>
-                  caseClass.construct { p =>
-                    if (p.label == param.label) value
-                    else p.deref(variable.now())
-                  }
-                )(unsafeWindowOwner),
-                syncParent
+          val fieldName = param.annotations
+            .find(_.isInstanceOf[FieldName]) match
+            case None => param.label
+            case Some(value) =>
+              value.asInstanceOf[FieldName].value
+          tr(
+            td(
+              factory.renderLabel(
+                !isOption,
+                fieldName
               )
-              .amend(
-                idAttr := param.label
-              )
-          }.toSeq
-        )
+            ),
+            td(
+              param.typeclass
+                .render(
+                  variable.zoom { a =>
+                    Try(param.deref(a))
+                      .getOrElse(param.default)
+                      .asInstanceOf[param.PType]
+                  }((_, value) =>
+                    caseClass.construct { p =>
+                      if (p.label == param.label) value
+                      else p.deref(variable.now())
+                    }
+                  )(unsafeWindowOwner),
+                  syncParent
+                )
+                .amend(
+                  idAttr := param.label
+                )
+            )
+          )
+        }.toSeq)
+
+      def renderAsPanel() =
+        factory
+          .renderPanel(panel)
+          .amend(
+            className := "panel panel-default",
+            caseClass.params.map { param =>
+              val isOption = param.deref(variable.now()).isInstanceOf[Option[?]]
+
+              val fieldName = param.annotations
+                .find(_.isInstanceOf[FieldName]) match
+                case None => param.label
+                case Some(value) =>
+                  value.asInstanceOf[FieldName].value
+
+              param.typeclass
+                .labelled(fieldName, !isOption)
+                .render(
+                  variable.zoom { a =>
+                    Try(param.deref(a))
+                      .getOrElse(param.default)
+                      .asInstanceOf[param.PType]
+                  }((_, value) =>
+                    caseClass.construct { p =>
+                      if (p.label == param.label) value
+                      else p.deref(variable.now())
+                    }
+                  )(unsafeWindowOwner),
+                  syncParent
+                )
+                .amend(
+                  idAttr := param.label
+                )
+            }.toSeq
+          )
+
+      if true then renderAsPanel()
+      else renderAsTable()
     }
   }
 
