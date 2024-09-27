@@ -60,7 +60,10 @@ def enumForm[A](values: Array[A], f: Int => A) = new Form[A] {
     val valuesLabels = values.map(_.toString)
     div(
       factory
-        .renderSelect(idx => variable.set(f(idx)))
+        .renderSelect { idx =>
+          variable.set(f(idx))
+          syncParent()
+        }
         .amend(
           valuesLabels.map { label =>
             factory.renderOption(
