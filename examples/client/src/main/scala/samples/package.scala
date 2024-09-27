@@ -11,7 +11,7 @@ object CurrencyCode:
 opaque type Password = String
 object Password:
   def apply(password: String): Password = password
-  given Form[Password] = secretForm(apply)
+  given Form[Password] = Form.secretForm(apply)
 
 case class Cat(name: String, weight: Int, kind: Boolean = true)
 case class Dog(name: String, weight: Int)

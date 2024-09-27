@@ -1,9 +1,8 @@
 package samples
 
-import dev.cheleb.scalamigen.{*, given}
+import dev.cheleb.scalamigen.*
 
 import com.raquo.laminar.api.L.*
-import magnolia1.*
 
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
@@ -58,8 +57,8 @@ val person = {
         div(
           s"$item"
         )
-      },
-      personVar.asForm
+      }
+      // personVar.asForm
     )
   )
 }

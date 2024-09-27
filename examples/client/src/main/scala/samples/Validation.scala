@@ -1,6 +1,6 @@
 package samples
 
-import dev.cheleb.scalamigen.{*, given}
+//import dev.cheleb.scalamigen.*
 
 import com.raquo.laminar.api.L.*
 
@@ -11,7 +11,7 @@ import com.raquo.airstream.state.Var
 
 val validation = {
 
-  given Form[CurrencyCode] = stringForm(CurrencyCode(_))
+//  given Form[CurrencyCode] = Form.stringForm(CurrencyCode(_))
 
   case class IronSample(
       curenncyCode: CurrencyCode,
@@ -21,10 +21,10 @@ val validation = {
       optionalDoublePositive: Option[Double :| Positive]
   )
 
-  given IronTypeValidator[Double, GreaterEqual[8.0]] =
-    _.toDoubleOption match
-      case None         => Left("Not a number")
-      case Some(double) => double.refineEither[GreaterEqual[8.0]]
+  // given IronTypeValidator[Double, GreaterEqual[8.0]] =
+  //   _.toDoubleOption match
+  //     case None         => Left("Not a number")
+  //     case Some(double) => double.refineEither[GreaterEqual[8.0]]
 
   val ironSampleVar = Var(
     IronSample(CurrencyCode("Eur"), Some("name"), Some(1), 9.1, Some(1))
@@ -37,8 +37,8 @@ val validation = {
         div(
           s"$item"
         )
-      },
-      ironSampleVar.asForm
+      }
+      ////   ironSampleVar.asForm
     )
   )
 }

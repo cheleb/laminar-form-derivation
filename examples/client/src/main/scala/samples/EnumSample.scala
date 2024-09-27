@@ -1,6 +1,6 @@
 package samples
 
-import dev.cheleb.scalamigen.{*, given}
+import dev.cheleb.scalamigen.*
 
 import com.raquo.laminar.api.L.*
 
@@ -16,7 +16,7 @@ val enums = {
 
   case class Basket(color: Color, cat: Cat)
 
-  given colorForm: Form[Color] = enumForm(Color.values, Color.fromOrdinal)
+  given colorForm: Form[Color] = Form.enumForm(Color.values, Color.fromOrdinal)
 
   case class Cat(
       name: String,
