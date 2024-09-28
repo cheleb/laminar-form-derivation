@@ -19,6 +19,11 @@ val validation = {
       optionalDoublePositive: Option[Double :| Positive]
   )
 
+  given Validator[IronSample] = new Validator[IronSample] {
+    override def isValid(a: IronSample): Boolean =
+      a.optional.isDefined
+  }
+
   given IronTypeValidator[Double, GreaterEqual[8.0]] =
     _.toDoubleOption match
       case None         => Left("Not a number")
@@ -36,7 +41,12 @@ val validation = {
           s"$item"
         )
       },
-      ironSampleVar.asForm
+      ironSampleVar.asForm,
+      child <-- ironSampleVar.isValid.map { valid =>
+        div(
+          s"Valid: $valid"
+        )
+      }
     )
   )
 }

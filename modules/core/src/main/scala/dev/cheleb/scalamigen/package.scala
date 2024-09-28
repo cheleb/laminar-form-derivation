@@ -79,5 +79,7 @@ def enumForm[A](values: Array[A], f: Int => A) = new Form[A] {
 
 }
 
-extension [A](v: Var[A])
-  def asForm(using WidgetFactory, Form[A]) = Form.renderVar(v)
+extension [A](va: Var[A])
+  def asForm(using WidgetFactory, Form[A]) = Form.renderVar(va)
+
+  def isValid(using v: Validator[A]) = va.signal.map(a => v.isValid(a))
