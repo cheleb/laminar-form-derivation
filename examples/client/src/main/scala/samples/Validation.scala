@@ -19,10 +19,9 @@ val validation = {
       optionalDoublePositive: Option[Double :| Positive]
   )
 
-  given Validator[IronSample] = new Validator[IronSample] {
-    override def isValid(a: IronSample): Boolean =
-      a.optional.isDefined
-  }
+  given Validator[IronSample] with
+    def isValid(a: IronSample): Boolean =
+      true
 
   given IronTypeValidator[Double, GreaterEqual[8.0]] =
     _.toDoubleOption match

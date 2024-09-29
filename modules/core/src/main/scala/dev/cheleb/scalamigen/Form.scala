@@ -153,6 +153,10 @@ object Form extends AutoDerivation[Form] {
                 case "" => "white"
                 case _  => "red"
               },
+              cls <-- errorVar.signal.map {
+                case "" => "srf-valid"
+                case _  => "srf-invalid"
+              },
               value <-- variable.signal.map(toString(_)),
               onInput.mapToValue --> { str =>
                 fromString(str, variable, errorVar)
