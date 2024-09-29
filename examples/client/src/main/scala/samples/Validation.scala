@@ -51,12 +51,22 @@ val validation = {
         )
       },
       div(
-        child <-- errorBus.events.map { case (field, error) =>
-          println(s"Error in $field: ${error.getOrElse("")}")
-          div(
-            s"Error in $field: ${error.getOrElse("")}"
-          )
-        }
+        child <-- errorBus.events
+          .scanLeft(Map.empty[String, String]) { case (acc, (field, error)) =>
+            println(s"Error in $field: ${error.getOrElse("")}")
+            error match
+              case Some(error) => acc + (field -> error)
+              case None        => acc - field
+          }
+          .map { errors =>
+            div(
+              errors.map { case (field, error) =>
+                div(
+                  s"$field: $error"
+                )
+              }.toSeq
+            )
+          }
       )
     )
   )
