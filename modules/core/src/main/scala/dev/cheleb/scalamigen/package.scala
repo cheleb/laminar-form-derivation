@@ -11,7 +11,7 @@ def stringForm[A](to: String => A) = new Form[A]:
       syncParent: () => Unit
   )(using
       factory: WidgetFactory,
-      errorBus: EventBus[(String, Option[String])]
+      errorBus: EventBus[(String, ValidationEvent)]
   ): HtmlElement =
     factory.renderText.amend(
       value <-- variable.signal.map(_.toString),
@@ -27,7 +27,7 @@ def secretForm[A <: String](to: String => A) = new Form[A]:
       syncParent: () => Unit
   )(using
       factory: WidgetFactory,
-      errorBus: EventBus[(String, Option[String])]
+      errorBus: EventBus[(String, ValidationEvent)]
   ): HtmlElement =
     factory.renderSecret.amend(
       value <-- variable.signal,
@@ -49,7 +49,7 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
       syncParent: () => Unit
   )(using
       factory: WidgetFactory,
-      errorBus: EventBus[(String, Option[String])]
+      errorBus: EventBus[(String, ValidationEvent)]
   ): HtmlElement =
     factory.renderNumeric
       .amend(
@@ -71,7 +71,7 @@ def enumForm[A](values: Array[A], f: Int => A) = new Form[A] {
       syncParent: () => Unit
   )(using
       factory: WidgetFactory,
-      errorBus: EventBus[(String, Option[String])]
+      errorBus: EventBus[(String, ValidationEvent)]
   ): HtmlElement =
     val valuesLabels = values.map(_.toString)
     div(
@@ -97,13 +97,13 @@ def enumForm[A](values: Array[A], f: Int => A) = new Form[A] {
 
 extension [A](va: Var[A])
   def asForm(using wf: WidgetFactory)(using Form[A]) =
-    val errorBus = new EventBus[(String, Option[String])]()
+    val errorBus = new EventBus[(String, ValidationEvent)]()
     div(
       cls := "srf-form",
       Form.renderVar(va, () => ())(using wf, errorBus)
       //   child.maybe <-- _.d
     )
-  def asForm(errorBus: EventBus[(String, Option[String])])(using
+  def asForm(errorBus: EventBus[(String, ValidationEvent)])(using
       wf: WidgetFactory
   )(using Form[A]) =
     div(

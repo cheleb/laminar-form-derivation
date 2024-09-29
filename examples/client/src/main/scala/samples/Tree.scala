@@ -25,9 +25,9 @@ val tree = {
         name: Symbol,
         variable: Var[Tree[A]],
         syncParent: () => Unit
-    )(using WidgetFactory, EventBus[(String, Option[String])]): HtmlElement =
-      given EventBus[(String, Option[String])] =
-        EventBus[(String, Option[String])]()
+    )(using WidgetFactory, EventBus[(String, ValidationEvent)]): HtmlElement =
+      given EventBus[(String, ValidationEvent)] =
+        EventBus[(String, ValidationEvent)]()
       variable.now() match
         case Tree.Empty =>
           button(

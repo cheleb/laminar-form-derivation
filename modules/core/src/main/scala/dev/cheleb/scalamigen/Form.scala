@@ -27,15 +27,6 @@ trait Form[A] { self =>
     */
   def fromString(s: String): Option[A] = None
 
-  /** Parse a string and set t he variable to the parsed value or set the
-    * errorVar to an error message.
-    *
-    * @param s
-    * @param variable
-    * @param errorVar
-    */
-  def fromString(s: String, variable: Var[A], errorVar: Var[String]): Unit = ()
-
   def toString(a: A) = a.toString
 
   /** Render a form for a variable.
@@ -58,7 +49,7 @@ trait Form[A] { self =>
       syncParent: () => Unit
   )(using
       factory: WidgetFactory,
-      errorBus: EventBus[(String, Option[String])]
+      errorBus: EventBus[(String, ValidationEvent)]
   ): HtmlElement
 
   given Owner = unsafeWindowOwner
@@ -80,7 +71,7 @@ trait Form[A] { self =>
         syncParent: () => Unit
     )(using
         factory: WidgetFactory,
-        errorBus: EventBus[(String, Option[String])]
+        errorBus: EventBus[(String, ValidationEvent)]
     ): HtmlElement =
       div(
         div(
@@ -99,7 +90,7 @@ trait Form[A] { self =>
         syncParent: () => Unit
     )(using
         factory: WidgetFactory,
-        errorBus: EventBus[(String, Option[String])]
+        errorBus: EventBus[(String, ValidationEvent)]
     ): HtmlElement =
       self.render(name, variable.zoom(from)(to), syncParent)
   }
@@ -126,7 +117,7 @@ object Form extends AutoDerivation[Form] {
     */
   def renderVar[A](v: Var[A], syncParent: () => Unit)(using
       WidgetFactory,
-      EventBus[(String, Option[String])]
+      EventBus[(String, ValidationEvent)]
   )(using
       fa: Form[A]
   ): ReactiveHtmlElement[HTMLElement] =
@@ -143,6 +134,7 @@ object Form extends AutoDerivation[Form] {
     */
   given [T, C](using
       validator: IronTypeValidator[T, C],
+      default: Defaultable[IronType[T, C]],
       widgetFactory: WidgetFactory
   ): Form[IronType[T, C]] =
     new Form[IronType[T, C]] {
@@ -153,47 +145,21 @@ object Form extends AutoDerivation[Form] {
           syncParent: () => Unit
       )(using
           factory: WidgetFactory,
-          errorBus: EventBus[(String, Option[String])]
+          errorBus: EventBus[(String, ValidationEvent)]
       ): HtmlElement =
-
-        val errorVar = Var("")
-        div(
-          div(child <-- errorVar.signal.map { item =>
-            div(
-              s"$item"
-            )
-          }),
-          widgetFactory.renderText
-            .amend(
-              // _.showClearIcon := true,
-              cls <-- errorVar.signal.map {
-                case "" =>
-                  errorBus.emit(name.name -> None)
-                  "srf-valid"
-                case error =>
-                  errorBus.emit(name.name -> Option(error))
-                  "srf-invalid"
-              },
-              value <-- variable.signal.map(toString(_)),
-              onInput.mapToValue --> { str =>
-                fromString(str, variable, errorVar)
-
-              }
-            )
-        )
-
-      override def fromString(
-          str: String,
-          variable: Var[IronType[T, C]],
-          errorVar: Var[String]
-      ): Unit =
-        validator.validate(str) match
-          case Left(error) =>
-            errorVar.set(error)
-
-          case Right(value) =>
-            errorVar.set("")
-            variable.set(value)
+        widgetFactory.renderText
+          .amend(
+            // _.showClearIcon := true,
+            value := variable.now().toString,
+//              value <-- variable.signal.map(toString(_)),
+            onInput.mapToValue --> { str =>
+              validator.validate(str) match
+                case Left(error) =>
+                  errorBus.emit(name.name -> InvalideEvent(error))
+                case Right(value) =>
+                  errorBus.emit(name.name -> ValidEvent)
+            }
+          )
     }
 
   /** Form for to a string, aka without validation.
@@ -205,7 +171,7 @@ object Form extends AutoDerivation[Form] {
         syncParent: () => Unit
     )(using
         factory: WidgetFactory,
-        errorBus: EventBus[(String, Option[String])]
+        errorBus: EventBus[(String, ValidationEvent)]
     ): HtmlElement =
       factory.renderText
         .amend(
@@ -225,7 +191,7 @@ object Form extends AutoDerivation[Form] {
         syncParent: () => Unit
     )(using
         factory: WidgetFactory,
-        errorBus: EventBus[(String, Option[String])]
+        errorBus: EventBus[(String, ValidationEvent)]
     ): HtmlElement =
       div()
   }
@@ -241,7 +207,7 @@ object Form extends AutoDerivation[Form] {
         syncParent: () => Unit
     )(using
         factory: WidgetFactory,
-        errorBus: EventBus[(String, Option[String])]
+        errorBus: EventBus[(String, ValidationEvent)]
     ): HtmlElement =
       div(
         factory.renderCheckbox
@@ -305,7 +271,7 @@ object Form extends AutoDerivation[Form] {
           syncParent: () => Unit
       )(using
           factory: WidgetFactory,
-          errorBus: EventBus[(String, Option[String])]
+          errorBus: EventBus[(String, ValidationEvent)]
       ): HtmlElement =
 
         val (vl, vr) = variable.now() match
@@ -368,7 +334,7 @@ object Form extends AutoDerivation[Form] {
           syncParent: () => Unit
       )(using
           factory: WidgetFactory,
-          errorBus: EventBus[(String, Option[String])]
+          errorBus: EventBus[(String, ValidationEvent)]
       ): HtmlElement =
         val a = variable.zoom {
           case Some(a) =>
@@ -399,7 +365,10 @@ object Form extends AutoDerivation[Form] {
                     case None    => "block"
                   },
                   "Set",
-                  onClick.mapTo(Some(d.default)) --> variable.writer
+                  onClick.mapTo(Some(d.default)) --> Observer[Option[A]] { sa =>
+                    errorBus.emit(name.name -> ShownEvent)
+                    variable.set(sa)
+                  }
                 ),
                 factory.renderButton.amend(
                   display <-- variable.signal.map {
@@ -407,7 +376,10 @@ object Form extends AutoDerivation[Form] {
                     case None    => "none"
                   },
                   "Clear",
-                  onClick.mapTo(None) --> variable.writer
+                  onClick.mapTo(None) --> Observer[Option[A]] { _ =>
+                    errorBus.emit(name.name -> HiddenEvent)
+                    variable.set(None)
+                  }
                 )
               )
             )
@@ -430,7 +402,7 @@ object Form extends AutoDerivation[Form] {
           syncParent: () => Unit
       )(using
           factory: WidgetFactory,
-          errorBus: EventBus[(String, Option[String])]
+          errorBus: EventBus[(String, ValidationEvent)]
       ): HtmlElement =
         div(
           children <-- variable.split(idOf)((id, initial, aVar) => {
@@ -455,7 +427,7 @@ object Form extends AutoDerivation[Form] {
         syncParent: () => Unit
     )(using
         factory: WidgetFactory,
-        errorBus: EventBus[(String, Option[String])]
+        errorBus: EventBus[(String, ValidationEvent)]
     ): HtmlElement =
       div(
         factory.renderDatePicker
@@ -479,7 +451,7 @@ object Form extends AutoDerivation[Form] {
         syncParent: () => Unit
     )(using
         factory: WidgetFactory,
-        errorBus: EventBus[(String, Option[String])]
+        errorBus: EventBus[(String, ValidationEvent)]
     ): HtmlElement = {
 
       val panel =
@@ -590,7 +562,7 @@ object Form extends AutoDerivation[Form] {
         syncParent: () => Unit
     )(using
         factory: WidgetFactory,
-        errorBus: EventBus[(String, Option[String])]
+        errorBus: EventBus[(String, ValidationEvent)]
     ): HtmlElement =
       val a = variable.now()
       sealedTrait.choose(a) { sub =>

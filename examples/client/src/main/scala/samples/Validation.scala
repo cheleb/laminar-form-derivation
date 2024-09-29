@@ -19,7 +19,10 @@ val validation = {
       optionalDoublePositive: Option[Double :| Positive]
   )
 
-  val errorBus = new EventBus[(String, Option[String])]
+  given Defaultable[Double :| GreaterEqual[8.0]] with
+    def default: Double :| GreaterEqual[8.0] = 8.0
+
+  val errorBus = new EventBus[(String, ValidationEvent)]
 
   given Validator[IronSample] with
     def isValid(a: IronSample): Boolean =
@@ -52,17 +55,31 @@ val validation = {
       },
       div(
         child <-- errorBus.events
-          .scanLeft(Map.empty[String, String]) { case (acc, (field, error)) =>
-            println(s"Error in $field: ${error.getOrElse("")}")
-            error match
-              case Some(error) => acc + (field -> error)
-              case None        => acc - field
+          .scanLeft(Map.empty[String, ValidationStatus]) {
+            case (acc, (field, event)) =>
+              println(s"Error in $field: ${event}")
+
+              event match
+                case ValidEvent => acc - field
+                case InvalideEvent(error) =>
+                  acc + (field -> ValidationStatus(error, true))
+                case HiddenEvent =>
+                  acc.get(field) match
+                    case Some(ValidationStatus(message, true)) =>
+                      acc + (field -> ValidationStatus(message, false))
+                    case _ => acc
+                case ShownEvent =>
+                  acc.get(field) match
+                    case Some(ValidationStatus(message, false)) =>
+                      acc + (field -> ValidationStatus(message, true))
+                    case _ => acc
+
           }
           .map { errors =>
             div(
-              errors.map { case (field, error) =>
+              errors.collect { case (field, ValidationStatus(message, true)) =>
                 div(
-                  s"$field: $error"
+                  s"$field: $message"
                 )
               }.toSeq
             )
