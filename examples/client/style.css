@@ -30,10 +30,10 @@ ui5-input[type="Number"] {
 
 }
 
-/* .srf-valid {
+.srf-valid {
   border: 1px solid transparent;
 }
 
 .srf-invalid {
   border: 1px solid red;
-} */
+}

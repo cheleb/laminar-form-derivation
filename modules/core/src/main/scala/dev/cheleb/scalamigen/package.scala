@@ -6,6 +6,7 @@ import com.raquo.laminar.api.L.*
 
 def stringForm[A](to: String => A) = new Form[A]:
   override def render(
+      name: Symbol,
       variable: Var[A],
       syncParent: () => Unit
   )(using
@@ -21,6 +22,7 @@ def stringForm[A](to: String => A) = new Form[A]:
     )
 def secretForm[A <: String](to: String => A) = new Form[A]:
   override def render(
+      name: Symbol,
       variable: Var[A],
       syncParent: () => Unit
   )(using
@@ -42,6 +44,7 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
   override def fromString(s: String): Option[A] =
     f(s).orElse(Some(zero))
   override def render(
+      name: Symbol,
       variable: Var[A],
       syncParent: () => Unit
   )(using
@@ -63,6 +66,7 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
 def enumForm[A](values: Array[A], f: Int => A) = new Form[A] {
 
   override def render(
+      name: Symbol,
       variable: Var[A],
       syncParent: () => Unit
   )(using

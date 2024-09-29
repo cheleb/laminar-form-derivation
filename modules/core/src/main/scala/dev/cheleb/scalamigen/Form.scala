@@ -53,6 +53,7 @@ trait Form[A] { self =>
     * @return
     */
   def render(
+      name: Symbol,
       variable: Var[A],
       syncParent: () => Unit
   )(using
@@ -72,8 +73,9 @@ trait Form[A] { self =>
 
 
    */
-  def labelled(name: String, required: Boolean): Form[A] = new Form[A] {
+  def labelled(label: String, required: Boolean): Form[A] = new Form[A] {
     override def render(
+        name: Symbol,
         variable: Var[A],
         syncParent: () => Unit
     )(using
@@ -82,23 +84,24 @@ trait Form[A] { self =>
     ): HtmlElement =
       div(
         div(
-          factory.renderLabel(required, name)
+          factory.renderLabel(required, label)
         ),
         div(
-          self.render(variable, syncParent)
+          self.render(name, variable, syncParent)
         )
       )
 
   }
   def xmap[B](to: (B, A) => B)(from: B => A): Form[B] = new Form[B] {
     override def render(
+        name: Symbol,
         variable: Var[B],
         syncParent: () => Unit
     )(using
         factory: WidgetFactory,
         errorBus: EventBus[(String, Option[String])]
     ): HtmlElement =
-      self.render(variable.zoom(from)(to), syncParent)
+      self.render(name, variable.zoom(from)(to), syncParent)
   }
 
 }
@@ -127,7 +130,7 @@ object Form extends AutoDerivation[Form] {
   )(using
       fa: Form[A]
   ): ReactiveHtmlElement[HTMLElement] =
-    fa.render(v, syncParent)
+    fa.render(Symbol(""), v, syncParent)
 
   /** Form for an Iron type. This is a form for a type that can be validated
     * with an Iron type.
@@ -145,6 +148,7 @@ object Form extends AutoDerivation[Form] {
     new Form[IronType[T, C]] {
 
       override def render(
+          name: Symbol,
           variable: Var[IronType[T, C]],
           syncParent: () => Unit
       )(using
@@ -162,16 +166,12 @@ object Form extends AutoDerivation[Form] {
           widgetFactory.renderText
             .amend(
               // _.showClearIcon := true,
-              backgroundColor <-- errorVar.signal.map {
-                case "" => "white"
-                case _  => "red"
-              },
               cls <-- errorVar.signal.map {
                 case "" =>
-                  errorBus.emit("IronType" -> None)
+                  errorBus.emit(name.name -> None)
                   "srf-valid"
                 case error =>
-                  errorBus.emit("IronType" -> Option(error))
+                  errorBus.emit(name.name -> Option(error))
                   "srf-invalid"
               },
               value <-- variable.signal.map(toString(_)),
@@ -200,6 +200,7 @@ object Form extends AutoDerivation[Form] {
     */
   given Form[String] with
     override def render(
+        name: Symbol,
         variable: Var[String],
         syncParent: () => Unit
     )(using
@@ -219,6 +220,7 @@ object Form extends AutoDerivation[Form] {
     */
   given Form[Nothing] = new Form[Nothing] {
     override def render(
+        name: Symbol,
         variable: Var[Nothing],
         syncParent: () => Unit
     )(using
@@ -234,6 +236,7 @@ object Form extends AutoDerivation[Form] {
     */
   given Form[Boolean] = new Form[Boolean] {
     override def render(
+        name: Symbol,
         variable: Var[Boolean],
         syncParent: () => Unit
     )(using
@@ -297,6 +300,7 @@ object Form extends AutoDerivation[Form] {
   ): Form[Either[L, R]] =
     new Form[Either[L, R]] {
       override def render(
+          name: Symbol,
           variable: Var[Either[L, R]],
           syncParent: () => Unit
       )(using
@@ -330,14 +334,14 @@ object Form extends AutoDerivation[Form] {
               case Left(_) => "block"
               case _       => "none"
             },
-            lf.render(vl, () => variable.set(Left(vl.now())))
+            lf.render(name, vl, () => variable.set(Left(vl.now())))
           ),
           div(
             display <-- variable.signal.map {
               case Left(_) => "none"
               case _       => "block"
             },
-            rf.render(vr, () => variable.set(Right(vr.now())))
+            rf.render(name, vr, () => variable.set(Right(vr.now())))
           )
         )
 
@@ -359,6 +363,7 @@ object Form extends AutoDerivation[Form] {
   ): Form[Option[A]] =
     new Form[Option[A]] {
       override def render(
+          name: Symbol,
           variable: Var[Option[A]],
           syncParent: () => Unit
       )(using
@@ -385,7 +390,7 @@ object Form extends AutoDerivation[Form] {
                   case Some(_) => "block"
                   case None    => "none"
                 },
-                fa.render(a, syncParent)
+                fa.render(name, a, syncParent)
               ),
               div(
                 factory.renderButton.amend(
@@ -420,6 +425,7 @@ object Form extends AutoDerivation[Form] {
     new Form[List[A]] {
 
       override def render(
+          name: Symbol,
           variable: Var[List[A]],
           syncParent: () => Unit
       )(using
@@ -431,7 +437,7 @@ object Form extends AutoDerivation[Form] {
             div(
               idAttr := s"list-item-$id",
               div(
-                fa.render(aVar, syncParent)
+                fa.render(name, aVar, syncParent)
               )
             )
           })
@@ -444,6 +450,7 @@ object Form extends AutoDerivation[Form] {
     */
   given Form[LocalDate] = new Form[LocalDate] {
     override def render(
+        name: Symbol,
         variable: Var[LocalDate],
         syncParent: () => Unit
     )(using
@@ -467,6 +474,7 @@ object Form extends AutoDerivation[Form] {
   ): Form[A] = new Form[A] {
 
     override def render(
+        name: Symbol,
         variable: Var[A],
         syncParent: () => Unit
     )(using
@@ -512,6 +520,7 @@ object Form extends AutoDerivation[Form] {
               td(
                 param.typeclass
                   .render(
+                    Symbol(fieldName),
                     variable.zoom { a =>
                       Try(param.deref(a))
                         .getOrElse(param.default)
@@ -545,6 +554,7 @@ object Form extends AutoDerivation[Form] {
           param.typeclass
             .labelled(fieldName, !isOption)
             .render(
+              Symbol(fieldName),
               variable.zoom { a =>
                 Try(param.deref(a))
                   .getOrElse(param.default)
@@ -575,6 +585,7 @@ object Form extends AutoDerivation[Form] {
   def split[A](sealedTrait: SealedTrait[Form, A]): Form[A] = new Form[A] {
 
     override def render(
+        name: Symbol,
         variable: Var[A],
         syncParent: () => Unit
     )(using
@@ -586,6 +597,7 @@ object Form extends AutoDerivation[Form] {
         val va = Var(sub.cast(a))
         sub.typeclass
           .render(
+            name,
             va,
             () => {
               variable.set(va.now())

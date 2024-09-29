@@ -22,6 +22,7 @@ val tree = {
       default: Defaultable[A]
   )(using Form[A]): Form[Tree[A]] = new Form[Tree[A]] { self =>
     override def render(
+        name: Symbol,
         variable: Var[Tree[A]],
         syncParent: () => Unit
     )(using WidgetFactory, EventBus[(String, Option[String])]): HtmlElement =
@@ -48,7 +49,11 @@ val tree = {
             ),
             if false then
               summon[Form[Tree.Node[A]]]
-                .render(variable.asInstanceOf[Var[Tree.Node[A]]], () => ())
+                .render(
+                  name,
+                  variable.asInstanceOf[Var[Tree.Node[A]]],
+                  () => ()
+                )
             else
               val vVar = Var(value)
               val lVar = Var(left)
