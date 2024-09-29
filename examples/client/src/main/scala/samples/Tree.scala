@@ -24,7 +24,9 @@ val tree = {
     override def render(
         variable: Var[Tree[A]],
         syncParent: () => Unit
-    )(using WidgetFactory): HtmlElement =
+    )(using WidgetFactory, EventBus[(String, Option[String])]): HtmlElement =
+      given EventBus[(String, Option[String])] =
+        EventBus[(String, Option[String])]()
       variable.now() match
         case Tree.Empty =>
           button(

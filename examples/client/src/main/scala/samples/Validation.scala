@@ -19,6 +19,8 @@ val validation = {
       optionalDoublePositive: Option[Double :| Positive]
   )
 
+  val errorBus = new EventBus[(String, Option[String])]
+
   given Validator[IronSample] with
     def isValid(a: IronSample): Boolean =
       true
@@ -40,12 +42,23 @@ val validation = {
           s"$item"
         )
       },
-      ironSampleVar.asForm,
+      ironSampleVar.asForm(errorBus),
       child <-- ironSampleVar.isValid.map { valid =>
         div(
-          s"Valid: $valid"
+          div(
+            s"Valid: $valid"
+          )
         )
-      }
+      },
+      div(
+        child <-- errorBus.events.map { case (field, error) =>
+          println(s"Error in $field: ${error.getOrElse("")}")
+          div(
+            s"Error in $field: ${error.getOrElse("")}"
+          )
+        }
+      )
     )
   )
+
 }

@@ -55,7 +55,10 @@ trait Form[A] { self =>
   def render(
       variable: Var[A],
       syncParent: () => Unit
-  )(using factory: WidgetFactory): HtmlElement
+  )(using
+      factory: WidgetFactory,
+      errorBus: EventBus[(String, Option[String])]
+  ): HtmlElement
 
   given Owner = unsafeWindowOwner
 
@@ -73,7 +76,10 @@ trait Form[A] { self =>
     override def render(
         variable: Var[A],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement =
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, Option[String])]
+    ): HtmlElement =
       div(
         div(
           factory.renderLabel(required, name)
@@ -88,7 +94,10 @@ trait Form[A] { self =>
     override def render(
         variable: Var[B],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement =
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, Option[String])]
+    ): HtmlElement =
       self.render(variable.zoom(from)(to), syncParent)
   }
 
@@ -112,8 +121,9 @@ object Form extends AutoDerivation[Form] {
     *   the type of the variable
     * @return
     */
-  def renderVar[A](v: Var[A], syncParent: () => Unit = () => ())(using
-      WidgetFactory
+  def renderVar[A](v: Var[A], syncParent: () => Unit)(using
+      WidgetFactory,
+      EventBus[(String, Option[String])]
   )(using
       fa: Form[A]
   ): ReactiveHtmlElement[HTMLElement] =
@@ -137,7 +147,10 @@ object Form extends AutoDerivation[Form] {
       override def render(
           variable: Var[IronType[T, C]],
           syncParent: () => Unit
-      )(using factory: WidgetFactory): HtmlElement =
+      )(using
+          factory: WidgetFactory,
+          errorBus: EventBus[(String, Option[String])]
+      ): HtmlElement =
 
         val errorVar = Var("")
         div(
@@ -154,8 +167,12 @@ object Form extends AutoDerivation[Form] {
                 case _  => "red"
               },
               cls <-- errorVar.signal.map {
-                case "" => "srf-valid"
-                case _  => "srf-invalid"
+                case "" =>
+                  errorBus.emit("IronType" -> None)
+                  "srf-valid"
+                case error =>
+                  errorBus.emit("IronType" -> Option(error))
+                  "srf-invalid"
               },
               value <-- variable.signal.map(toString(_)),
               onInput.mapToValue --> { str =>
@@ -173,6 +190,7 @@ object Form extends AutoDerivation[Form] {
         validator.validate(str) match
           case Left(error) =>
             errorVar.set(error)
+
           case Right(value) =>
             errorVar.set("")
             variable.set(value)
@@ -184,7 +202,10 @@ object Form extends AutoDerivation[Form] {
     override def render(
         variable: Var[String],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement =
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, Option[String])]
+    ): HtmlElement =
       factory.renderText
         .amend(
           value <-- variable.signal,
@@ -200,7 +221,10 @@ object Form extends AutoDerivation[Form] {
     override def render(
         variable: Var[Nothing],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement =
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, Option[String])]
+    ): HtmlElement =
       div()
   }
 
@@ -212,7 +236,10 @@ object Form extends AutoDerivation[Form] {
     override def render(
         variable: Var[Boolean],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement =
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, Option[String])]
+    ): HtmlElement =
       div(
         factory.renderCheckbox
           .amend(
@@ -272,7 +299,10 @@ object Form extends AutoDerivation[Form] {
       override def render(
           variable: Var[Either[L, R]],
           syncParent: () => Unit
-      )(using factory: WidgetFactory): HtmlElement =
+      )(using
+          factory: WidgetFactory,
+          errorBus: EventBus[(String, Option[String])]
+      ): HtmlElement =
 
         val (vl, vr) = variable.now() match
           case Left(l) =>
@@ -331,7 +361,10 @@ object Form extends AutoDerivation[Form] {
       override def render(
           variable: Var[Option[A]],
           syncParent: () => Unit
-      )(using factory: WidgetFactory): HtmlElement =
+      )(using
+          factory: WidgetFactory,
+          errorBus: EventBus[(String, Option[String])]
+      ): HtmlElement =
         val a = variable.zoom {
           case Some(a) =>
             a
@@ -389,7 +422,10 @@ object Form extends AutoDerivation[Form] {
       override def render(
           variable: Var[List[A]],
           syncParent: () => Unit
-      )(using factory: WidgetFactory): HtmlElement =
+      )(using
+          factory: WidgetFactory,
+          errorBus: EventBus[(String, Option[String])]
+      ): HtmlElement =
         div(
           children <-- variable.split(idOf)((id, initial, aVar) => {
             div(
@@ -410,7 +446,10 @@ object Form extends AutoDerivation[Form] {
     override def render(
         variable: Var[LocalDate],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement =
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, Option[String])]
+    ): HtmlElement =
       div(
         factory.renderDatePicker
           .amend(
@@ -430,7 +469,10 @@ object Form extends AutoDerivation[Form] {
     override def render(
         variable: Var[A],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement = {
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, Option[String])]
+    ): HtmlElement = {
 
       val panel =
         caseClass.annotations.find(_.isInstanceOf[Panel]) match
@@ -535,7 +577,10 @@ object Form extends AutoDerivation[Form] {
     override def render(
         variable: Var[A],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement =
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, Option[String])]
+    ): HtmlElement =
       val a = variable.now()
       sealedTrait.choose(a) { sub =>
         val va = Var(sub.cast(a))

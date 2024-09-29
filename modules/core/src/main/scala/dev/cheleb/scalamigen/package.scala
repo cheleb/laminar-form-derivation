@@ -8,7 +8,10 @@ def stringForm[A](to: String => A) = new Form[A]:
   override def render(
       variable: Var[A],
       syncParent: () => Unit
-  )(using factory: WidgetFactory): HtmlElement =
+  )(using
+      factory: WidgetFactory,
+      errorBus: EventBus[(String, Option[String])]
+  ): HtmlElement =
     factory.renderText.amend(
       value <-- variable.signal.map(_.toString),
       onInput.mapToValue.map(to) --> { v =>
@@ -20,7 +23,10 @@ def secretForm[A <: String](to: String => A) = new Form[A]:
   override def render(
       variable: Var[A],
       syncParent: () => Unit
-  )(using factory: WidgetFactory): HtmlElement =
+  )(using
+      factory: WidgetFactory,
+      errorBus: EventBus[(String, Option[String])]
+  ): HtmlElement =
     factory.renderSecret.amend(
       value <-- variable.signal,
       onInput.mapToValue.map(to) --> { v =>
@@ -38,7 +44,10 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
   override def render(
       variable: Var[A],
       syncParent: () => Unit
-  )(using factory: WidgetFactory): HtmlElement =
+  )(using
+      factory: WidgetFactory,
+      errorBus: EventBus[(String, Option[String])]
+  ): HtmlElement =
     factory.renderNumeric
       .amend(
         value <-- variable.signal.map { str =>
@@ -56,7 +65,10 @@ def enumForm[A](values: Array[A], f: Int => A) = new Form[A] {
   override def render(
       variable: Var[A],
       syncParent: () => Unit
-  )(using factory: WidgetFactory): HtmlElement =
+  )(using
+      factory: WidgetFactory,
+      errorBus: EventBus[(String, Option[String])]
+  ): HtmlElement =
     val valuesLabels = values.map(_.toString)
     div(
       factory
@@ -80,10 +92,19 @@ def enumForm[A](values: Array[A], f: Int => A) = new Form[A] {
 }
 
 extension [A](va: Var[A])
-  def asForm(using WidgetFactory, Form[A]) =
+  def asForm(using wf: WidgetFactory)(using Form[A]) =
+    val errorBus = new EventBus[(String, Option[String])]()
     div(
       cls := "srf-form",
-      Form.renderVar(va)
+      Form.renderVar(va, () => ())(using wf, errorBus)
+      //   child.maybe <-- _.d
+    )
+  def asForm(errorBus: EventBus[(String, Option[String])])(using
+      wf: WidgetFactory
+  )(using Form[A]) =
+    div(
+      cls := "srf-form",
+      Form.renderVar(va, () => ())(using wf, errorBus)
       //   child.maybe <-- _.d
     )
 
