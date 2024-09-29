@@ -27,19 +27,19 @@ object Defaultable {
 
   /** Default value for Int is 0.
     */
-  inline given Defaultable[Int] with
+  given Defaultable[Int] with
     def default = 0
 
   /** Default value for String is "".
     */
-  inline given Defaultable[String] with
+  given Defaultable[String] with
     def default = ""
 
     /** Default value for [Iron type Double
       * positive](https://iltotore.github.io/iron/io/github/iltotore/iron/constraint/numeric$.html#Positive-0)
       * is 0.0.
       */
-  inline given Defaultable[IronType[Double, Positive]] with
+  given Defaultable[IronType[Double, Positive]] with
     def default = 1.0.refineUnsafe[Positive]
 
 }
