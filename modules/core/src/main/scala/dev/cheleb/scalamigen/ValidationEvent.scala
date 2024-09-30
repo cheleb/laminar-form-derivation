@@ -10,6 +10,9 @@ case object HiddenEvent extends ValidationEvent
 
 case object ShownEvent extends ValidationEvent
 
-case class ValidationStatus(errorMessage: String, shown: Boolean) {
-  def this(errorMessage: String) = this(errorMessage, true)
-}
+enum ValidationStatus:
+  case Unknown
+  case Valid
+  case Invalid(message: String, visible: Boolean)
+  case Hidden(first: Boolean)
+  case Shown

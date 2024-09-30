@@ -57,30 +57,29 @@ val validation = {
         child <-- errorBus.events
           .scanLeft(Map.empty[String, ValidationStatus]) {
             case (acc, (field, event)) =>
-              println(s"Error in $field: ${event}")
-
               event match
                 case ValidEvent => acc - field
                 case InvalideEvent(error) =>
-                  acc + (field -> ValidationStatus(error, true))
+                  acc + (field -> ValidationStatus.Invalid(error, true))
                 case HiddenEvent =>
                   acc.get(field) match
-                    case Some(ValidationStatus(message, true)) =>
-                      acc + (field -> ValidationStatus(message, false))
+                    case Some(ValidationStatus.Invalid(message, true)) =>
+                      acc + (field -> ValidationStatus.Invalid(message, false))
                     case _ => acc
                 case ShownEvent =>
                   acc.get(field) match
-                    case Some(ValidationStatus(message, false)) =>
-                      acc + (field -> ValidationStatus(message, true))
+                    case Some(ValidationStatus.Invalid(message, false)) =>
+                      acc + (field -> ValidationStatus.Invalid(message, true))
                     case _ => acc
 
           }
           .map { errors =>
             div(
-              errors.collect { case (field, ValidationStatus(message, true)) =>
-                div(
-                  s"$field: $message"
-                )
+              errors.collect {
+                case (field, ValidationStatus.Invalid(message, true)) =>
+                  div(
+                    s"$field: $message"
+                  )
               }.toSeq
             )
           }

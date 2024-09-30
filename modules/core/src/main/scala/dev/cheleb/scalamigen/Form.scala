@@ -146,27 +146,34 @@ object Form extends AutoDerivation[Form] {
       )(using
           factory: WidgetFactory,
           errorBus: EventBus[(String, ValidationEvent)]
-      ): HtmlElement =
+      ): HtmlElement = {
+        val state = Var("valid")
         widgetFactory.renderText
           .amend(
-            // _.showClearIcon := true,
             value := variable.now().toString,
-//              value <-- variable.signal.map(toString(_)),
             onInput.mapToValue --> { str =>
               validator.validate(str) match
                 case Left(error) =>
                   errorBus.emit(name.name -> InvalideEvent(error))
                 case Right(value) =>
                   errorBus.emit(name.name -> ValidEvent)
+                  variable.set(value)
             },
-            cls <-- errorBus.events.collect {
-              case (field, InvalideEvent(_)) if field == name.name =>
-                "srf-invalid"
-              case (field, ShownEvent) if field == name.name  => "srf-invalid"
-              case (field, HiddenEvent) if field == name.name => "srf-valid"
-              case (field, ValidEvent) if field == name.name  => "srf-valid"
-            }
+            cls <-- errorBus.events
+              .collect {
+                case (field, InvalideEvent(_)) if field == name.name =>
+                  state.set("invalid")
+                  "srf-invalid"
+                case (field, ShownEvent) if field == name.name =>
+                  s"srf-${state.now()}"
+                case (field, HiddenEvent) if field == name.name =>
+                  s"srf-valid"
+                case (field, ValidEvent) if field == name.name =>
+                  state.set("valid")
+                  "srf-valid"
+              }
           )
+      }
     }
 
   /** Form for to a string, aka without validation.
@@ -342,7 +349,7 @@ object Form extends AutoDerivation[Form] {
       )(using
           factory: WidgetFactory,
           errorBus: EventBus[(String, ValidationEvent)]
-      ): HtmlElement =
+      ): HtmlElement = {
         val a = variable.zoom {
           case Some(a) =>
             a
@@ -350,6 +357,7 @@ object Form extends AutoDerivation[Form] {
         } { case (_, a) =>
           Some(a)
         }
+
         a.now() match
           case null =>
             factory.renderButton.amend(
@@ -373,9 +381,9 @@ object Form extends AutoDerivation[Form] {
                   },
                   "Set",
                   onClick.mapTo(Some(d.default)) --> Observer[Option[A]] { sa =>
-                    errorBus.emit(
-                      name.name -> ShownEvent
-                    ) // FIXME should be stateful like in the validation example
+
+                    errorBus.emit(name.name -> ShownEvent)
+
                     variable.set(sa)
                   }
                 ),
@@ -387,11 +395,13 @@ object Form extends AutoDerivation[Form] {
                   "Clear",
                   onClick.mapTo(None) --> Observer[Option[A]] { _ =>
                     errorBus.emit(name.name -> HiddenEvent)
+
                     variable.set(None)
                   }
                 )
               )
             )
+      }
     }
 
   /** Form for a List[A]
