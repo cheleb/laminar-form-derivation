@@ -158,6 +158,13 @@ object Form extends AutoDerivation[Form] {
                   errorBus.emit(name.name -> InvalideEvent(error))
                 case Right(value) =>
                   errorBus.emit(name.name -> ValidEvent)
+            },
+            cls <-- errorBus.events.collect {
+              case (field, InvalideEvent(_)) if field == name.name =>
+                "srf-invalid"
+              case (field, ShownEvent) if field == name.name  => "srf-invalid"
+              case (field, HiddenEvent) if field == name.name => "srf-valid"
+              case (field, ValidEvent) if field == name.name  => "srf-valid"
             }
           )
     }
@@ -366,7 +373,9 @@ object Form extends AutoDerivation[Form] {
                   },
                   "Set",
                   onClick.mapTo(Some(d.default)) --> Observer[Option[A]] { sa =>
-                    errorBus.emit(name.name -> ShownEvent)
+                    errorBus.emit(
+                      name.name -> ShownEvent
+                    ) // FIXME should be stateful like in the validation example
                     variable.set(sa)
                   }
                 ),
