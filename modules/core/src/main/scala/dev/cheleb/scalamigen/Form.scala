@@ -151,6 +151,9 @@ object Form extends AutoDerivation[Form] {
         widgetFactory.renderText
           .amend(
             value := variable.now().toString,
+            // value <-- variable.signal // FIXME should be able to sync mode.
+            //   .tapEach(_ => errorBus.emit(name.name -> ValidEvent))
+            //   .map(_.toString),
             onInput.mapToValue --> { str =>
               validator.validate(str) match
                 case Left(error) =>
@@ -496,7 +499,7 @@ object Form extends AutoDerivation[Form] {
 
             val fieldName = param.annotations
               .find(_.isInstanceOf[FieldName]) match
-              case None => param.label
+              case None => titleCase(param.label)
               case Some(value) =>
                 value.asInstanceOf[FieldName].value
             tr(
@@ -538,7 +541,7 @@ object Form extends AutoDerivation[Form] {
 
           val fieldName = param.annotations
             .find(_.isInstanceOf[FieldName]) match
-            case None => param.label
+            case None => titleCase(param.label)
             case Some(value) =>
               value.asInstanceOf[FieldName].value
 
