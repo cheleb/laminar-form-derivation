@@ -127,6 +127,14 @@ object Form extends AutoDerivation[Form] {
   ): ReactiveHtmlElement[HTMLElement] =
     fa.render(Nil, v, syncParent)
 
+  def renderVar[A](path: List[Symbol], v: Var[A], syncParent: () => Unit)(using
+      WidgetFactory,
+      EventBus[(String, ValidationEvent)]
+  )(using
+      fa: Form[A]
+  ): ReactiveHtmlElement[HTMLElement] =
+    fa.render(path, v, syncParent)
+
   /** Form for an Iron type. This is a form for a type that can be validated
     * with an Iron type.
     * @param validator

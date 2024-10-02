@@ -46,21 +46,14 @@ val tree = {
                 syncParent()
 
               }
-            ),
-            if false then
-              summon[Form[Tree.Node[A]]]
-                .render(
-                  path,
-                  variable.asInstanceOf[Var[Tree.Node[A]]],
-                  () => ()
-                )
-            else
+            ), {
               val vVar = Var(value)
               val lVar = Var(left)
               val rVar = Var(right)
 
               Seq(
                 Form.renderVar(
+                  path :+ Symbol("value"),
                   vVar,
                   () => {
                     variable.set(Tree.Node(vVar.now(), left, right))
@@ -70,6 +63,7 @@ val tree = {
                 div(
                   "left",
                   Form.renderVar(
+                    path :+ Symbol("left"),
                     lVar,
                     () => {
                       variable.set(Tree.Node(value, lVar.now(), right))
@@ -80,6 +74,7 @@ val tree = {
                 div(
                   "right",
                   Form.renderVar(
+                    path :+ Symbol("right"),
                     rVar,
                     () => {
                       variable.set(Tree.Node(value, left, rVar.now()))
@@ -89,6 +84,7 @@ val tree = {
                   )
                 )
               )
+            }
           )
   }
 
