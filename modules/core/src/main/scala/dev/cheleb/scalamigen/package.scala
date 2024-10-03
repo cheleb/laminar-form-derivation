@@ -98,16 +98,33 @@ def enumForm[A](values: Array[A], f: Int => A) = new Form[A] {
 
 }
 
+/** Extension methods for the Var class.
+  */
 extension [A](va: Var[A])
+  /** Render a form for the variable.
+    *
+    * @param wf
+    *   The widget factory.
+    * @return
+    */
   def asForm(using wf: WidgetFactory)(using
       Form[A]
-  ): ReactiveHtmlElement[HTMLDivElement] =
+  ): ReactiveHtmlElement[HTMLDivElement] = {
     val errorBus = new EventBus[(String, ValidationEvent)]()
     div(
       cls := "srf-form",
       Form.renderVar(va, () => ())(using wf, errorBus)
-      //   child.maybe <-- _.d
     )
+  }
+
+  /** Render a form for the variable.
+    *
+    * @param errorBus
+    *   The error bus.
+    * @param wf
+    *   The widget factory.
+    * @return
+    */
   def asForm(errorBus: EventBus[(String, ValidationEvent)])(using
       wf: WidgetFactory
   )(using Form[A]): ReactiveHtmlElement[HTMLDivElement] =
@@ -116,7 +133,13 @@ extension [A](va: Var[A])
       Form.renderVar(va, () => ())(using wf, errorBus)
     )
 
+  /** Check if the variable is valid according to a validator.
+    */
   def isValid(using v: Validator[A]): Signal[Boolean] =
     va.signal.map(a => v.isValid(a))
 
+  /** Buid an error bus for the variable that will be used to display errors.
+    *
+    * @return
+    */
   def errorBus = new EventBus[(String, ValidationEvent)]
