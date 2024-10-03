@@ -4,7 +4,7 @@ import org.scalajs.dom
 import com.raquo.laminar.api.L.*
 import be.doeraene.webcomponents.ui5.*
 
-case class Sample(name: String, component: HtmlElement)
+case class Sample(name: String, component: HtmlElement, source: String = "TODO")
 
 object App extends App {
 
