@@ -4,10 +4,9 @@ import com.raquo.laminar.api.L.*
 import dev.cheleb.scalamigen.*
 import be.doeraene.webcomponents.ui5.Title
 
-import demo.facades.highlightjs.{hljs, hljsScala}
+import demo.facades.highlightjs.hljs
 
 val simple = {
-  hljs.registerLanguage("scala", hljsScala)
   val simpleVar = Var(Cat("Scala le chat", 6))
   Sample(
     "Simple", {

@@ -3,10 +3,12 @@ package samples
 import org.scalajs.dom
 import com.raquo.laminar.api.L.*
 import be.doeraene.webcomponents.ui5.*
+import demo.facades.highlightjs.{hljs, hljsScala}
 
 case class Sample(name: String, component: HtmlElement, source: String = "TODO")
 
 object App extends App {
+  hljs.registerLanguage("scala", hljsScala)
 
   val sample = Var(samples.person.component)
 
