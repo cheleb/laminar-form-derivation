@@ -22,7 +22,6 @@ val validation = {
   given Defaultable[Double :| GreaterEqual[8.0]] with
     def default: Double :| GreaterEqual[8.0] = 8.0
 
-  val errorBus = new EventBus[(String, ValidationEvent)]
 
   given Validator[IronSample] with
     def isValid(a: IronSample): Boolean =
@@ -36,6 +35,9 @@ val validation = {
   val ironSampleVar = Var(
     IronSample(CurrencyCode("Eur"), Some("name"), Some(1), 9.1, Some(1))
   )
+
+  val errorBus = ironSampleVar.errorBus
+
 
   Sample(
     "Validation",
@@ -54,25 +56,7 @@ val validation = {
         )
       },
       div(
-        child <-- errorBus.events
-          .scanLeft(Map.empty[String, ValidationStatus]) {
-            case (acc, (field, event)) =>
-              event match
-                case ValidEvent => acc - field
-                case InvalideEvent(error) =>
-                  acc + (field -> ValidationStatus.Invalid(error, true))
-                case HiddenEvent =>
-                  acc.get(field) match
-                    case Some(ValidationStatus.Invalid(message, true)) =>
-                      acc + (field -> ValidationStatus.Invalid(message, false))
-                    case _ => acc
-                case ShownEvent =>
-                  acc.get(field) match
-                    case Some(ValidationStatus.Invalid(message, false)) =>
-                      acc + (field -> ValidationStatus.Invalid(message, true))
-                    case _ => acc
-
-          }
+        child <-- errorBus.watch
           .map { errors =>
             div(
               errors.collect {

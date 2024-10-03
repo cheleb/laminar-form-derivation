@@ -20,7 +20,7 @@ val person = {
       pet: Option[Pet],
       email: Option[String],
       age: BigInt,
-      size: Double
+      size: Double :| Positive
   )
   case class Pet(
       name: String,
@@ -49,15 +49,33 @@ val person = {
     )
 
   val personVar = Var(vlad)
+
+  val errorBus = personVar.errorBus
+
   Sample(
     "Person",
     div(
-      child <-- personVar.signal.map { item =>
-        div(
-          s"$item"
-        )
-      },
-      personVar.asForm
+      div(
+        child <-- personVar.signal.map { item =>
+          div(
+            s"$item"
+          )
+        },
+        personVar.asForm(errorBus)
+      ),
+      div(
+        child <-- errorBus.watch
+          .map { errors =>
+            div(
+              errors.collect {
+                case (field, ValidationStatus.Invalid(message, true)) =>
+                  div(
+                    s"$field: $message"
+                  )
+              }.toSeq
+            )
+          }
+      )
     )
   )
 }

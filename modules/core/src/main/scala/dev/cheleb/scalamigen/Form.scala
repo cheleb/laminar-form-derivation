@@ -18,6 +18,27 @@ extension (path: List[Symbol])
   def key: String =
     path.map(_.name).mkString(".")
 
+extension (errorBus: EventBus[(String, ValidationEvent)])
+  def watch = errorBus.events
+    .scanLeft(Map.empty[String, ValidationStatus]) {
+      case (acc, (field, event)) =>
+        event match
+          case ValidEvent => acc - field
+          case InvalideEvent(error) =>
+            acc + (field -> ValidationStatus.Invalid(error, true))
+          case HiddenEvent =>
+            acc.get(field) match
+              case Some(ValidationStatus.Invalid(message, true)) =>
+                acc + (field -> ValidationStatus.Invalid(message, false))
+              case _ => acc
+          case ShownEvent =>
+            acc.get(field) match
+              case Some(ValidationStatus.Invalid(message, false)) =>
+                acc + (field -> ValidationStatus.Invalid(message, true))
+              case _ => acc
+
+    }
+
 /** A form for a type A.
   */
 trait Form[A] { self =>
@@ -582,6 +603,7 @@ object Form extends AutoDerivation[Form] {
         .renderPanel(panel.label)
         .amend(
           className := panel.panelCss,
+          cls := "srf-form",
           if panel.asTable then renderAsTable()
           else renderAsPanel()
         )

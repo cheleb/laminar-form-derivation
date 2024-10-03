@@ -114,8 +114,9 @@ extension [A](va: Var[A])
     div(
       cls := "srf-form",
       Form.renderVar(va, () => ())(using wf, errorBus)
-      //   child.maybe <-- _.d
     )
 
   def isValid(using v: Validator[A]): Signal[Boolean] =
     va.signal.map(a => v.isValid(a))
+
+  def errorBus = new EventBus[(String, ValidationEvent)]
