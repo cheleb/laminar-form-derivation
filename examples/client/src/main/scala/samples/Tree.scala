@@ -18,105 +18,104 @@ val tree = {
         case (Node(_, left1, right1), Node(_, left2, right2)) =>
           isSameStructure(left1, left2) && isSameStructure(right1, right2)
 
-  given treeInstance[A](using
-      default: Defaultable[A]
-  )(using Form[A]): Form[Tree[A]] = new Form[Tree[A]] { self =>
-    override def render(
-        path: List[Symbol],
-        variable: Var[Tree[A]],
-        syncParent: () => Unit
-    )(using WidgetFactory, EventBus[(String, ValidationEvent)]): HtmlElement =
-      given EventBus[(String, ValidationEvent)] =
-        EventBus[(String, ValidationEvent)]()
-      variable.now() match
-        case Tree.Empty =>
-          button(
-            "Add me",
-            onClick.mapToUnit --> { _ =>
-              variable.set(Tree.Node(default.default, Tree.Empty, Tree.Empty))
-              syncParent()
-            }
-          )
-        case Tree.Node(value, left, right) =>
-          div(
+    given treeInstance[A](using
+        default: Defaultable[A]
+    )(using Form[A]): Form[Tree[A]] = new Form[Tree[A]] { self =>
+      override def render(
+          path: List[Symbol],
+          variable: Var[Tree[A]],
+          syncParent: () => Unit
+      )(using WidgetFactory, EventBus[(String, ValidationEvent)]): HtmlElement =
+        variable.now() match
+          case Tree.Empty =>
             button(
-              "drop",
+              "Add me",
               onClick.mapToUnit --> { _ =>
-                variable.set(Tree.Empty)
+                variable.set(Tree.Node(default.default, Tree.Empty, Tree.Empty))
                 syncParent()
-
               }
-            ), {
-              val vVar = Var(value)
-              val lVar = Var(left)
-              val rVar = Var(right)
+            )
+          case Tree.Node(value, left, right) =>
+            div(
+              button(
+                "drop",
+                onClick.mapToUnit --> { _ =>
+                  variable.set(Tree.Empty)
+                  syncParent()
 
-              Seq(
-                Form.renderVar(
-                  path :+ Symbol("value"),
-                  vVar,
-                  () => {
-                    variable.set(Tree.Node(vVar.now(), left, right))
-                    syncParent()
-                  }
-                ),
-                div(
-                  "left",
+                }
+              ), {
+                val vVar = Var(value)
+                val lVar = Var(left)
+                val rVar = Var(right)
+
+                Seq(
                   Form.renderVar(
-                    path :+ Symbol("left"),
-                    lVar,
+                    path :+ Symbol("value"),
+                    vVar,
                     () => {
-                      variable.set(Tree.Node(value, lVar.now(), right))
+                      variable.set(Tree.Node(vVar.now(), left, right))
                       syncParent()
                     }
-                  )
-                ),
-                div(
-                  "right",
-                  Form.renderVar(
-                    path :+ Symbol("right"),
-                    rVar,
-                    () => {
-                      variable.set(Tree.Node(value, left, rVar.now()))
+                  ),
+                  div(
+                    "left",
+                    Form.renderVar(
+                      path :+ Symbol("left"),
+                      lVar,
+                      () => {
+                        variable.set(Tree.Node(value, lVar.now(), right))
+                        syncParent()
+                      }
+                    )
+                  ),
+                  div(
+                    "right",
+                    Form.renderVar(
+                      path :+ Symbol("right"),
+                      rVar,
+                      () => {
+                        variable.set(Tree.Node(value, left, rVar.now()))
 
-                      syncParent()
-                    }
+                        syncParent()
+                      }
+                    )
                   )
                 )
-              )
-            }
-          )
-  }
+              }
+            )
+    }
 
+  import Tree.*
+  case class Person(name: String, age: Int)
+  object Person {
+    given Defaultable[Person] with
+      def default = Person("--", 0)
+  }
+  val treeVar2 = Var(
+    Node(
+      Person("agnes", 50),
+      Node(Person("Zozo", 53), Empty, Empty),
+      Empty
+    )
+  )
   Sample(
     "Tree", {
-
-      import Tree.*
-
-      case class Person(name: String, age: Int)
-      object Person {
-        given Defaultable[Person] with
-          def default = Person("--", 0)
-      }
-      val treeVar2 = Var(
-        Node(
-          Person("agnes", 50),
-          Node(Person("Zozo", 53), Empty, Empty),
-          Empty
-        )
-      )
       div(
-        child <-- treeVar2.signal.map { item =>
-          div(
-            s"$item zozo"
-          )
-        },
         child <-- treeVar2.signal
           .distinctByFn(Tree.isSameStructure)
           .map { item =>
-            treeVar2.asForm
+            val b = new EventBus[(String, ValidationEvent)]()
+            treeVar2.asForm(b)
           }
       )
-    }
+    },
+    div(
+      child <-- treeVar2.signal.map { item =>
+        div(
+          s"$item zozo"
+        )
+      }
+    )
   )
 }
