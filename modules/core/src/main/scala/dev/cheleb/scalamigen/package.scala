@@ -3,12 +3,19 @@ package dev.cheleb.scalamigen
 import com.raquo.airstream.state.Var
 
 import com.raquo.laminar.api.L.*
+import org.scalajs.dom.HTMLDivElement
+import com.raquo.laminar.nodes.ReactiveHtmlElement
+import com.raquo.airstream.core.Signal
 
 def stringForm[A](to: String => A) = new Form[A]:
   override def render(
+      path: List[Symbol],
       variable: Var[A],
       syncParent: () => Unit
-  )(using factory: WidgetFactory): HtmlElement =
+  )(using
+      factory: WidgetFactory,
+      errorBus: EventBus[(String, ValidationEvent)]
+  ): HtmlElement =
     factory.renderText.amend(
       value <-- variable.signal.map(_.toString),
       onInput.mapToValue.map(to) --> { v =>
@@ -18,9 +25,13 @@ def stringForm[A](to: String => A) = new Form[A]:
     )
 def secretForm[A <: String](to: String => A) = new Form[A]:
   override def render(
+      path: List[Symbol],
       variable: Var[A],
       syncParent: () => Unit
-  )(using factory: WidgetFactory): HtmlElement =
+  )(using
+      factory: WidgetFactory,
+      errorBus: EventBus[(String, ValidationEvent)]
+  ): HtmlElement =
     factory.renderSecret.amend(
       value <-- variable.signal,
       onInput.mapToValue.map(to) --> { v =>
@@ -36,9 +47,13 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
   override def fromString(s: String): Option[A] =
     f(s).orElse(Some(zero))
   override def render(
+      path: List[Symbol],
       variable: Var[A],
       syncParent: () => Unit
-  )(using factory: WidgetFactory): HtmlElement =
+  )(using
+      factory: WidgetFactory,
+      errorBus: EventBus[(String, ValidationEvent)]
+  ): HtmlElement =
     factory.renderNumeric
       .amend(
         value <-- variable.signal.map { str =>
@@ -54,9 +69,13 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
 def enumForm[A](values: Array[A], f: Int => A) = new Form[A] {
 
   override def render(
+      path: List[Symbol],
       variable: Var[A],
       syncParent: () => Unit
-  )(using factory: WidgetFactory): HtmlElement =
+  )(using
+      factory: WidgetFactory,
+      errorBus: EventBus[(String, ValidationEvent)]
+  ): HtmlElement =
     val valuesLabels = values.map(_.toString)
     div(
       factory
@@ -79,5 +98,48 @@ def enumForm[A](values: Array[A], f: Int => A) = new Form[A] {
 
 }
 
-extension [A](v: Var[A])
-  def asForm(using WidgetFactory, Form[A]) = Form.renderVar(v)
+/** Extension methods for the Var class.
+  */
+extension [A](va: Var[A])
+  /** Render a form for the variable.
+    *
+    * @param wf
+    *   The widget factory.
+    * @return
+    */
+  def asForm(using wf: WidgetFactory)(using
+      Form[A]
+  ): ReactiveHtmlElement[HTMLDivElement] = {
+    val errorBus = new EventBus[(String, ValidationEvent)]()
+    div(
+      cls := "srf-form",
+      Form.renderVar(va, () => ())(using wf, errorBus)
+    )
+  }
+
+  /** Render a form for the variable.
+    *
+    * @param errorBus
+    *   The error bus.
+    * @param wf
+    *   The widget factory.
+    * @return
+    */
+  def asForm(errorBus: EventBus[(String, ValidationEvent)])(using
+      wf: WidgetFactory
+  )(using Form[A]): ReactiveHtmlElement[HTMLDivElement] =
+    div(
+      cls := "srf-form",
+      Form.renderVar(va, () => ())(using wf, errorBus)
+    )
+
+  /** Check if the variable is valid according to a validator.
+    */
+  def isValid(using v: Validator[A]): Signal[Boolean] =
+    va.signal.map(a => v.isValid(a))
+
+  /** Buid an error bus for the variable that will be used to display errors.
+    *
+    * @return
+    */
+  def errorBus = new EventBus[(String, ValidationEvent)]

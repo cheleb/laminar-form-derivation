@@ -18,14 +18,18 @@ val list = {
 
   Sample(
     "List",
-    div(
-      child <-- listPersonVar.signal.map { item =>
-        div(
-          s"$item"
-        )
-      },
-      listPersonVar.asForm
-    )
+    listPersonVar.asForm,
+    div(child <-- listPersonVar.signal.map { item =>
+      div(
+        s"$item"
+      )
+    }),
+    """|case class Person2(id: Int, name: String, age: Int)
+         |
+         |case class ListElement(
+         |     ints: List[Person2]
+         |)
+         |""".stripMargin
   )
 
 }

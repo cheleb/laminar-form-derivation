@@ -23,3 +23,17 @@ ui5-input[type="Number"] {
   width: 100px;
   min-width: 100px;
 }
+
+.srf-form:has(.srf-invalid) {
+
+  border: 1px solid red;
+
+}
+
+.srf-valid {
+  border: 1px solid transparent;
+}
+
+.srf-invalid {
+  border: 1px solid red;
+}

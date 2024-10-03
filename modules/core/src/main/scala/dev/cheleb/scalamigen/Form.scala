@@ -14,6 +14,34 @@ import io.github.iltotore.iron.*
 
 import config.PanelConfig
 
+extension (path: List[Symbol])
+  def key: String =
+    path.map(_.name).mkString(".")
+
+extension (errorBus: EventBus[(String, ValidationEvent)])
+  def watch = errorBus.events
+    .scanLeft(Map.empty[String, ValidationStatus]) {
+      case (acc, (field, event)) =>
+        event match
+          case ValidEvent => acc - field
+          case InvalideEvent(error) =>
+            acc + (field -> ValidationStatus.Invalid(error, true))
+          case HiddenEvent =>
+            acc.map {
+              case (f, ValidationStatus.Invalid(message, true))
+                  if f.startsWith(field) =>
+                (f -> ValidationStatus.Invalid(message, false))
+              case (f, v) => (f -> v)
+            }
+          case ShownEvent =>
+            acc.map {
+              case (f, ValidationStatus.Invalid(message, false))
+                  if f.startsWith(field) =>
+                (f -> ValidationStatus.Invalid(message, true))
+              case (f, v) => (f -> v)
+            }
+    }
+
 /** A form for a type A.
   */
 trait Form[A] { self =>
@@ -26,15 +54,6 @@ trait Form[A] { self =>
     * @return
     */
   def fromString(s: String): Option[A] = None
-
-  /** Parse a string and set t he variable to the parsed value or set the
-    * errorVar to an error message.
-    *
-    * @param s
-    * @param variable
-    * @param errorVar
-    */
-  def fromString(s: String, variable: Var[A], errorVar: Var[String]): Unit = ()
 
   def toString(a: A) = a.toString
 
@@ -53,9 +72,13 @@ trait Form[A] { self =>
     * @return
     */
   def render(
+      path: List[Symbol],
       variable: Var[A],
       syncParent: () => Unit
-  )(using factory: WidgetFactory): HtmlElement
+  )(using
+      factory: WidgetFactory,
+      errorBus: EventBus[(String, ValidationEvent)]
+  ): HtmlElement
 
   given Owner = unsafeWindowOwner
 
@@ -69,27 +92,35 @@ trait Form[A] { self =>
 
 
    */
-  def labelled(name: String, required: Boolean): Form[A] = new Form[A] {
+  def labelled(label: String, required: Boolean): Form[A] = new Form[A] {
     override def render(
+        path: List[Symbol],
         variable: Var[A],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement =
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, ValidationEvent)]
+    ): HtmlElement =
       div(
         div(
-          factory.renderLabel(required, name)
+          factory.renderLabel(required, label)
         ),
         div(
-          self.render(variable, syncParent)
+          self.render(path, variable, syncParent)
         )
       )
 
   }
   def xmap[B](to: (B, A) => B)(from: B => A): Form[B] = new Form[B] {
     override def render(
+        path: List[Symbol],
         variable: Var[B],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement =
-      self.render(variable.zoom(from)(to), syncParent)
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, ValidationEvent)]
+    ): HtmlElement =
+      self.render(path, variable.zoom(from)(to), syncParent)
   }
 
 }
@@ -112,12 +143,21 @@ object Form extends AutoDerivation[Form] {
     *   the type of the variable
     * @return
     */
-  def renderVar[A](v: Var[A], syncParent: () => Unit = () => ())(using
-      WidgetFactory
+  def renderVar[A](v: Var[A], syncParent: () => Unit)(using
+      WidgetFactory,
+      EventBus[(String, ValidationEvent)]
   )(using
       fa: Form[A]
   ): ReactiveHtmlElement[HTMLElement] =
-    fa.render(v, syncParent)
+    fa.render(Nil, v, syncParent)
+
+  def renderVar[A](path: List[Symbol], v: Var[A], syncParent: () => Unit)(using
+      WidgetFactory,
+      EventBus[(String, ValidationEvent)]
+  )(using
+      fa: Form[A]
+  ): ReactiveHtmlElement[HTMLElement] =
+    fa.render(path, v, syncParent)
 
   /** Form for an Iron type. This is a form for a type that can be validated
     * with an Iron type.
@@ -130,57 +170,62 @@ object Form extends AutoDerivation[Form] {
     */
   given [T, C](using
       validator: IronTypeValidator[T, C],
+      default: Defaultable[IronType[T, C]],
       widgetFactory: WidgetFactory
   ): Form[IronType[T, C]] =
     new Form[IronType[T, C]] {
 
       override def render(
+          path: List[Symbol],
           variable: Var[IronType[T, C]],
           syncParent: () => Unit
-      )(using factory: WidgetFactory): HtmlElement =
-
-        val errorVar = Var("")
-        div(
-          div(child <-- errorVar.signal.map { item =>
-            div(
-              s"$item"
-            )
-          }),
-          widgetFactory.renderText
-            .amend(
-              // _.showClearIcon := true,
-              backgroundColor <-- errorVar.signal.map {
-                case "" => "white"
-                case _  => "red"
-              },
-              value <-- variable.signal.map(toString(_)),
-              onInput.mapToValue --> { str =>
-                fromString(str, variable, errorVar)
-
+      )(using
+          factory: WidgetFactory,
+          errorBus: EventBus[(String, ValidationEvent)]
+      ): HtmlElement = {
+        val state = Var("valid")
+        widgetFactory.renderText
+          .amend(
+            value := variable.now().toString,
+            // value <-- variable.signal // FIXME should be able to sync mode.
+            //   .tapEach(_ => errorBus.emit(path.key -> ValidEvent))
+            //   .map(_.toString),
+            onInput.mapToValue --> { str =>
+              validator.validate(str) match
+                case Left(error) =>
+                  errorBus.emit(path.key -> InvalideEvent(error))
+                case Right(value) =>
+                  errorBus.emit(path.key -> ValidEvent)
+                  variable.set(value)
+            },
+            cls <-- errorBus.events
+              .collect {
+                case (field, InvalideEvent(_)) if field == path.key =>
+                  state.set("invalid")
+                  "srf-invalid"
+                case (field, ShownEvent) if path.key.startsWith(field) =>
+                  s"srf-${state.now()}"
+                case (field, HiddenEvent) if path.key.startsWith(field) =>
+                  s"srf-valid"
+                case (field, ValidEvent) if field == path.key =>
+                  state.set("valid")
+                  "srf-valid"
               }
-            )
-        )
-
-      override def fromString(
-          str: String,
-          variable: Var[IronType[T, C]],
-          errorVar: Var[String]
-      ): Unit =
-        validator.validate(str) match
-          case Left(error) =>
-            errorVar.set(error)
-          case Right(value) =>
-            errorVar.set("")
-            variable.set(value)
+          )
+      }
     }
 
   /** Form for to a string, aka without validation.
     */
   given Form[String] with
     override def render(
+        path: List[Symbol],
         variable: Var[String],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement =
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, ValidationEvent)]
+    ): HtmlElement =
       factory.renderText
         .amend(
           value <-- variable.signal,
@@ -194,9 +239,13 @@ object Form extends AutoDerivation[Form] {
     */
   given Form[Nothing] = new Form[Nothing] {
     override def render(
+        path: List[Symbol],
         variable: Var[Nothing],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement =
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, ValidationEvent)]
+    ): HtmlElement =
       div()
   }
 
@@ -206,9 +255,13 @@ object Form extends AutoDerivation[Form] {
     */
   given Form[Boolean] = new Form[Boolean] {
     override def render(
+        path: List[Symbol],
         variable: Var[Boolean],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement =
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, ValidationEvent)]
+    ): HtmlElement =
       div(
         factory.renderCheckbox
           .amend(
@@ -266,9 +319,13 @@ object Form extends AutoDerivation[Form] {
   ): Form[Either[L, R]] =
     new Form[Either[L, R]] {
       override def render(
+          path: List[Symbol],
           variable: Var[Either[L, R]],
           syncParent: () => Unit
-      )(using factory: WidgetFactory): HtmlElement =
+      )(using
+          factory: WidgetFactory,
+          errorBus: EventBus[(String, ValidationEvent)]
+      ): HtmlElement =
 
         val (vl, vr) = variable.now() match
           case Left(l) =>
@@ -296,14 +353,14 @@ object Form extends AutoDerivation[Form] {
               case Left(_) => "block"
               case _       => "none"
             },
-            lf.render(vl, () => variable.set(Left(vl.now())))
+            lf.render(path, vl, () => variable.set(Left(vl.now())))
           ),
           div(
             display <-- variable.signal.map {
               case Left(_) => "none"
               case _       => "block"
             },
-            rf.render(vr, () => variable.set(Right(vr.now())))
+            rf.render(path, vr, () => variable.set(Right(vr.now())))
           )
         )
 
@@ -325,9 +382,13 @@ object Form extends AutoDerivation[Form] {
   ): Form[Option[A]] =
     new Form[Option[A]] {
       override def render(
+          path: List[Symbol],
           variable: Var[Option[A]],
           syncParent: () => Unit
-      )(using factory: WidgetFactory): HtmlElement =
+      )(using
+          factory: WidgetFactory,
+          errorBus: EventBus[(String, ValidationEvent)]
+      ): HtmlElement = {
         val a = variable.zoom {
           case Some(a) =>
             a
@@ -335,6 +396,7 @@ object Form extends AutoDerivation[Form] {
         } { case (_, a) =>
           Some(a)
         }
+
         a.now() match
           case null =>
             factory.renderButton.amend(
@@ -348,7 +410,7 @@ object Form extends AutoDerivation[Form] {
                   case Some(_) => "block"
                   case None    => "none"
                 },
-                fa.render(a, syncParent)
+                fa.render(path, a, syncParent)
               ),
               div(
                 factory.renderButton.amend(
@@ -357,7 +419,12 @@ object Form extends AutoDerivation[Form] {
                     case None    => "block"
                   },
                   "Set",
-                  onClick.mapTo(Some(d.default)) --> variable.writer
+                  onClick.mapTo(Some(d.default)) --> Observer[Option[A]] { sa =>
+
+                    errorBus.emit(path.key -> ShownEvent)
+
+                    variable.set(sa)
+                  }
                 ),
                 factory.renderButton.amend(
                   display <-- variable.signal.map {
@@ -365,10 +432,15 @@ object Form extends AutoDerivation[Form] {
                     case None    => "none"
                   },
                   "Clear",
-                  onClick.mapTo(None) --> variable.writer
+                  onClick.mapTo(None) --> Observer[Option[A]] { _ =>
+                    errorBus.emit(path.key -> HiddenEvent)
+
+                    variable.set(None)
+                  }
                 )
               )
             )
+      }
     }
 
   /** Form for a List[A]
@@ -383,15 +455,19 @@ object Form extends AutoDerivation[Form] {
     new Form[List[A]] {
 
       override def render(
+          path: List[Symbol],
           variable: Var[List[A]],
           syncParent: () => Unit
-      )(using factory: WidgetFactory): HtmlElement =
+      )(using
+          factory: WidgetFactory,
+          errorBus: EventBus[(String, ValidationEvent)]
+      ): HtmlElement =
         div(
           children <-- variable.split(idOf)((id, initial, aVar) => {
             div(
               idAttr := s"list-item-$id",
               div(
-                fa.render(aVar, syncParent)
+                fa.render(path, aVar, syncParent)
               )
             )
           })
@@ -404,9 +480,13 @@ object Form extends AutoDerivation[Form] {
     */
   given Form[LocalDate] = new Form[LocalDate] {
     override def render(
+        path: List[Symbol],
         variable: Var[LocalDate],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement =
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, ValidationEvent)]
+    ): HtmlElement =
       div(
         factory.renderDatePicker
           .amend(
@@ -424,9 +504,13 @@ object Form extends AutoDerivation[Form] {
   ): Form[A] = new Form[A] {
 
     override def render(
+        path: List[Symbol],
         variable: Var[A],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement = {
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, ValidationEvent)]
+    ): HtmlElement = {
 
       val panel =
         caseClass.annotations.find(_.isInstanceOf[Panel]) match
@@ -451,7 +535,7 @@ object Form extends AutoDerivation[Form] {
 
             val fieldName = param.annotations
               .find(_.isInstanceOf[FieldName]) match
-              case None => param.label
+              case None => titleCase(param.label)
               case Some(value) =>
                 value.asInstanceOf[FieldName].value
             tr(
@@ -466,6 +550,7 @@ object Form extends AutoDerivation[Form] {
               td(
                 param.typeclass
                   .render(
+                    path :+ Symbol(fieldName),
                     variable.zoom { a =>
                       Try(param.deref(a))
                         .getOrElse(param.default)
@@ -492,13 +577,14 @@ object Form extends AutoDerivation[Form] {
 
           val fieldName = param.annotations
             .find(_.isInstanceOf[FieldName]) match
-            case None => param.label
+            case None => titleCase(param.label)
             case Some(value) =>
               value.asInstanceOf[FieldName].value
 
           param.typeclass
             .labelled(fieldName, !isOption)
             .render(
+              path :+ Symbol(fieldName),
               variable.zoom { a =>
                 Try(param.deref(a))
                   .getOrElse(param.default)
@@ -520,6 +606,7 @@ object Form extends AutoDerivation[Form] {
         .renderPanel(panel.label)
         .amend(
           className := panel.panelCss,
+          cls := "srf-form",
           if panel.asTable then renderAsTable()
           else renderAsPanel()
         )
@@ -529,14 +616,19 @@ object Form extends AutoDerivation[Form] {
   def split[A](sealedTrait: SealedTrait[Form, A]): Form[A] = new Form[A] {
 
     override def render(
+        path: List[Symbol],
         variable: Var[A],
         syncParent: () => Unit
-    )(using factory: WidgetFactory): HtmlElement =
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, ValidationEvent)]
+    ): HtmlElement =
       val a = variable.now()
       sealedTrait.choose(a) { sub =>
         val va = Var(sub.cast(a))
         sub.typeclass
           .render(
+            path,
             va,
             () => {
               variable.set(va.now())

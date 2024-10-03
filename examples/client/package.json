@@ -11,10 +11,10 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@ui5/webcomponents": "2.0.1",
-    "@ui5/webcomponents-fiori": "2.0.1",
-    "@ui5/webcomponents-icons": "2.0.1",
-    "highlight.js": "^11.8.0",
+    "@ui5/webcomponents": "2.1.0",
+    "@ui5/webcomponents-fiori": "2.1.0",
+    "@ui5/webcomponents-icons": "2.1.0",
+    "highlight.js": "^11.9.0",
     "jsdom": "^9.9.0"
   },
   "devDependencies": {

@@ -3,12 +3,19 @@ package samples
 import org.scalajs.dom
 import com.raquo.laminar.api.L.*
 import be.doeraene.webcomponents.ui5.*
+import demo.facades.highlightjs.{hljs, hljsScala}
 
-case class Sample(name: String, component: HtmlElement)
+case class Sample(
+    name: String,
+    component: HtmlElement,
+    debug: HtmlElement,
+    source: String = "TODO"
+)
 
 object App extends App {
+  hljs.registerLanguage("scala", hljsScala)
 
-  val sample = Var(samples.either.component)
+  val sampleVar = Var(samples.simple)
 
   private def item(name: String) = SideNavigation.item(
     _.text := name,
@@ -17,11 +24,11 @@ object App extends App {
 
   private val demos = Seq(
     samples.simple,
-    samples.sealedClasses,
     samples.either,
-    samples.enums,
-    samples.person,
     samples.validation,
+    samples.enums,
+    samples.sealedClasses,
+    samples.person,
     samples.list,
     samples.tree
   )
@@ -41,10 +48,9 @@ object App extends App {
             .map(_.detail.item.dataset.get("componentName")) --> Observer[
             Option[String]
           ] { name =>
-            val el = name
+            name
               .flatMap(n => demos.find(_.name == n))
-
-            sample.set(el.map(_.component).getOrElse(div("Not found!")))
+              .foreach(sampleVar.set)
 
           },
           demos.map(_.name).map(item)
@@ -59,7 +65,44 @@ object App extends App {
           padding := "10px",
           minWidth := "40%",
           maxWidth := "calc(100% - 320px)",
-          child <-- sample.signal
+          table(
+            tr(
+              td(
+                div(
+                  child <-- sampleVar.signal.map(_.component)
+                )
+              ),
+              td(
+                div(
+                  marginTop := "1em",
+                  overflowX := "auto",
+                  border := "0.0625rem solid #C1C1C1",
+                  backgroundColor := "#f5f6fa",
+                  padding := "1rem",
+                  Title.h3("Code"),
+                  child <-- sampleVar.signal
+                    .map(_.source)
+                    .map(src =>
+                      pre(
+                        code(
+                          className := "language-scala",
+                          src,
+                          onMountCallback(ctx =>
+                            hljs.highlightElement(ctx.thisNode.ref)
+                          )
+                        )
+                      )
+                    )
+                )
+              )
+            ),
+            tr(
+              td(
+                colSpan := 2,
+                child <-- sampleVar.signal.map(_.debug)
+              )
+            )
+          )
         )
       )
     )

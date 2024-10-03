@@ -20,16 +20,20 @@ val either = {
     )
   )
   Sample(
-    "Either", {
-
+    "Either",
+    eitherVar.asForm,
+    div(child <-- eitherVar.signal.map { item =>
       div(
-        child <-- eitherVar.signal.map { item =>
-          div(
-            s"$item"
-          )
-        },
-        eitherVar.asForm
+        s"$item"
       )
-    }
+    }),
+    """|
+         |@Panel("Either", false)
+         |case class EitherSample(
+         |    either: Either[Cat, Dog],
+         |    primitiveEither: Either[Cat, String],
+         |    optionalInt: Option[Int]
+  )""".stripMargin
   )
+
 }
