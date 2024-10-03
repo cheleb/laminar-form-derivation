@@ -27,16 +27,19 @@ extension (errorBus: EventBus[(String, ValidationEvent)])
           case InvalideEvent(error) =>
             acc + (field -> ValidationStatus.Invalid(error, true))
           case HiddenEvent =>
-            acc.get(field) match
-              case Some(ValidationStatus.Invalid(message, true)) =>
-                acc + (field -> ValidationStatus.Invalid(message, false))
-              case _ => acc
+            acc.map {
+              case (f, ValidationStatus.Invalid(message, true))
+                  if f.startsWith(field) =>
+                (f -> ValidationStatus.Invalid(message, false))
+              case (f, v) => (f -> v)
+            }
           case ShownEvent =>
-            acc.get(field) match
-              case Some(ValidationStatus.Invalid(message, false)) =>
-                acc + (field -> ValidationStatus.Invalid(message, true))
-              case _ => acc
-
+            acc.map {
+              case (f, ValidationStatus.Invalid(message, false))
+                  if f.startsWith(field) =>
+                (f -> ValidationStatus.Invalid(message, true))
+              case (f, v) => (f -> v)
+            }
     }
 
 /** A form for a type A.
@@ -200,9 +203,9 @@ object Form extends AutoDerivation[Form] {
                 case (field, InvalideEvent(_)) if field == path.key =>
                   state.set("invalid")
                   "srf-invalid"
-                case (field, ShownEvent) if field == path.key =>
+                case (field, ShownEvent) if path.key.startsWith(field) =>
                   s"srf-${state.now()}"
-                case (field, HiddenEvent) if field == path.key =>
+                case (field, HiddenEvent) if path.key.startsWith(field) =>
                   s"srf-valid"
                 case (field, ValidEvent) if field == path.key =>
                   state.set("valid")
