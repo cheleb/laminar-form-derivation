@@ -19,14 +19,14 @@ val enums = {
       color: Color
   )
 
-  val eitherVar = Var(
+  val enumVar = Var(
     Basket(Color.Black, Cat("Scala", 10, Color.White))
   )
   Sample(
     "Enums",
-    eitherVar.asForm,
+    enumVar.asForm,
     div(
-      child <-- eitherVar.signal.map { item =>
+      child <-- enumVar.signal.map { item =>
         div(
           s"$item"
         )

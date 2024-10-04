@@ -1,7 +1,6 @@
 package dev.cheleb.scalamigen
 
 import io.github.iltotore.iron.*
-import io.github.iltotore.iron.constraint.all.*
 
 /** Type validator for
   * [IronType](https://iltotore.github.io/iron/docs/index.html).
@@ -17,13 +16,20 @@ trait IronTypeValidator[T, C] {
 
 object IronTypeValidator {
 
-  /** Validator for [Iron type Double
-    * positive](https://iltotore.github.io/iron/io/github/iltotore/iron/constraint/numeric$.html#Positive-0).
+  /** Create an IronTypeValidator for a given IronType.
+    *
+    * @param baseValidator
+    * @param constraint
+    * @return
     */
-  inline given IronTypeValidator[Double, Positive] with
-    def validate(a: String): Either[String, IronType[Double, Positive]] =
-      a.toDoubleOption match
-        case None         => Left("Not a number")
-        case Some(double) => double.refineEither[Positive]
+  given [A, C](using
+      baseValidator: Validator[A],
+      constraint: RuntimeConstraint[A, C]
+  ): IronTypeValidator[A, C] with
+    def validate(a: String): Either[String, IronType[A, C]] =
+      baseValidator.validate(a).flatMap { a =>
+        if constraint.test(a) then Right(a.assume[C])
+        else Left(constraint.message)
+      }
 
 }

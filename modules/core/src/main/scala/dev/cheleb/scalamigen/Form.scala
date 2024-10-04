@@ -163,6 +163,10 @@ object Form extends AutoDerivation[Form] {
     * with an Iron type.
     * @param validator
     *   the Iron type validator
+    * @param default
+    *   the default value for the Iron type
+    * @param widgetFactory
+    *   the widget factory
     * @tparam T
     *   the base type of the Iron type
     * @tparam C

@@ -3,7 +3,7 @@ package samples
 import org.scalajs.dom
 import com.raquo.laminar.api.L.*
 import be.doeraene.webcomponents.ui5.*
-import demo.facades.highlightjs.{hljs, hljsScala}
+import facades.highlightjs.{hljs, hljsScala}
 
 case class Sample(
     name: String,
