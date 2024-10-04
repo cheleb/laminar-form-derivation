@@ -174,7 +174,6 @@ object Form extends AutoDerivation[Form] {
     */
   given [T, C](using
       validator: IronTypeValidator[T, C],
-      default: Defaultable[IronType[T, C]],
       widgetFactory: WidgetFactory
   ): Form[IronType[T, C]] =
     new Form[IronType[T, C]] {
