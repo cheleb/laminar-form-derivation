@@ -4,6 +4,8 @@ import dev.cheleb.scalamigen.*
 
 import com.raquo.laminar.api.L.*
 
+/** Poc poc =D
+  */
 val tree = {
 
   enum Tree[+T]:

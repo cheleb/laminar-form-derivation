@@ -5,8 +5,7 @@ trait Validator[A] {
 }
 
 object Validator {
-  given Validator[Double] = new Validator[Double] {
-    override def validate(str: String): Either[String, Double] =
+  given Validator[Double] with
+    def validate(str: String): Either[String, Double] =
       str.toDoubleOption.toRight("Not a number")
-  }
 }

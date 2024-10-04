@@ -30,7 +30,7 @@ val sealedClasses = {
 
   case class Owner(name: String, pet: Animal)
 
-  val eitherVar = Var(Owner("Agnes", Horse("Niram <3", 6, Color.Isabelle)))
+  val sealedVar = Var(Owner("Agnes", Horse("Niram <3", 6, Color.Isabelle)))
 
   case class Switcher(
       name: String,
@@ -45,7 +45,7 @@ val sealedClasses = {
         name,
         button(
           name.filter(_.isLetter),
-          onClick.mapToUnit --> (_ => eitherVar.update(_.copy(pet = a)))
+          onClick.mapToUnit --> (_ => sealedVar.update(_.copy(pet = a)))
         )
       )
   }
@@ -65,18 +65,18 @@ val sealedClasses = {
   Sample(
     "Sealed",
     div(
-      child <-- eitherVar.signal
+      child <-- sealedVar.signal
         .distinctByFn((old, nw) => old.pet.getClass == nw.pet.getClass)
         .map { item =>
           div(
-            eitherVar.asForm,
+            sealedVar.asForm,
             switchers
-              .filterNot(_.name == eitherVar.now().pet.getClass.getSimpleName)
+              .filterNot(_.name == sealedVar.now().pet.getClass.getSimpleName)
               .map(_.button)
           )
         }
     ),
-    div(child <-- eitherVar.signal.map { item =>
+    div(child <-- sealedVar.signal.map { item =>
       div(
         s"$item"
       )
