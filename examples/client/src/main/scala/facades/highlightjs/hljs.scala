@@ -1,4 +1,4 @@
-package demo.facades.highlightjs
+package facades.highlightjs
 
 import org.scalajs.dom
 

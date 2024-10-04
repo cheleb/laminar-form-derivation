@@ -1,4 +1,4 @@
-package demo.facades.highlightjs
+package facades.highlightjs
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
