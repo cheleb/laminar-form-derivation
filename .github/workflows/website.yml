@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd examples/client
-          npm i
+          npm ci
       - name: Vite build
         run: |
           pushd examples/client
