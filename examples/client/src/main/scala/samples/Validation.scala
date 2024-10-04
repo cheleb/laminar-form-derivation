@@ -22,10 +22,6 @@ val validation = {
   given Defaultable[Double :| GreaterEqual[8.0]] with
     def default: Double :| GreaterEqual[8.0] = 8.0
 
-  given Validator[IronSample] with
-    def isValid(a: IronSample): Boolean =
-      true
-
   given IronTypeValidator[Double, GreaterEqual[8.0]] =
     _.toDoubleOption match
       case None         => Left("Not a number")
@@ -41,13 +37,6 @@ val validation = {
     "Validation",
     div(
       ironSampleVar.asForm(errorBus),
-      child <-- ironSampleVar.isValid.map { valid =>
-        div(
-          div(
-            s"Valid: $valid"
-          )
-        )
-      },
       div(
         child <-- errorBus.watch
           .map { errors =>

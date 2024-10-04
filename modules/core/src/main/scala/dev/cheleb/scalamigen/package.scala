@@ -5,7 +5,6 @@ import com.raquo.airstream.state.Var
 import com.raquo.laminar.api.L.*
 import org.scalajs.dom.HTMLDivElement
 import com.raquo.laminar.nodes.ReactiveHtmlElement
-import com.raquo.airstream.core.Signal
 
 def stringForm[A](to: String => A) = new Form[A]:
   override def render(
@@ -132,11 +131,6 @@ extension [A](va: Var[A])
       cls := "srf-form",
       Form.renderVar(va, () => ())(using wf, errorBus)
     )
-
-  /** Check if the variable is valid according to a validator.
-    */
-  def isValid(using v: Validator[A]): Signal[Boolean] =
-    va.signal.map(a => v.isValid(a))
 
   /** Buid an error bus for the variable that will be used to display errors.
     *
