@@ -4,6 +4,9 @@ import com.raquo.laminar.api.L.*
 import dev.cheleb.scalamigen.*
 
 val simple = {
+
+  case class Cat(name: String, weight: Int, kind: Boolean = true)
+
   val simpleVar = Var(Cat("Scala le chat", 6))
   Sample(
     "Simple",

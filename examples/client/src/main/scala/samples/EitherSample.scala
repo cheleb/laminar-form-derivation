@@ -5,6 +5,14 @@ import com.raquo.laminar.api.L.*
 
 val either = {
 
+  case class Cat(name: String, age: Int)
+  case class Dog(name: String, age: Int)
+  given Defaultable[Cat] with
+    def default = Cat("", 0)
+
+  given Defaultable[Dog] with
+    def default = Dog("", 0)
+
   @Panel("Either", false)
   case class EitherSample(
       either: Either[Cat, Dog],

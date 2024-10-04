@@ -2,6 +2,8 @@ package samples
 
 import com.raquo.laminar.api.L.*
 import dev.cheleb.scalamigen.*
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.constraint.all.*
 
 val enums = {
   enum Color(val code: String):
@@ -15,16 +17,19 @@ val enums = {
 
   case class Cat(
       name: String,
-      age: Int,
-      color: Color
+      weight: Int :| Positive,
+      kind: Boolean = true,
+      colol: Color
   )
+//  case class Dog(name: String, weight: Int)
 
   val enumVar = Var(
-    Basket(Color.Black, Cat("Scala", 10, Color.White))
+    Basket(Color.Black, Cat("Scala", 10, true, Color.White))
   )
+
   Sample(
     "Enums",
-    enumVar.asForm,
+    enumVar.asForm(enumVar.errorBus),
     div(
       child <-- enumVar.signal.map { item =>
         div(
