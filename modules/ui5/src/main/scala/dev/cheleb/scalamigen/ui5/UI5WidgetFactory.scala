@@ -60,7 +60,8 @@ object UI5WidgetFactory extends WidgetFactory:
           _.headerText := headerText,
           _.headerLevel := TitleLevel.H3
         )
-      case None => Panel()
+      case None =>
+        div(cls := "srf-table")
 
   override def renderSelect(f: Int => Unit): HtmlElement = Select(
     _.events.onChange

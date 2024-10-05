@@ -3,8 +3,8 @@ package dev.cheleb.scalamigen
 import com.raquo.airstream.state.Var
 
 import com.raquo.laminar.api.L.*
-import org.scalajs.dom.HTMLDivElement
 import com.raquo.laminar.nodes.ReactiveHtmlElement
+import org.scalajs.dom.HTMLElement
 
 def stringForm[A](to: String => A) = new Form[A]:
   override def render(
@@ -108,12 +108,11 @@ extension [A](va: Var[A])
     */
   def asForm(using wf: WidgetFactory)(using
       Form[A]
-  ): ReactiveHtmlElement[HTMLDivElement] = {
+  ): ReactiveHtmlElement[HTMLElement] = {
     val errorBus = new EventBus[(String, ValidationEvent)]()
-    div(
-      cls := "srf-form",
-      Form.renderVar(va, () => ())(using wf, errorBus)
-    )
+    Form
+      .renderVar(va, () => ())(using wf, errorBus)
+      .amend(cls := "srf-form")
   }
 
   /** Render a form for the variable.
@@ -126,11 +125,10 @@ extension [A](va: Var[A])
     */
   def asForm(errorBus: EventBus[(String, ValidationEvent)])(using
       wf: WidgetFactory
-  )(using Form[A]): ReactiveHtmlElement[HTMLDivElement] =
-    div(
-      cls := "srf-form",
-      Form.renderVar(va, () => ())(using wf, errorBus)
-    )
+  )(using Form[A]): ReactiveHtmlElement[HTMLElement] =
+    Form
+      .renderVar(va, () => ())(using wf, errorBus)
+      .amend(cls := "srf-form")
 
   /** Buid an error bus for the variable that will be used to display errors.
     *

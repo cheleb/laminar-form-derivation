@@ -609,7 +609,7 @@ object Form extends AutoDerivation[Form] {
         .renderPanel(panel.label)
         .amend(
           className := panel.panelCss,
-          cls := "srf-form",
+          // cls := "srf-form",
           if panel.asTable then renderAsTable()
           else renderAsPanel()
         )
