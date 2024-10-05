@@ -3,11 +3,19 @@ package samples
 import com.raquo.laminar.api.L.*
 import dev.cheleb.scalamigen.*
 
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.constraint.all.*
+
 val simple = {
 
-  case class Cat(name: String, weight: Int, kind: Boolean = true)
+  case class Cat(
+      name: String,
+      weight: Int,
+      hairsCount: BigInt :| GreaterEqual[100000],
+      kind: Boolean = true
+  )
 
-  val simpleVar = Var(Cat("Scala le chat", 6))
+  val simpleVar = Var(Cat("Scala le chat", 6, BigInt(100000).refineUnsafe))
   Sample(
     "Simple",
     simpleVar.asForm,
@@ -19,9 +27,13 @@ val simple = {
       }
     ),
     """
-    |case class Cat(name: String, weight: Int, kind: Boolean = true)
+    |case class Cat(
+    |                name: String,
+    |                weight: Int,
+    |                hairsCount: BigInt :| GreaterEqual[100000],
+    |                kind: Boolean = true)
     |
-    |val simpleVar = Var(Cat("Scala le chat", 6))
+    |val simpleVar = Var(Cat("Scala le chat", 6, BigInt(100000).refineUnsafe))
     |
     |simpleVar.asForm
     """.stripMargin
