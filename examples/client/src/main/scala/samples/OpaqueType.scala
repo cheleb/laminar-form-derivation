@@ -22,13 +22,19 @@ val opaque = {
       }
     ),
     """
-    |case class Person(
-    |                name: String,
-    |                weight: Int,
-    |                hairsCount: BigInt :| GreaterEqual[100000],
-    |                kind: Boolean = true)
+    |opaque type Password = String
+    |object Password:
+    |  def apply(password: String): Password = password
+    |  given Form[Password] = secretForm(apply)
     |
-    |val simpleVar = Var(Person("Vlad", 66, BigInt(100000).refineUnsafe))
+    |// In another file...
+    |
+    |case class Person(
+    |      name: String,
+    |      password: Password
+    |  )
+    |
+    |val simpleVar = Var(Person("Vlad",  Password("123456"))
     |
     |simpleVar.asForm
     """.stripMargin
