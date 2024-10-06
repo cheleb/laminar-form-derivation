@@ -24,6 +24,7 @@ object App extends App {
 
   private val demos = Seq(
     samples.simple,
+    samples.opaque,
     samples.either,
     samples.validation,
     samples.enums,
