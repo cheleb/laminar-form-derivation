@@ -538,7 +538,7 @@ object Form extends AutoDerivation[Form] {
 
             val fieldName = param.annotations
               .find(_.isInstanceOf[FieldName]) match
-              case None => titleCase(param.label)
+              case None => NameUtils.titleCase(param.label)
               case Some(value) =>
                 value.asInstanceOf[FieldName].value
             tr(
@@ -580,7 +580,7 @@ object Form extends AutoDerivation[Form] {
 
           val fieldName = param.annotations
             .find(_.isInstanceOf[FieldName]) match
-            case None => titleCase(param.label)
+            case None => NameUtils.titleCase(param.label)
             case Some(value) =>
               value.asInstanceOf[FieldName].value
 
@@ -648,11 +648,6 @@ object Form extends AutoDerivation[Form] {
   def getSubtypeLabel[T](sub: Subtype[Typeclass, T, ?]): String =
     sub.annotations
       .collectFirst { case label: FieldName => label.value }
-      .getOrElse(titleCase(sub.typeInfo.short))
-
-  /** someParameterName -> Some Parameter Name camelCase -> Title Case
-    */
-  private def titleCase(string: String): String =
-    string.split("(?=[A-Z])").map(_.capitalize).mkString(" ")
+      .getOrElse(NameUtils.titleCase(sub.typeInfo.short))
 
 }

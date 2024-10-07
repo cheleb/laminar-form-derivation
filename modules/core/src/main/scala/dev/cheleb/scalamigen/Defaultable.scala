@@ -20,7 +20,8 @@ trait Defaultable[A] {
 
   /** The label for the type.
     */
-  def label: String = default.getClass.getSimpleName()
+  def label: String =
+    NameUtils.titleCase(default.getClass.getSimpleName)
 }
 
 object Defaultable {
