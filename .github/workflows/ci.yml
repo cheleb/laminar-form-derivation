@@ -10,19 +10,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-      - name: Install dependencies
-        run: |
-          cd examples/client
-          npm install
       - name: Setup JVM
         uses: actions/setup-java@v4
         with:
           java-version: "22"
           distribution: "zulu"
+      - name: Install sbt
+        uses: sbt/setup-sbt@v1
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 21
+      - name: Install dependencies
+        run: |
+          cd examples/client
+          npm install
       # - name: Tests
       #   run: sbt +test
       - name: server/dist

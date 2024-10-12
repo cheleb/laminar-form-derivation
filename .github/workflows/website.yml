@@ -35,6 +35,8 @@ jobs:
         with:
           java-version: "22"
           distribution: "zulu"
+      - name: Install sbt
+        uses: sbt/setup-sbt@v1
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
