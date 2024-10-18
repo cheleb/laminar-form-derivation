@@ -13,7 +13,7 @@ jobs:
       - name: Setup JVM
         uses: actions/setup-java@v4
         with:
-          java-version: "22"
+          java-version: "23"
           distribution: "zulu"
       - name: Install sbt
         uses: sbt/setup-sbt@v1
