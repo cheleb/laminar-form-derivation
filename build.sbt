@@ -1,7 +1,7 @@
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-val scala33 = "3.6.0"
+val scala3 = "3.6.0"
 
 val tapirVersion = "1.11.7"
 
@@ -9,7 +9,7 @@ val laminarVersion = "17.1.0"
 
 inThisBuild(
   List(
-    scalaVersion := scala33,
+    scalaVersion := scala3,
     organization := "dev.cheleb",
     homepage := Some(url("https://github.com/cheleb/")),
     sonatypeCredentialHost := "s01.oss.sonatype.org",
