@@ -22,7 +22,7 @@ Compile / doc / scalacOptions ++= Seq(
   "Laminar Form Derivation",
   "-groups",
   "-project-version",
-  version.value,
+  sys.env.getOrElse("VERSION", version.value),
   "-revision",
   version.value,
   // "-default-templates",

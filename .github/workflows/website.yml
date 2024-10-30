@@ -52,7 +52,7 @@ jobs:
           pushd examples/client
           npm run build
           popd
-          sbt makeSite
+          VERSION=`git describe --tags --abbrev=0 | sed "s/v//"` sbt makeSite
         env:
           NODE_OPTIONS: "--openssl-legacy-provider"
       - name: Setup Pages
