@@ -24,7 +24,7 @@ Compile / doc / scalacOptions ++= Seq(
   "-project-version",
   sys.env.getOrElse("VERSION", version.value),
   "-revision",
-  version.value,
+  sys.env.getOrElse("VERSION", version.value),
   // "-default-templates",
   // "static-site-main",
   "-project-footer",
