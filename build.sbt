@@ -1,7 +1,7 @@
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-val scala3 = "3.6.1"
+val scala3 = "3.5.2"
 
 val tapirVersion = "1.11.8"
 
@@ -271,7 +271,7 @@ def scalajsProject(projectId: String, sample: Boolean): Project =
 Global / onLoad := {
   val scalaVersionValue = (example / scalaVersion).value
   val outputFile =
-    target.value / "build-env.sh"
+    baseDirectory.value / "scripts" / "target" / "build-env.sh"
   IO.writeLines(
     outputFile,
     s"""  
