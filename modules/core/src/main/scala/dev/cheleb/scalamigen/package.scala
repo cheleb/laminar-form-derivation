@@ -6,6 +6,9 @@ import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.HTMLElement
 
+/** A form for a type A, no validation. Convenient to use for Opaque types. If
+  * you need validation, use a Form with a ValidationEvent.
+  */
 def stringForm[A](to: String => A) = new Form[A]:
   override def render(
       path: List[Symbol],
@@ -96,6 +99,36 @@ def enumForm[A](values: Array[A], f: Int => A) = new Form[A] {
     )
 
 }
+
+/** A form for a type A, no validation. Convenient to use for Opaque types. If
+  * you need validation, use a Form with a ValidationEvent.
+  */
+def stringFormWithValidation[A](using
+    validator: Validator[A]
+) = new Form[A]:
+  override def render(
+      path: List[Symbol],
+      variable: Var[A],
+      syncParent: () => Unit
+  )(using
+      factory: WidgetFactory,
+      errorBus: EventBus[(String, ValidationEvent)]
+  ): HtmlElement =
+    factory.renderText.amend(
+      value <-- variable.signal.map(_.toString),
+      onInput.mapToValue.map(validator.validate) --> {
+        case Right(v) =>
+          variable.set(v)
+          errorBus.emit(
+            (path.key, ValidEvent)
+          )
+          syncParent()
+        case Left(err) =>
+          errorBus.emit(
+            (path.key, InvalideEvent(err))
+          )
+      }
+    )
 
 /** Extension methods for the Var class.
   */

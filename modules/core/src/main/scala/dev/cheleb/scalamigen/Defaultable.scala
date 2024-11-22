@@ -26,9 +26,23 @@ trait Defaultable[A] {
 
 object Defaultable {
 
+  given Defaultable[Boolean] with
+    def default = false
+
   /** Default value for Int is 0.
     */
   given Defaultable[Int] with
+    def default = 0
+
+  given Defaultable[Double] with
+    def default = 0
+
+  given Defaultable[Float] with
+    def default = 0
+
+  given Defaultable[BigDecimal] with
+    def default = 0
+  given Defaultable[BigInt] with
     def default = 0
 
   /** Default value for String is "".
