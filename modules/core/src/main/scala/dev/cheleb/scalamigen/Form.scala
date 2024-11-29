@@ -13,13 +13,24 @@ import java.time.LocalDate
 import io.github.iltotore.iron.*
 
 import config.PanelConfig
+import com.raquo.airstream.core.Signal
 
+/** Extension method for path: List[Symbol]
+  */
 extension (path: List[Symbol])
+  /** Get the key of the path.
+    *
+    * This key is used to identify the field in the error bus.
+    */
   def key: String =
     path.map(_.name).mkString(".")
 
 extension (errorBus: EventBus[(String, ValidationEvent)])
-  def watch = errorBus.events
+  /** Watch the error bus and return a signal of the errors.
+    *
+    * @return
+    */
+  def watch: Signal[Map[String, ValidationStatus]] = errorBus.events
     .scanLeft(Map.empty[String, ValidationStatus]) {
       case (acc, (field, event)) =>
         event match
@@ -40,6 +51,21 @@ extension (errorBus: EventBus[(String, ValidationEvent)])
                 (f -> ValidationStatus.Invalid(message, true))
               case (f, v) => (f -> v)
             }
+    }
+
+  /** Render the errors.
+    *
+    * @param f
+    * @return
+    */
+  def errors(f: (String, String) => HtmlElement) =
+    errorBus.watch.map { errors =>
+      div(
+        errors.collect {
+          case (field, ValidationStatus.Invalid(message, true)) =>
+            f(field, message)
+        }.toSeq
+      )
     }
 
 /** A form for a type A.

@@ -59,25 +59,10 @@ val validation = {
     )
   )
 
-  val errorBus = ironSampleVar.errorBus
-
   Sample(
     "Validation",
     div(
-      ironSampleVar.asForm(errorBus),
-      div(
-        child <-- errorBus.watch
-          .map { errors =>
-            div(
-              errors.collect {
-                case (field, ValidationStatus.Invalid(message, true)) =>
-                  div(
-                    s"$field: $message"
-                  )
-              }.toSeq
-            )
-          }
-      )
+      ironSampleVar.asForm
     ),
     div(
       child <-- ironSampleVar.signal.map { item =>

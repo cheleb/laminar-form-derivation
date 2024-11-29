@@ -143,9 +143,18 @@ extension [A](va: Var[A])
       Form[A]
   ): ReactiveHtmlElement[HTMLElement] = {
     val errorBus = new EventBus[(String, ValidationEvent)]()
-    Form
-      .renderVar(va, () => ())(using wf, errorBus)
-      .amend(cls := "srf-form")
+    div(
+      Form
+        .renderVar(va, () => ())(using wf, errorBus)
+        .amend(cls := "srf-form"),
+      child <-- errorBus
+        .errors((field, message) =>
+          div(
+            s"$field: $message"
+          )
+        )
+    )
+
   }
 
   /** Render a form for the variable.
