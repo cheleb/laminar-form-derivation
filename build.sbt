@@ -5,7 +5,7 @@ val scala3 = "3.6.2"
 
 val tapirVersion = "1.11.10"
 
-val laminarVersion = "17.1.0"
+val laminarVersion = "17.2.0"
 
 inThisBuild(
   List(

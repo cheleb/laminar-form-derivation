@@ -15,15 +15,10 @@ else
     filename=package.json
     age=$(($(date +%s) - $(stat -t %s -f %m -- "$filename")))
     age_lock=$(($(date +%s) - $(stat -t %s -f %m -- "$filename_lock")))
-    if [ $age_lock -gt $npmRefresh ] || [ $age_lock -gt $age ]; then
+#    if [ $age_lock -gt $npmRefresh ] || [ $age_lock -gt $age ]; then
+    if [ $age_lock -gt $age ]; then
         echo "Reinstalling npm dependencies..."
-        if [ $age_lock -gt $age ]; then
-            echo "(New dependencies)"
-        else
-            echo "(Refreshing dependencies: package-lock.json is older than $npmRefresh seconds ($age_lock).)"
-        fi
-
-        npm ci
+        npm i
         cd ../..
     else
         echo "Skipping npm install... $filename_lock is less than an $npmRefresh seconds old ($age)."
