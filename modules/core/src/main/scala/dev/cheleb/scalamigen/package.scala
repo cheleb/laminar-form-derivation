@@ -25,6 +25,19 @@ def stringForm[A](to: String => A) = new Form[A]:
         syncParent()
       }
     )
+
+/** A form for a secret type.
+  *
+  * The secret type is a string that should not be displayed in clear text.
+  *
+  * In general it is used for passwords, api keys, etc...
+  *
+  * Hence this sensitive data should be declared as an opaque type.
+  *
+  * @param to
+  *   The function to convert the string to the secret type.
+  * @return
+  */
 def secretForm[A <: String](to: String => A) = new Form[A]:
   override def render(
       path: List[Symbol],
@@ -68,40 +81,101 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
       )
 }
 
-def enumForm[A](values: Array[A], f: Int => A) = new Form[A] {
+/** Render form as html select.
+  *
+  * @param elements
+  *   The elements to render.
+  * @param labelMapper
+  *   The function to map the element to a label. Default is toString.
+  * @return
+  */
+def selectForm[A](
+    elements: Array[A],
+    labelMapper: A => String = (a: A) => a.toString
+) =
+  new Form[A] {
 
-  override def render(
-      path: List[Symbol],
-      variable: Var[A],
-      syncParent: () => Unit
-  )(using
-      factory: WidgetFactory,
-      errorBus: EventBus[(String, ValidationEvent)]
-  ): HtmlElement =
-    val valuesLabels = values.map(_.toString)
-    div(
-      factory
-        .renderSelect { idx =>
-          variable.set(f(idx))
-          syncParent()
-        }
-        .amend(
-          valuesLabels.map { label =>
-            factory.renderOption(
-              label,
-              values
-                .map(_.toString)
-                .indexOf(label),
-              label == variable.now().toString
-            )
-          }.toSeq
-        )
-    )
+    override def render(
+        path: List[Symbol],
+        variable: Var[A],
+        syncParent: () => Unit
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, ValidationEvent)]
+    ): HtmlElement =
+      val labels = elements.map(labelMapper)
+      div(
+        factory
+          .renderSelect { idx =>
+            variable.set(elements(idx))
+            syncParent()
+          }
+          .amend(
+            labels.map { label =>
+              factory.renderOption(
+                label,
+                elements
+                  .map(labelMapper)
+                  .indexOf(label),
+                label == labelMapper(variable.now())
+              )
+            }.toSeq
+          )
+      )
 
-}
+  }
 
-/** A form for a type A, no validation. Convenient to use for Opaque types. If
-  * you need validation, use a Form with a ValidationEvent.
+/** Render form as html select.
+  *
+  * @param elements
+  *   The elements to render.
+  * @param mapper
+  *   The function to map the element to a value.
+  * @param labelMapper
+  *   The function to map the element to a label. Default is toString.
+  * @return
+  */
+def selectMappedForm[A, B](
+    elements: Seq[A],
+    mapper: A => B,
+    labelMapper: A => String = (a: A) => a.toString
+) =
+  new Form[B] {
+
+    override def render(
+        path: List[Symbol],
+        variable: Var[B],
+        syncParent: () => Unit
+    )(using
+        factory: WidgetFactory,
+        errorBus: EventBus[(String, ValidationEvent)]
+    ): HtmlElement =
+      val labels = elements.map(labelMapper).zip(elements)
+      div(
+        factory
+          .renderSelect { idx =>
+            variable.set(mapper(elements(idx)))
+            syncParent()
+          }
+          .amend(
+            labels.map { (label, a) =>
+              factory.renderOption(
+                label,
+                elements
+                  .map(labelMapper)
+                  .indexOf(label),
+                a == variable.now()
+              )
+            }.toSeq
+          )
+      )
+
+  }
+
+/** A form for a type A, with validation.
+  *
+  * @param validator
+  *   The validator for the type A.
   */
 def stringFormWithValidation[A](using
     validator: Validator[A]
