@@ -2,6 +2,11 @@ package dev.cheleb.scalamigen
 
 import scala.util.Try
 
+/** A trait representing a validator for a type A.
+  *
+  * A validator is a function that takes a string and returns either an error
+  * message or a value of type A.
+  */
 trait Validator[A] {
   def validate(str: String): Either[String, A]
 }

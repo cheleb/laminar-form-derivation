@@ -13,7 +13,7 @@ val sealedClasses = {
     case White extends Color("FFF")
     case Isabelle extends Color("???")
 
-  given colorForm: Form[Color] = enumForm(Color.values, Color.fromOrdinal)
+  given colorForm: Form[Color] = selectForm(Color.values)
 
   sealed trait Animal
 
@@ -86,7 +86,7 @@ val sealedClasses = {
        |    case White extends Color("FFF")
        |    case Isabelle extends Color("???")
        |
-       |  given colorForm: Form[Color] = enumForm(Color.values, Color.fromOrdinal)
+       |  given colorForm: Form[Color] = selectForm(Color.values)
        |
        |  sealed trait Animal
        |
