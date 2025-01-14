@@ -7,6 +7,10 @@ val tapirVersion = "1.11.12"
 
 val laminarVersion = "17.2.0"
 
+val mimaSettings = mimaPreviousArtifacts := Set(
+  organization.value %%% moduleName.value % "0.21.1"
+)
+
 inThisBuild(
   List(
     scalaVersion := scala3,
@@ -39,12 +43,15 @@ inThisBuild(
       "-deprecation",
       "-feature",
       "-Xfatal-warnings"
+    ),
+    mimaPreviousArtifacts := Set(
     )
   )
 )
 
 lazy val generator = project
   .in(file("examples/generator"))
+  .disablePlugins(MimaPlugin)
   .enablePlugins(SbtTwirl)
   .settings(
     libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0",
@@ -80,6 +87,7 @@ val serverSettings = dev match {
 
 lazy val root = project
   .in(file("."))
+  .disablePlugins(MimaPlugin)
   .aggregate(
     generator,
     server,
@@ -121,6 +129,7 @@ val staticGenerationSettings =
 lazy val server = project
   .in(file("examples/server"))
   .enablePlugins(serverPlugins: _*)
+  .disablePlugins(MimaPlugin)
   .settings(
     staticGenerationSettings
   )
@@ -151,6 +160,7 @@ val usedScalacOptions = Seq(
   "-Xmax-inlines:64",
   "-Wunused:all"
 )
+
 lazy val core = scalajsProject("core", false)
   .dependsOn(coreSharedJs)
   .settings(
@@ -172,6 +182,9 @@ lazy val core = scalajsProject("core", false)
       "io.github.iltotore" %%% "iron" % "2.6.0"
     )
   )
+  .settings(
+    mimaSettings
+  )
 
 lazy val coreShared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
@@ -179,7 +192,10 @@ lazy val coreShared = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "laminar-form-derivation-shared"
   )
+  .settings(mimaSettings)
+
 lazy val coreSharedJvm = coreShared.jvm
+
 lazy val coreSharedJs = coreShared.js
 
 lazy val ui5 = scalajsProject("ui5", false)
@@ -199,8 +215,10 @@ lazy val ui5 = scalajsProject("ui5", false)
       "be.doeraene" %%% "web-components-ui5" % "2.0.0-RC2"
     )
   )
+  .settings(mimaSettings)
 
 lazy val example = scalajsProject("client", true)
+  .disablePlugins(MimaPlugin)
   .settings(
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= { config =>
