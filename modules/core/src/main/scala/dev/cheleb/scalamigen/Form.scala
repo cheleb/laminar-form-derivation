@@ -108,6 +108,24 @@ trait Form[A] { self =>
 
   given Owner = unsafeWindowOwner
 
+  /** Render the label form associated with a variable
+    *
+    * @param label
+    *   label of the variable
+    * @param required
+    *   if the variable is mandatory or not
+    * @param factory
+    *   the widget factory
+    * @return
+    */
+  def renderLabel(
+      label: String,
+      required: Boolean
+  )(using
+      factory: WidgetFactory
+  ): HtmlElement =
+    factory.renderLabel(required, label)
+
   /*
 
 
@@ -129,7 +147,7 @@ trait Form[A] { self =>
     ): HtmlElement =
       div(
         div(
-          factory.renderLabel(required, label)
+          self.renderLabel(label, required)
         ),
         div(
           self.render(path, variable, syncParent)
@@ -471,6 +489,68 @@ object Form extends AutoDerivation[Form] {
             )
       }
     }
+  
+  /** Form for an Option[A]
+    *
+    * Rendered if some specific condition is met, hidden otherwise
+    *
+    * @param condVar
+    *   the variable on check the condition is to be checked
+    * @param fa
+    *   the form for A
+    * @param d
+    *   the default value for A
+    * @param cond
+    *   the condition to be checked on C, related to show or hide the form for A
+    * @return
+    */
+  def conditionalOn[C, A](
+    condVar: Var[C]
+  )(using
+    fa: Form[A],
+    d: Defaultable[A],
+    cond: ConditionalFor[C, A]
+  ): Form[Option[A]] =
+    val displaySrc = condVar.signal.map(cond.check).map:
+        case true => "block"
+        case false => "none"
+
+    new Form[Option[A]] {
+        override def renderLabel(
+            label: String,
+            required: Boolean
+        )(using
+            factory: WidgetFactory
+        ): HtmlElement =
+            super.renderLabel(label, true)
+            .amend(
+                display <-- displaySrc
+            )
+
+        override def render(
+            path: List[Symbol],
+            variable: Var[Option[A]],
+            syncParent: () => Unit
+        )(using
+            factory: WidgetFactory,
+            errorBus: EventBus[(String, ValidationEvent)]
+        ): HtmlElement = {
+
+            val varA = variable.zoom {
+                case Some(a) => a
+                case None => d.default
+            } { case (_, a) => Some(a) }
+            
+            fa.render(path, varA, syncParent)
+            .amend(
+              display <-- displaySrc,
+              condVar.signal.map: v =>
+                val ev = if (cond.check(v)) ShownEvent else HiddenEvent
+                (path.key, ev)
+              --> errorBus.writer
+            )
+        }
+    }
 
   /** Form for a List[A]
     * @param fa
@@ -540,7 +620,6 @@ object Form extends AutoDerivation[Form] {
         factory: WidgetFactory,
         errorBus: EventBus[(String, ValidationEvent)]
     ): HtmlElement = {
-
       val panel =
         caseClass.annotations.find(_.isInstanceOf[Panel]) match
           case None =>
@@ -569,10 +648,7 @@ object Form extends AutoDerivation[Form] {
                 value.asInstanceOf[FieldName].value
             tr(
               td(
-                factory.renderLabel(
-                  !isOption,
-                  fieldName
-                )
+                param.typeclass.renderLabel(fieldName, !isOption)
               ).amend(
                 className := panel.fieldCss
               ),
