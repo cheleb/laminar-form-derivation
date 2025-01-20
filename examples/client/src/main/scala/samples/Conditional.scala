@@ -3,40 +3,40 @@ package samples
 import dev.cheleb.scalamigen.*
 import com.raquo.laminar.api.L.*
 
+case class Person(
+    firstname: String,
+    lastname: String,
+    age: Int,
+    extra_str: Option[ExtraString],
+    extra_int: Option[ExtraInt]
+)
+
+object Person:
+  val empty = Person("John", "Doe", 16, None, None)
+
+@Panel("Conditional", false)
+case class ConditionalSample(
+    person: Person
+)
+
+given ConditionalFor[ConditionalSample, ExtraString] with
+  def check = _.person.age >= 18
+
+given ConditionalFor[ConditionalSample, ExtraInt] with
+  def check = _.person.age >= 18
+
+given Defaultable[Person] with
+  def default = Person.empty
+
+val conditionalVar = Var(ConditionalSample(Person.empty))
+
+given formExtraString: Form[Option[ExtraString]] =
+  Form.conditionalOn[ConditionalSample, ExtraString](conditionalVar)
+
+given formExtraInt: Form[Option[ExtraInt]] =
+  Form.conditionalOn[ConditionalSample, ExtraInt](conditionalVar)
+
 val conditional = {
-
-  case class Person(
-      firstname: String,
-      lastname: String,
-      age: Int,
-      extra_str: Option[ExtraString],
-      extra_int: Option[ExtraInt]
-  )
-
-  object Person:
-    val empty = Person("John", "Doe", 16, None, None)
-
-  @Panel("Conditional", false)
-  case class ConditionalSample(
-      person: Person
-  )
-
-  given ConditionalFor[ConditionalSample, ExtraString] with
-    def check = _.person.age >= 18
-
-  given ConditionalFor[ConditionalSample, ExtraInt] with
-    def check = _.person.age >= 18
-
-  given Defaultable[Person] with
-    def default = Person.empty
-
-  val conditionalVar = Var(ConditionalSample(Person.empty))
-
-  given formExtraString: Form[Option[ExtraString]] =
-    Form.conditionalOn[ConditionalSample, ExtraString](conditionalVar)
-
-  given formExtraInt: Form[Option[ExtraInt]] =
-    Form.conditionalOn[ConditionalSample, ExtraInt](conditionalVar)
 
   Sample(
     "Conditional",
