@@ -545,7 +545,13 @@ object Form extends AutoDerivation[Form] {
             .amend(
               display <-- displaySrc,
               condVar.signal.map: v =>
-                val ev = if (cond.check(v)) ShownEvent else HiddenEvent
+                val ev = if (cond.check(v)){
+                          ShownEvent
+                } else {
+                          if(variable.now().isDefined)
+                            variable.set(None)
+                          HiddenEvent
+                }
                 (path.key, ev)
               --> errorBus.writer
             )
