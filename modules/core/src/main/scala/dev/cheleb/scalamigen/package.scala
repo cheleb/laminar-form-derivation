@@ -188,6 +188,7 @@ def stringFormWithValidation[A](using
       factory: WidgetFactory,
       errorBus: EventBus[(String, ValidationEvent)]
   ): HtmlElement =
+    val state = Var("valid")
     factory.renderText.amend(
       value <-- variable.signal.map(_.toString),
       onInput.mapToValue.map(validator.validate) --> {
@@ -201,7 +202,20 @@ def stringFormWithValidation[A](using
           errorBus.emit(
             (path.key, InvalideEvent(err))
           )
-      }
+      },
+      cls <-- errorBus.events
+        .collect {
+          case (field, InvalideEvent(_)) if field == path.key =>
+            state.set("invalid")
+            "srf-invalid"
+          case (field, ShownEvent) if path.key.startsWith(field) =>
+            s"srf-${state.now()}"
+          case (field, HiddenEvent) if path.key.startsWith(field) =>
+            s"srf-valid"
+          case (field, ValidEvent) if field == path.key =>
+            state.set("valid")
+            "srf-valid"
+        }
     )
 
 /** Extension methods for the Var class.

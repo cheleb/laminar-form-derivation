@@ -27,6 +27,7 @@ object App extends App {
     samples.opaque,
     samples.either,
     samples.validation,
+    samples.conditional,
     samples.enums,
     samples.sealedClasses,
     samples.person,
