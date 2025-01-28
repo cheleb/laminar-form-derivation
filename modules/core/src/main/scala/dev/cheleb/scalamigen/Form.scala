@@ -83,6 +83,18 @@ trait Form[A] { self =>
 
   def toString(a: A) = a.toString
 
+  protected var _fieldName: Option[String] = None
+  
+  def withFieldName(n: String) =
+    _fieldName = Some(n)
+    self
+
+  protected var _panelConfig: Option[PanelConfig] = None
+
+  def withPanelConfig(label: Option[String], asTable: Boolean) =
+    _panelConfig = Some(PanelConfig(label, asTable))
+    self
+
   /** Render a form for a variable.
     *
     * Sometimes the form is a part of a larger form and the parent form needs to
@@ -618,6 +630,26 @@ object Form extends AutoDerivation[Form] {
       caseClass: CaseClass[Typeclass, A]
   ): Form[A] = new Form[A] {
 
+    private def fieldNameFromParam(param: CaseClass.Param[Form, A]): String = 
+      param.annotations
+        .find(_.isInstanceOf[FieldName]) match
+          case None => 
+            param.typeclass._fieldName.getOrElse(NameUtils.titleCase(param.label))
+          case Some(value) =>
+            value.asInstanceOf[FieldName].value
+
+    private def mkVariableForParam(variable: Var[A], param: CaseClass.Param[Form, A]): Var[param.PType] =
+      variable.zoom { a =>
+        Try(param.deref(a))
+          .getOrElse(param.default)
+          .asInstanceOf[param.PType]
+      }((_, value) =>
+        caseClass.construct { p =>
+          if (p.label == param.label) value
+          else p.deref(variable.now())
+        }
+      )(unsafeWindowOwner)
+
     override def render(
         path: List[Symbol],
         variable: Var[A],
@@ -626,7 +658,7 @@ object Form extends AutoDerivation[Form] {
         factory: WidgetFactory,
         errorBus: EventBus[(String, ValidationEvent)]
     ): HtmlElement = {
-      val panel =
+      val panel = _panelConfig.getOrElse:
         caseClass.annotations.find(_.isInstanceOf[Panel]) match
           case None =>
             caseClass.annotations.find(_.isInstanceOf[NoPanel]) match
@@ -646,12 +678,8 @@ object Form extends AutoDerivation[Form] {
 
             val isOption =
               param.deref(variable.now()).isInstanceOf[Option[?]]
-
-            val fieldName = param.annotations
-              .find(_.isInstanceOf[FieldName]) match
-              case None => NameUtils.titleCase(param.label)
-              case Some(value) =>
-                value.asInstanceOf[FieldName].value
+            
+            val fieldName = fieldNameFromParam(param)
             tr(
               td(
                 param.typeclass.renderLabel(fieldName, !isOption)
@@ -662,16 +690,7 @@ object Form extends AutoDerivation[Form] {
                 param.typeclass
                   .render(
                     path :+ Symbol(fieldName),
-                    variable.zoom { a =>
-                      Try(param.deref(a))
-                        .getOrElse(param.default)
-                        .asInstanceOf[param.PType]
-                    }((_, value) =>
-                      caseClass.construct { p =>
-                        if (p.label == param.label) value
-                        else p.deref(variable.now())
-                      }
-                    )(unsafeWindowOwner),
+                    mkVariableForParam(variable, param),
                     syncParent
                   )
                   .amend(
@@ -685,27 +704,12 @@ object Form extends AutoDerivation[Form] {
       def renderAsPanel() =
         caseClass.params.map { param =>
           val isOption = param.deref(variable.now()).isInstanceOf[Option[?]]
-
-          val fieldName = param.annotations
-            .find(_.isInstanceOf[FieldName]) match
-            case None => NameUtils.titleCase(param.label)
-            case Some(value) =>
-              value.asInstanceOf[FieldName].value
-
+          val fieldName = fieldNameFromParam(param)
           param.typeclass
             .labelled(fieldName, !isOption)
             .render(
               path :+ Symbol(fieldName),
-              variable.zoom { a =>
-                Try(param.deref(a))
-                  .getOrElse(param.default)
-                  .asInstanceOf[param.PType]
-              }((_, value) =>
-                caseClass.construct { p =>
-                  if (p.label == param.label) value
-                  else p.deref(variable.now())
-                }
-              )(unsafeWindowOwner),
+              mkVariableForParam(variable, param),
               syncParent
             )
             .amend(
