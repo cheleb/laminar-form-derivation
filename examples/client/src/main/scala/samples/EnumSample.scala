@@ -44,7 +44,7 @@ val enums = {
         10,
         true,
         Color.White,
-        UUID.fromString("00000000-0000-0000-0000-000000000000")
+        allMeals.head.id
       )
     )
   )
