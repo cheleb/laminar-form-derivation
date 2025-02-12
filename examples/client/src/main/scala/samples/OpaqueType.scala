@@ -3,7 +3,7 @@ package samples
 import com.raquo.laminar.api.L.*
 import dev.cheleb.scalamigen.*
 
-val opaque = {
+val opaque: Sample = {
 
   case class Person(
       name: String,

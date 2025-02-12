@@ -6,7 +6,7 @@ import dev.cheleb.scalamigen.*
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 
-val simple = {
+val simple: Sample = {
 
   case class Cat(
       name: String,

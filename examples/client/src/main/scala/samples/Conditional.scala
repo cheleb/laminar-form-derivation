@@ -36,7 +36,7 @@ given formExtraString: Form[Option[ExtraString]] =
 given formExtraInt: Form[Option[ExtraInt]] =
   Form.conditionalOn[ConditionalSample, ExtraInt](conditionalVar)
 
-val conditional = {
+val conditional: Sample = {
 
   Sample(
     "Conditional",

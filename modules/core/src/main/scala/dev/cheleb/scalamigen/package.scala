@@ -227,7 +227,9 @@ extension [A](va: Var[A])
     *   The widget factory.
     * @return
     */
-  def asForm(using wf: WidgetFactory)(using
+  def asForm(using
+      wf: WidgetFactory
+  )(using
       Form[A]
   ): ReactiveHtmlElement[HTMLElement] = {
     val errorBus = new EventBus[(String, ValidationEvent)]()

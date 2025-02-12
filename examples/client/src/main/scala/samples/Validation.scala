@@ -7,7 +7,7 @@ import com.raquo.laminar.api.L.*
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 
-val validation = {
+val validation: Sample = {
 
   case class LatLon(lat: Double, lon: Double) {
     override def toString: String = s"$lat,$lon"

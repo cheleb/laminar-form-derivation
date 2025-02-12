@@ -4,14 +4,14 @@ import com.raquo.laminar.api.L.*
 import dev.cheleb.scalamigen.*
 import io.github.iltotore.iron.constraint.all.*
 
-val adhoc = {
+val adhoc: Sample = {
 
   // outside your scope / in another library
   // => meaning '@FieldName' or '@NoPanel' annotations are not possible
   case class Cat(
       name: String,
       kind: Boolean = true,
-      color: Color,
+      color: Color
   )
 
   enum Color(val code: String):
@@ -21,15 +21,16 @@ val adhoc = {
 
   // your library
   case class Basket(color: Color, cat: Cat)
-  
+
   given colorForm: Form[Color] =
     selectForm(Color.values, labelMapper = c => s"$c ${c.code}")
       .withFieldName("Select color")
 
-  given Form[Cat] = 
-    Form.autoDerived[Cat]
-        .withFieldName("Your cat")
-        .withPanelConfig(label = Some("What kind of cat ?"), asTable = true)
+  given Form[Cat] =
+    Form
+      .autoDerived[Cat]
+      .withFieldName("Your cat")
+      .withPanelConfig(label = Some("What kind of cat ?"), asTable = true)
 
   val enumVar = Var(
     Basket(
@@ -37,7 +38,7 @@ val adhoc = {
       Cat(
         "Scala",
         true,
-        Color.White,
+        Color.White
       )
     )
   )
@@ -73,6 +74,7 @@ val adhoc = {
        |  selectForm(Color.values, labelMapper = c => s"$c ${c.code}")
        |    .withFieldName("Select color")
        |
+       |@annotation.nowarn
        |given Form[Cat] = 
        |  Form.autoDerived[Cat]
        |      .withFieldName("Your cat")
