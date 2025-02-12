@@ -7,7 +7,7 @@ package samples
 //import org.scalajs.dom.KeyCode
 
 object WebSocketDemo {
-/*
+  /*
   private def sherpal =
     img(src := "images/avatars/ono.png", alt := "Ono")
 
@@ -55,5 +55,5 @@ object WebSocketDemo {
       )
     )
   )
-*/
+   */
 }

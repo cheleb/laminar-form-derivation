@@ -6,7 +6,7 @@ import com.raquo.laminar.api.L.*
 
 /** Poc poc =D
   */
-val tree = {
+val tree: Sample = {
 
   enum Tree[+T]:
     case Empty extends Tree[Nothing]

@@ -7,7 +7,7 @@ import java.time.LocalDate
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 
-val person = {
+val person: Sample = {
   // Define some models
 
   @NoPanel

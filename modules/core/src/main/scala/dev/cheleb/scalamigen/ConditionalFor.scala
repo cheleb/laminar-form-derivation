@@ -1,4 +1,4 @@
 package dev.cheleb.scalamigen
 
 trait ConditionalFor[C, A]:
-    def check: C => Boolean
+  def check: C => Boolean

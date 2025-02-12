@@ -84,7 +84,7 @@ trait Form[A] { self =>
   def toString(a: A) = a.toString
 
   protected var _fieldName: Option[String] = None
-  
+
   def withFieldName(n: String) =
     _fieldName = Some(n)
     self
@@ -353,6 +353,7 @@ object Form extends AutoDerivation[Form] {
     */
   given Form[BigInt] =
     numericForm(str => Try(BigInt(str)).toOption, BigInt(0))
+
     /** Form for a BigDecimal.
       */
   given Form[BigDecimal] =
@@ -501,7 +502,7 @@ object Form extends AutoDerivation[Form] {
             )
       }
     }
-  
+
   /** Form for an Option[A]
     *
     * Rendered if some specific condition is met, hidden otherwise
@@ -517,57 +518,60 @@ object Form extends AutoDerivation[Form] {
     * @return
     */
   def conditionalOn[C, A](
-    condVar: Var[C]
+      condVar: Var[C]
   )(using
-    fa: Form[A],
-    d: Defaultable[A],
-    cond: ConditionalFor[C, A]
+      fa: Form[A],
+      d: Defaultable[A],
+      cond: ConditionalFor[C, A]
   ): Form[Option[A]] =
-    val displaySrc = condVar.signal.map(cond.check).map:
-        case true => "block"
+    val displaySrc = condVar.signal
+      .map(cond.check)
+      .map:
+        case true  => "block"
         case false => "none"
 
     new Form[Option[A]] {
-        override def renderLabel(
-            label: String,
-            required: Boolean
-        )(using
-            factory: WidgetFactory
-        ): HtmlElement =
-            super.renderLabel(label, true)
-            .amend(
-                display <-- displaySrc
-            )
+      override def renderLabel(
+          label: String,
+          required: Boolean
+      )(using
+          factory: WidgetFactory
+      ): HtmlElement =
+        super
+          .renderLabel(label, true)
+          .amend(
+            display <-- displaySrc
+          )
 
-        override def render(
-            path: List[Symbol],
-            variable: Var[Option[A]],
-            syncParent: () => Unit
-        )(using
-            factory: WidgetFactory,
-            errorBus: EventBus[(String, ValidationEvent)]
-        ): HtmlElement = {
+      override def render(
+          path: List[Symbol],
+          variable: Var[Option[A]],
+          syncParent: () => Unit
+      )(using
+          factory: WidgetFactory,
+          errorBus: EventBus[(String, ValidationEvent)]
+      ): HtmlElement = {
 
-            val varA = variable.zoom {
-                case Some(a) => a
-                case None => d.default
-            } { case (_, a) => Some(a) }
-            
-            fa.render(path, varA, syncParent)
-            .amend(
-              display <-- displaySrc,
-              condVar.signal.map: v =>
-                val ev = if (cond.check(v)){
-                          ShownEvent
-                } else {
-                          if(variable.now().isDefined)
-                            variable.set(None)
-                          HiddenEvent
-                }
-                (path.key, ev)
-              --> errorBus.writer
-            )
-        }
+        val varA = variable.zoom {
+          case Some(a) => a
+          case None    => d.default
+        } { case (_, a) => Some(a) }
+
+        fa.render(path, varA, syncParent)
+          .amend(
+            display <-- displaySrc,
+            condVar.signal.map: v =>
+              val ev = if (cond.check(v)) {
+                ShownEvent
+              } else {
+                if (variable.now().isDefined)
+                  variable.set(None)
+                HiddenEvent
+              }
+              (path.key, ev)
+            --> errorBus.writer
+          )
+      }
     }
 
   /** Form for a List[A]
@@ -630,15 +634,18 @@ object Form extends AutoDerivation[Form] {
       caseClass: CaseClass[Typeclass, A]
   ): Form[A] = new Form[A] {
 
-    private def fieldNameFromParam(param: CaseClass.Param[Form, A]): String = 
+    private def fieldNameFromParam(param: CaseClass.Param[Form, A]): String =
       param.annotations
         .find(_.isInstanceOf[FieldName]) match
-          case None => 
-            param.typeclass._fieldName.getOrElse(NameUtils.titleCase(param.label))
-          case Some(value) =>
-            value.asInstanceOf[FieldName].value
+        case None =>
+          param.typeclass._fieldName.getOrElse(NameUtils.titleCase(param.label))
+        case Some(value) =>
+          value.asInstanceOf[FieldName].value
 
-    private def mkVariableForParam(variable: Var[A], param: CaseClass.Param[Form, A]): Var[param.PType] =
+    private def mkVariableForParam(
+        variable: Var[A],
+        param: CaseClass.Param[Form, A]
+    ): Var[param.PType] =
       variable.zoom { a =>
         Try(param.deref(a))
           .getOrElse(param.default)
@@ -678,7 +685,7 @@ object Form extends AutoDerivation[Form] {
 
             val isOption =
               param.deref(variable.now()).isInstanceOf[Option[?]]
-            
+
             val fieldName = fieldNameFromParam(param)
             tr(
               td(

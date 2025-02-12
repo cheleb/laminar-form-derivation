@@ -1,7 +1,7 @@
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-val scala3 = "3.6.3"
+val scala3 = "3.3.5"
 
 val tapirVersion = "1.11.14"
 
@@ -218,14 +218,15 @@ lazy val example = scalajsProject("client", true)
   .settings(scalacOptions ++= usedScalacOptions)
   .dependsOn(ui5, exampleSharedJs)
   .settings(
-    publish / skip := true
+    publish / skip := true,
+    scalacOptions -= "-Xfatal-warnings" // disable fatal warnings due to spurious https://github.com/scala/scala3/issues/20741
   )
 
 lazy val exampleShared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("examples/shared"))
   .settings(
-    publish / skip := true
+    publish / skip := true,
   )
 lazy val exampleSharedJvm = exampleShared.jvm
 lazy val exampleSharedJs = exampleShared.js
