@@ -3,7 +3,7 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 val scala3 = "3.3.5"
 
-val tapirVersion = "1.11.14"
+val tapirVersion = "1.11.15"
 
 val laminarVersion = "17.2.0"
 
@@ -49,7 +49,7 @@ lazy val generator = project
   .settings(
     libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0",
     libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.11.4",
-    libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.16"
+    libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.17"
   )
   .settings(
     publish / skip := true
@@ -166,7 +166,7 @@ lazy val core = scalajsProject("core", false)
   .settings(
     libraryDependencies ++= Seq(
       "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
-      "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.13",
+      "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.15",
       "com.raquo" %%% "laminar" % laminarVersion,
       // "io.laminext" %%% "websocket" % laminarVersion,
       "io.github.iltotore" %%% "iron" % "2.6.0"
