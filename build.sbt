@@ -1,9 +1,9 @@
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-val scala3 = "3.3.5"
+val scala3 = "3.6.4"
 
-val tapirVersion = "1.11.19"
+val tapirVersion = "1.11.20"
 
 val laminarVersion = "17.2.1"
 
@@ -32,9 +32,12 @@ inThisBuild(
       )
     ),
     startYear := Some(2023),
-    licenses += ("Apache-2.0", url(
-      "http://www.apache.org/licenses/LICENSE-2.0"
-    )),
+    licenses += (
+      "Apache-2.0",
+      url(
+        "http://www.apache.org/licenses/LICENSE-2.0"
+      )
+    ),
     scalacOptions ++= Seq(
       "-deprecation",
       "-feature",
@@ -129,7 +132,7 @@ lazy val server = project
     scalaJSProjects := Seq(example),
     Assets / pipelineStages := Seq(scalaJSPipeline),
     libraryDependencies ++= Seq(
-      "io.github.iltotore" %% "iron-zio-json" % "2.6.0",
+      "io.github.iltotore" %% "iron-zio-json" % "3.0.0",
       "com.softwaremill.sttp.tapir" %% "tapir-zio" % tapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-zio-http-server" % tapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion,
@@ -226,7 +229,7 @@ lazy val exampleShared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("examples/shared"))
   .settings(
-    publish / skip := true,
+    publish / skip := true
   )
 lazy val exampleSharedJvm = exampleShared.jvm
 lazy val exampleSharedJs = exampleShared.js

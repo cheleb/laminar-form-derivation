@@ -2,7 +2,6 @@ package samples
 
 import com.raquo.laminar.api.L.*
 import dev.cheleb.scalamigen.*
-import io.github.iltotore.iron.constraint.all.*
 
 val adhoc: Sample = {
 
