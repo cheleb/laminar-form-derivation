@@ -12,6 +12,9 @@ For the very impatient, here is a [live demo](https://cheleb.github.io/laminar-f
 
 ## Installation
 
+* Scala LTS: v0.24.3 
+* Scala > 3.6.5: v1.0.0+
+
 ```sbt
 // With raw Laminar widgets (html only)
 libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui" % "0.11.0"
