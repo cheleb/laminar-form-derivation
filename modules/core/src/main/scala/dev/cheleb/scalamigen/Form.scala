@@ -560,7 +560,7 @@ object Form extends AutoDerivation[Form] {
         fa.render(path, varA, syncParent)
           .amend(
             display <-- displaySrc,
-            condVar.signal.map: v =>
+            condVar.signal.map { v =>
               val ev = if (cond.check(v)) {
                 ShownEvent
               } else {
@@ -569,7 +569,8 @@ object Form extends AutoDerivation[Form] {
                 HiddenEvent
               }
               (path.key, ev)
-            --> errorBus.writer
+            }
+              --> errorBus.writer
           )
       }
     }
