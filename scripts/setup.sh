@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 . ./scripts/env.sh
 
 rm -f $NPM_DEV_STARTED
