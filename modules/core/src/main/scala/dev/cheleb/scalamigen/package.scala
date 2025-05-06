@@ -5,11 +5,13 @@ import com.raquo.airstream.state.Var
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.HTMLElement
+import scala.annotation.nowarn
 
 /** A form for a type A, no validation. Convenient to use for Opaque types. If
   * you need validation, use a Form with a ValidationEvent.
   */
 def stringForm[A](to: String => A) = new Form[A]:
+  @nowarn
   override def render(
       path: List[Symbol],
       variable: Var[A],
@@ -39,6 +41,7 @@ def stringForm[A](to: String => A) = new Form[A]:
   * @return
   */
 def secretForm[A <: String](to: String => A) = new Form[A]:
+  @nowarn
   override def render(
       path: List[Symbol],
       variable: Var[A],
@@ -61,6 +64,7 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
   self =>
   override def fromString(s: String): Option[A] =
     f(s).orElse(Some(zero))
+  @nowarn
   override def render(
       path: List[Symbol],
       variable: Var[A],
@@ -94,6 +98,7 @@ def selectForm[A](
     labelMapper: A => String = (a: A) => a.toString
 ) =
   new Form[A] {
+    @nowarn
 
     override def render(
         path: List[Symbol],
@@ -141,6 +146,7 @@ def selectMappedForm[A, B](
     labelMapper: A => String = (a: A) => a.toString
 ) =
   new Form[B] {
+    @nowarn
 
     override def render(
         path: List[Symbol],
