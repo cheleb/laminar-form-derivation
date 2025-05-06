@@ -132,7 +132,7 @@ lazy val server = project
     scalaJSProjects := Seq(example),
     Assets / pipelineStages := Seq(scalaJSPipeline),
     libraryDependencies ++= Seq(
-      "io.github.iltotore" %% "iron-zio-json" % "3.0.0",
+      "io.github.iltotore" %% "iron-zio-json" % "3.0.1",
       "com.softwaremill.sttp.tapir" %% "tapir-zio" % tapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-zio-http-server" % tapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion,
