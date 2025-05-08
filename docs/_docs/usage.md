@@ -45,12 +45,5 @@ object Password:
 ```
 * `IronType`
 
-```scala sc:nocompile
-doubleGreaterThanEight: Double :| GreaterEqual[8.0]
+Iron type are supported as long as their base type is supported by the library. For example, `Positive` is a wrapper around `Int` and `Long` and can be used as such.
 
-given IronTypeValidator[Double, GreaterEqual[8.0]] =
-    _.toDoubleOption match
-      case None         => Left("Not a number")
-      case Some(double) => double.refineEither[GreaterEqual[8.0]]
-
-```
