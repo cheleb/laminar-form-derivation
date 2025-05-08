@@ -4,6 +4,7 @@ import org.scalajs.dom
 import com.raquo.laminar.api.L.*
 
 import facades.highlightjs.{hljs, hljsScala}
+
 import io.github.nguyenyou.ui5.webcomponents.laminar.*
 
 case class Sample(
@@ -13,7 +14,7 @@ case class Sample(
     source: String = "TODO"
 )
 
-object App extends App {
+object DemoNguyenyou extends App {
   hljs.registerLanguage("scala", hljsScala)
 
   val sampleVar = Var(samples.simple)
@@ -108,6 +109,5 @@ object App extends App {
       )
     )
 
-  val containerNode = dom.document.getElementById("app")
-  render(containerNode, myApp)
+  myApp
 }
