@@ -90,6 +90,7 @@ lazy val root = project
     coreSharedJs,
     coreSharedJvm,
     ui5,
+    ui5_nguyenyou,
     example
   )
   .settings(
@@ -203,6 +204,24 @@ lazy val ui5 = scalajsProject("ui5", false)
     )
   )
 
+lazy val ui5_nguyenyou = scalajsProject("ui5_2", false)
+  .settings(
+    name := "laminar-form-derivation-ui5-nguyenyou",
+    //   scalaJSUseMainModuleInitializer := true,
+    scalaJSLinkerConfig ~= {
+      _.withModuleKind(scalaJSModule)
+        .withSourceMap(false)
+        .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
+    }
+  )
+  .settings(scalacOptions ++= usedScalacOptions)
+  .dependsOn(core)
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.github.nguyenyou" %%% "ui5-webcomponents-laminar" % "2.9.0"
+    )
+  )
+
 lazy val example = scalajsProject("client", true)
   .settings(
     scalaJSUseMainModuleInitializer := true,
@@ -219,7 +238,7 @@ lazy val example = scalajsProject("client", true)
     }
   )
   .settings(scalacOptions ++= usedScalacOptions)
-  .dependsOn(ui5, exampleSharedJs)
+  .dependsOn(ui5, ui5_nguyenyou, exampleSharedJs)
   .settings(
     publish / skip := true,
     scalacOptions -= "-Xfatal-warnings" // disable fatal warnings due to spurious https://github.com/scala/scala3/issues/20741

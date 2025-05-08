@@ -7,6 +7,8 @@
 libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui" % "{{ projectVersion }}"
 // With UI5 Web Components
 libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui5" % "{{ projectVersion}}"
+// With UI5 Web Components from nguyenyou
+libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui5-nguyenyou" % "{{ projectVersion}}"
 ```
 
 Annoations allow to customize the form rendering. They are part of the `laminar-form-derivation-shared` package.

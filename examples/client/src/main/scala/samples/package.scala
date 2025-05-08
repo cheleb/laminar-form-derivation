@@ -1,7 +1,6 @@
 package samples
 
 import dev.cheleb.scalamigen.*
-import dev.cheleb.scalamigen.ui5.UI5WidgetFactory
 
 opaque type CurrencyCode = String
 
@@ -35,4 +34,4 @@ object ExtraInt:
   given Defaultable[ExtraInt] with
     def default: ExtraInt = 0
 
-given WidgetFactory = if true then UI5WidgetFactory else LaminarWidgetFactory
+//given WidgetFactory = if true then UI5WidgetFactory else LaminarWidgetFactory

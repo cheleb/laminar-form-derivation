@@ -20,6 +20,7 @@ It depends on:
 
 Optionaly:
 * [UI5 Web Components](https://sap.github.io/ui5-webcomponents/) and [ScalaJS binding](https://github.com/sherpal/laminarsapui5bindings)
+* [UI5 Web Components from Nguyenyou](https://github.com/nguyenyou/ui5-webcomponents-laminar)
 
 
 ## Credits

@@ -3,7 +3,9 @@ package samples
 import dev.cheleb.scalamigen.*
 import com.raquo.laminar.api.L.*
 
-val either: Sample = {
+def either(using
+    wf: WidgetFactory
+): Sample = {
 
   case class Cat(name: String, age: Int)
   case class Dog(name: String, age: Int)

@@ -6,7 +6,9 @@ import com.raquo.laminar.api.L.*
 
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 
-val sealedClasses: Sample = {
+def sealedClasses(using
+    wf: WidgetFactory
+): Sample = {
 
   enum Color(val code: String):
     case Black extends Color("000")
@@ -67,7 +69,7 @@ val sealedClasses: Sample = {
     div(
       child <-- sealedVar.signal
         .distinctByFn((old, nw) => old.pet.getClass == nw.pet.getClass)
-        .map { item =>
+        .map { _ =>
           div(
             sealedVar.asForm,
             switchers

@@ -1,42 +1,26 @@
 package samples
 
-import org.scalajs.dom
 import com.raquo.laminar.api.L.*
 import be.doeraene.webcomponents.ui5.*
-import facades.highlightjs.{hljs, hljsScala}
+import facades.highlightjs.hljs
+import dev.cheleb.scalamigen.WidgetFactory
+import dev.cheleb.scalamigen.LaminarWidgetFactory
 
-case class Sample(
-    name: String,
-    component: HtmlElement,
-    debug: HtmlElement,
-    source: String = "TODO"
-)
+object DemoNative {
 
-object App extends App {
-  hljs.registerLanguage("scala", hljsScala)
+  def apply() =
 
-  val sampleVar = Var(samples.simple)
+    def item(name: String) = SideNavigation.item(
+      _.text := name,
+      dataAttr("component-name") := name
+    )
 
-  private def item(name: String) = SideNavigation.item(
-    _.text := name,
-    dataAttr("component-name") := name
-  )
+    given WidgetFactory = LaminarWidgetFactory
 
-  private val demos = Seq(
-    samples.simple,
-    samples.opaque,
-    samples.either,
-    samples.validation,
-    samples.conditional,
-    samples.enums,
-    samples.sealedClasses,
-    samples.person,
-    samples.list,
-    samples.tree,
-    samples.adhoc
-  )
+    val sampleVar = Var(samples.simple)
 
-  val myApp =
+    val demos = App.demos
+
     div(
       display := "flex",
       div(
@@ -110,6 +94,4 @@ object App extends App {
       )
     )
 
-  val containerNode = dom.document.getElementById("app")
-  render(containerNode, myApp)
 }

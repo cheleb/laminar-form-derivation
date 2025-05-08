@@ -3,7 +3,9 @@ package samples
 import com.raquo.laminar.api.L.*
 import dev.cheleb.scalamigen.*
 
-val list: Sample = {
+def list(using
+    wf: WidgetFactory
+): Sample = {
   case class Person2(id: Int, name: String, age: Int)
 
   case class ListElement(

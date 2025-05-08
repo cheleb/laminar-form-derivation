@@ -6,7 +6,9 @@ import com.raquo.laminar.api.L.*
 
 /** Poc poc =D
   */
-val tree: Sample = {
+def tree(using
+    wf: WidgetFactory
+): Sample = {
 
   enum Tree[+T]:
     case Empty extends Tree[Nothing]
@@ -106,7 +108,7 @@ val tree: Sample = {
       div(
         child <-- treeVar2.signal
           .distinctByFn(Tree.isSameStructure)
-          .map { item =>
+          .map { _ =>
             val b = new EventBus[(String, ValidationEvent)]()
             treeVar2.asForm(b)
           }

@@ -6,7 +6,9 @@ import dev.cheleb.scalamigen.*
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 
-val simple: Sample = {
+def simple(using
+    wf: WidgetFactory
+): Sample = {
 
   case class Cat(
       name: String,

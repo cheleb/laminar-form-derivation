@@ -7,7 +7,9 @@ import com.raquo.laminar.api.L.*
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 
-val validation: Sample = {
+def validation(using
+    wf: WidgetFactory
+): Sample = {
 
   case class LatLon(lat: Double, lon: Double) {
     override def toString: String = s"$lat,$lon"
@@ -44,9 +46,6 @@ val validation: Sample = {
       optionalDoublePositive: Option[Double :| Positive],
       latLong: LatLon
   )
-
-  given Defaultable[Double :| GreaterEqual[8.0]] with
-    def default: Double :| GreaterEqual[8.0] = 8.0
 
   val ironSampleVar = Var(
     IronSample(
