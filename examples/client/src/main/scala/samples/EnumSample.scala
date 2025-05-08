@@ -6,7 +6,9 @@ import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 import java.util.UUID
 
-val enums: Sample = {
+def enums(using
+    wf: WidgetFactory
+): Sample = {
   enum Color(val code: String):
     case Black extends Color("000")
     case White extends Color("FFF")

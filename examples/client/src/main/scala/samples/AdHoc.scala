@@ -3,7 +3,9 @@ package samples
 import com.raquo.laminar.api.L.*
 import dev.cheleb.scalamigen.*
 
-val adhoc: Sample = {
+def adhoc(using
+    wf: WidgetFactory
+): Sample = {
 
   // outside your scope / in another library
   // => meaning '@FieldName' or '@NoPanel' annotations are not possible

@@ -6,7 +6,9 @@ import com.raquo.laminar.api.L.*
 
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 
-val sealedClasses: Sample = {
+def sealedClasses(using
+    wf: WidgetFactory
+): Sample = {
 
   enum Color(val code: String):
     case Black extends Color("000")

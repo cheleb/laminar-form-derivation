@@ -7,7 +7,9 @@ import java.time.LocalDate
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 
-val person: Sample = {
+def person(using
+    wf: WidgetFactory
+): Sample = {
   // Define some models
 
   @NoPanel

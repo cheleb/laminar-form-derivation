@@ -36,7 +36,9 @@ given formExtraString: Form[Option[ExtraString]] =
 given formExtraInt: Form[Option[ExtraInt]] =
   Form.conditionalOn[ConditionalSample, ExtraInt](conditionalVar)
 
-val conditional: Sample = {
+def conditional(using
+    wf: WidgetFactory
+): Sample = {
 
   Sample(
     "Conditional",

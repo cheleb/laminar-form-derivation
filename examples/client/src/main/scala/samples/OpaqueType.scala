@@ -3,7 +3,9 @@ package samples
 import com.raquo.laminar.api.L.*
 import dev.cheleb.scalamigen.*
 
-val opaque: Sample = {
+def opaque(using
+    wf: WidgetFactory
+): Sample = {
 
   case class Person(
       name: String,
