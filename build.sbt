@@ -204,7 +204,7 @@ lazy val ui5 = scalajsProject("ui5", false)
     )
   )
 
-lazy val ui5_nguyenyou = scalajsProject("ui5_2", false)
+lazy val ui5_nguyenyou = scalajsProject("ui5-nguyenyou", false)
   .settings(
     name := "laminar-form-derivation-ui5-nguyenyou",
     //   scalaJSUseMainModuleInitializer := true,
