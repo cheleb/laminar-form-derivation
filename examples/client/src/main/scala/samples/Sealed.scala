@@ -67,7 +67,7 @@ val sealedClasses: Sample = {
     div(
       child <-- sealedVar.signal
         .distinctByFn((old, nw) => old.pet.getClass == nw.pet.getClass)
-        .map { item =>
+        .map { _ =>
           div(
             sealedVar.asForm,
             switchers

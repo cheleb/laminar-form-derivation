@@ -2,8 +2,9 @@ package samples
 
 import org.scalajs.dom
 import com.raquo.laminar.api.L.*
-import be.doeraene.webcomponents.ui5.*
+
 import facades.highlightjs.{hljs, hljsScala}
+import io.github.nguyenyou.ui5.webcomponents.laminar.*
 
 case class Sample(
     name: String,
@@ -17,10 +18,11 @@ object App extends App {
 
   val sampleVar = Var(samples.simple)
 
-  private def item(name: String) = SideNavigation.item(
+  private def item(name: String) = SideNavigationItem(
     _.text := name,
-    dataAttr("component-name") := name
-  )
+    _.id := name
+//    dataAttr("component-name") := name
+  )()
 
   private val demos = Seq(
     samples.simple,
@@ -42,22 +44,18 @@ object App extends App {
       div(
         paddingRight("2rem"),
         Title(
-          "Demos",
-          padding("0.5rem"),
-          cursor := "pointer"
-        ),
+//          _.padding("0.5rem")
+          // _.cursor := "pointer"
+        )("Demos"),
         SideNavigation(
-          _.events.onSelectionChange
-            .map(_.detail.item.dataset.get("componentName")) --> Observer[
-            Option[String]
-          ] { name =>
-            name
-              .flatMap(n => demos.find(_.name == n))
+          _.onSelectionChange --> { event =>
+            println(event.detail.item.id)
+            val name = event.detail.item.id
+            demos
+              .find(_.name == name)
               .foreach(sampleVar.set)
-
-          },
-          demos.map(_.name).map(item)
-        )
+          }
+        )(demos.map(_.name).map(item))
       ),
       div(
         height := "100vh",
@@ -82,7 +80,7 @@ object App extends App {
                   border := "0.0625rem solid #C1C1C1",
                   backgroundColor := "#f5f6fa",
                   padding := "1rem",
-                  Title.h3("Code"),
+                  Title(_.level := "H3")("Code"),
                   child <-- sampleVar.signal
                     .map(_.source)
                     .map(src =>

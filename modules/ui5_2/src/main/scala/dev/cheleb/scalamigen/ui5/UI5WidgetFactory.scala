@@ -7,6 +7,7 @@ import com.raquo.laminar.modifiers.EventListener
 
 import dev.cheleb.scalamigen.WidgetFactory
 import com.raquo.laminar.api.L
+//import io.github.nguyenyou.ui5.webcomponents.ui5Webcomponents.distTypesTitleLevelMod.TitleLevel
 
 /** UI5WidgetFactory is a factory for [SAP UI5
   * widgets](https://sap.github.io/ui5-webcomponents/).
@@ -18,63 +19,64 @@ object UI5WidgetFactory extends WidgetFactory:
 
   override def renderCheckbox: L.HtmlElement = CheckBox()()
 
-  override def renderDatePicker: L.HtmlElement = DatePicker()(
+  override def renderDatePicker: L.HtmlElement = DatePicker(
     _.formatPattern := "yyyy-MM-dd"
-  )
+  )()
 
   override def renderSecret: L.HtmlElement = Input(
     _.tpe := "Password"
-  )
+  )()
 
   override def renderText: HtmlElement = Input(
     _.showClearIcon := true,
     _.placeholder := "Enter text"
-  )
+  )()
   override def renderLabel(required: Boolean, name: String): HtmlElement =
     Label(
       _.required := required,
       _.showColon := false
 //    _.text := name
-    ).amend(name)
+    )(name)
 
   override def renderNumeric: HtmlElement = Input(
-    tpe := "number",
+    _.tpe := "Number",
     _.placeholder := "Enter number"
-  )
-  override def renderButton: HtmlElement = Button()
+  )()
+  override def renderButton: HtmlElement = Button()()
   override def renderLink(text: String, el: EventListener[?, ?]): HtmlElement =
-    Link(text, el)
-  override def renderUL(id: String): HtmlElement = UList(
-    _.id := id,
-    width := "100%",
-    _.noDataText := "No  data",
-    _.separators := ListSeparator.None
-  )
+    Link()(text, el)
+  override def renderUL(id: String): HtmlElement = ListItemGroup(
+    _.id := id
+  )()
   override def renderPanel(headerText: Option[String]): HtmlElement =
     headerText match
       case Some(headerText) =>
         Panel(
           _.headerText := headerText,
-          _.headerLevel := TitleLevel.H3
-        )
+          _.headerLevel := "H3"
+        )()
       case None =>
         div(cls := "srf-table")
 
   override def renderSelect(f: Int => Unit): HtmlElement = Select(
-    _.events.onChange
-      .map(_.detail.selectedOption.dataset) --> { ds =>
-      ds.get("idx").foreach(idx => f(idx.toInt))
+    _.onChange
+      .map(_.detail.selectedOption.value) --> { ds =>
+      ds.foreach { case idx: String =>
+        println(s"Selected: $idx")
+        f(idx.toInt)
+      }
 
     }
-  )
+  )()
 
   override def renderOption(
       label: String,
       idx: Int,
       selected: Boolean
   ): HtmlElement =
-    Select.option(
-      label,
-      dataAttr("idx") := s"$idx",
+    Opt(
+      _.value := s"$idx",
       _.selected := selected
+    )(
+      label
     )

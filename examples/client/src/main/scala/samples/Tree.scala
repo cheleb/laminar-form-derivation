@@ -106,7 +106,7 @@ val tree: Sample = {
       div(
         child <-- treeVar2.signal
           .distinctByFn(Tree.isSameStructure)
-          .map { item =>
+          .map { _ =>
             val b = new EventBus[(String, ValidationEvent)]()
             treeVar2.asForm(b)
           }

@@ -238,7 +238,7 @@ lazy val example = scalajsProject("client", true)
     }
   )
   .settings(scalacOptions ++= usedScalacOptions)
-  .dependsOn(ui5, exampleSharedJs)
+  .dependsOn(ui5_2, exampleSharedJs)
   .settings(
     publish / skip := true,
     scalacOptions -= "-Xfatal-warnings" // disable fatal warnings due to spurious https://github.com/scala/scala3/issues/20741

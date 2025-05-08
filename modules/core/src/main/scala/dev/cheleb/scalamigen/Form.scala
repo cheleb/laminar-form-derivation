@@ -230,11 +230,9 @@ object Form extends AutoDerivation[Form] {
     *   the type of the Iron type contraint
     */
   given [T, C](using
-      validator: IronTypeValidator[T, C],
-      widgetFactory: WidgetFactory
+      validator: IronTypeValidator[T, C]
   ): Form[IronType[T, C]] =
     new Form[IronType[T, C]] {
-      @nowarn
       override def render(
           path: List[Symbol],
           variable: Var[IronType[T, C]],
@@ -244,7 +242,7 @@ object Form extends AutoDerivation[Form] {
           errorBus: EventBus[(String, ValidationEvent)]
       ): HtmlElement = {
         val state = Var("valid")
-        widgetFactory.renderText
+        factory.renderText
           .amend(
             value := variable.now().toString,
             // value <-- variable.signal // FIXME should be able to sync mode.
@@ -317,7 +315,6 @@ object Form extends AutoDerivation[Form] {
     */
   given Form[Boolean] = new Form[Boolean] {
     @nowarn
-
     override def render(
         path: List[Symbol],
         variable: Var[Boolean],
