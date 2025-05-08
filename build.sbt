@@ -90,6 +90,7 @@ lazy val root = project
     coreSharedJs,
     coreSharedJvm,
     ui5,
+    ui5_2,
     example
   )
   .settings(
@@ -200,6 +201,24 @@ lazy val ui5 = scalajsProject("ui5", false)
   .settings(
     libraryDependencies ++= Seq(
       "be.doeraene" %%% "web-components-ui5" % "2.0.0-RC2"
+    )
+  )
+
+lazy val ui5_2 = scalajsProject("ui5_2", false)
+  .settings(
+    name := "laminar-form-derivation-ui5",
+    //   scalaJSUseMainModuleInitializer := true,
+    scalaJSLinkerConfig ~= {
+      _.withModuleKind(scalaJSModule)
+        .withSourceMap(false)
+        .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
+    }
+  )
+  .settings(scalacOptions ++= usedScalacOptions)
+  .dependsOn(core)
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.github.nguyenyou" %%% "ui5-webcomponents-laminar" % "2.9.0"
     )
   )
 
