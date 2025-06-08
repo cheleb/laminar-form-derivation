@@ -14,7 +14,6 @@ import io.github.iltotore.iron.*
 
 import config.PanelConfig
 import com.raquo.airstream.core.Signal
-import scala.annotation.nowarn
 
 /** Extension method for path: List[Symbol]
   */
@@ -35,7 +34,7 @@ extension (errorBus: EventBus[(String, ValidationEvent)])
     .scanLeft(Map.empty[String, ValidationStatus]) {
       case (acc, (field, event)) =>
         event match
-          case ValidEvent => acc - field
+          case ValidEvent           => acc - field
           case InvalideEvent(error) =>
             acc + (field -> ValidationStatus.Invalid(error, true))
           case HiddenEvent =>
@@ -276,7 +275,7 @@ object Form extends AutoDerivation[Form] {
   /** Form for to a string, aka without validation.
     */
   given Form[String] with
-    @nowarn
+
     override def render(
         path: List[Symbol],
         variable: Var[String],
@@ -297,7 +296,7 @@ object Form extends AutoDerivation[Form] {
   /** Form for a Nothing, not sure it is still really needed :-/
     */
   given Form[Nothing] = new Form[Nothing] {
-    @nowarn
+
     override def render(
         path: List[Symbol],
         variable: Var[Nothing],
@@ -314,7 +313,7 @@ object Form extends AutoDerivation[Form] {
     * Basically a checkbox.
     */
   given Form[Boolean] = new Form[Boolean] {
-    @nowarn
+
     override def render(
         path: List[Symbol],
         variable: Var[Boolean],
@@ -587,7 +586,6 @@ object Form extends AutoDerivation[Form] {
 
   given listOfA[A, K](using fa: Form[A], idOf: A => K): Form[List[A]] =
     new Form[List[A]] {
-      @nowarn
 
       override def render(
           path: List[Symbol],
@@ -614,7 +612,6 @@ object Form extends AutoDerivation[Form] {
     * Render a date picker. // FIXME should be able to set the format
     */
   given Form[LocalDate] = new Form[LocalDate] {
-    @nowarn
 
     override def render(
         path: List[Symbol],
