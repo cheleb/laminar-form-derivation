@@ -1,7 +1,9 @@
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-val scala3 = "3.7.1"
+val scala3 = "3.3.6"
+
+val ironVersion = "3.0.2"
 
 val tapirVersion = "1.11.34"
 
@@ -138,7 +140,7 @@ lazy val server = project
     scalaJSProjects := Seq(example),
     Assets / pipelineStages := Seq(scalaJSPipeline),
     libraryDependencies ++= Seq(
-      "io.github.iltotore" %% "iron-zio-json" % "3.0.2",
+      "io.github.iltotore" %% "iron-zio-json" % ironVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-zio" % tapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-zio-http-server" % tapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion,
@@ -178,7 +180,7 @@ lazy val core = scalajsProject("core", false)
       "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.18",
       "com.raquo" %%% "laminar" % laminarVersion,
       // "io.laminext" %%% "websocket" % laminarVersion,
-      "io.github.iltotore" %%% "iron" % "3.0.2"
+      "io.github.iltotore" %%% "iron" % ironVersion
     )
   )
 
