@@ -4,7 +4,7 @@
         {
             "label": "demo",
             "runOptions": {
-                "runOn": "default"
+                "runOn": "folderOpen"
             },
             "dependsOrder": "sequence",
             "dependsOn": [
