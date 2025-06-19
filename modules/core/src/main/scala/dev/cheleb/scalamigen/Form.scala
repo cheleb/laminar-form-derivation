@@ -376,11 +376,18 @@ object Form extends AutoDerivation[Form] {
           errorBus: EventBus[(String, ValidationEvent)]
       ): HtmlElement =
 
-        val (vl, vr) = variable.now() match
-          case Left(l) =>
-            (Var(l), Var(rd.default))
-          case Right(r) =>
-            (Var(ld.default), Var(r))
+        val (vl, vr) = variable
+          .zoomLazy {
+            case Left(l) =>
+              (Var(l), Var(rd.default))
+            case Right(r) =>
+              (Var(ld.default), Var(r))
+          } { case (v, (l, r)) =>
+            v match
+              case Left(_)  => Left(l.now())
+              case Right(_) => Right(r.now())
+          }
+          .now()
 
         div(
           span(
