@@ -13,8 +13,7 @@ def stringForm[A](to: String => A) = new Form[A]:
 
   override def render(
       path: List[Symbol],
-      variable: Var[A],
-      syncParent: () => Unit
+      variable: Var[A]
   )(using
       factory: WidgetFactory,
       errorBus: EventBus[(String, ValidationEvent)]
@@ -23,7 +22,6 @@ def stringForm[A](to: String => A) = new Form[A]:
       value <-- variable.signal.map(_.toString),
       onInput.mapToValue.map(to) --> { v =>
         variable.set(v)
-        syncParent()
       }
     )
 
@@ -43,8 +41,7 @@ def secretForm[A <: String](to: String => A) = new Form[A]:
 
   override def render(
       path: List[Symbol],
-      variable: Var[A],
-      syncParent: () => Unit
+      variable: Var[A]
   )(using
       factory: WidgetFactory,
       errorBus: EventBus[(String, ValidationEvent)]
@@ -53,7 +50,6 @@ def secretForm[A <: String](to: String => A) = new Form[A]:
       value <-- variable.signal,
       onInput.mapToValue.map(to) --> { v =>
         variable.set(v)
-        syncParent()
       }
     )
 
@@ -66,8 +62,7 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
 
   override def render(
       path: List[Symbol],
-      variable: Var[A],
-      syncParent: () => Unit
+      variable: Var[A]
   )(using
       factory: WidgetFactory,
       errorBus: EventBus[(String, ValidationEvent)]
@@ -79,7 +74,6 @@ def numericForm[A](f: String => Option[A], zero: A): Form[A] = new Form[A] {
         },
         onInput.mapToValue --> { v =>
           fromString(v).foreach(variable.set)
-          syncParent()
         }
       )
 }
@@ -99,8 +93,7 @@ def selectForm[A](
   new Form[A] {
     override def render(
         path: List[Symbol],
-        variable: Var[A],
-        syncParent: () => Unit
+        variable: Var[A]
     )(using
         factory: WidgetFactory,
         errorBus: EventBus[(String, ValidationEvent)]
@@ -110,7 +103,6 @@ def selectForm[A](
         factory
           .renderSelect { idx =>
             variable.set(elements(idx))
-            syncParent()
           }
           .amend(
             labels.map { label =>
@@ -146,8 +138,7 @@ def selectMappedForm[A, B](
 
     override def render(
         path: List[Symbol],
-        variable: Var[B],
-        syncParent: () => Unit
+        variable: Var[B]
     )(using
         factory: WidgetFactory,
         errorBus: EventBus[(String, ValidationEvent)]
@@ -157,7 +148,6 @@ def selectMappedForm[A, B](
         factory
           .renderSelect { idx =>
             variable.set(mapper(elements(idx)))
-            syncParent()
           }
           .amend(
             labels.map { (label, a) =>
@@ -184,8 +174,7 @@ def stringFormWithValidation[A](using
 ) = new Form[A]:
   override def render(
       path: List[Symbol],
-      variable: Var[A],
-      syncParent: () => Unit
+      variable: Var[A]
   )(using
       factory: WidgetFactory,
       errorBus: EventBus[(String, ValidationEvent)]
@@ -199,7 +188,7 @@ def stringFormWithValidation[A](using
           errorBus.emit(
             (path.key, ValidEvent)
           )
-          syncParent()
+
         case Left(err) =>
           errorBus.emit(
             (path.key, InvalideEvent(err))
@@ -237,7 +226,7 @@ extension [A](va: Var[A])
     val errorBus = new EventBus[(String, ValidationEvent)]()
     div(
       Form
-        .renderVar(va, () => ())(using wf, errorBus)
+        .renderVar(va)(using wf, errorBus)
         .amend(cls := "srf-form"),
       child <-- errorBus
         .errors((field, message) =>
@@ -261,7 +250,7 @@ extension [A](va: Var[A])
       wf: WidgetFactory
   )(using Form[A]): ReactiveHtmlElement[HTMLElement] =
     Form
-      .renderVar(va, () => ())(using wf, errorBus)
+      .renderVar(va)(using wf, errorBus)
       .amend(cls := "srf-form")
 
   /** Buid an error bus for the variable that will be used to display errors.
