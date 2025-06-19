@@ -176,7 +176,7 @@ trait Form[A] { self =>
         factory: WidgetFactory,
         errorBus: EventBus[(String, ValidationEvent)]
     ): HtmlElement =
-      self.render(path, variable.zoom(from)(to), syncParent)
+      self.render(path, variable.zoomLazy(from)(to), syncParent)
   }
 
 }
@@ -450,7 +450,7 @@ object Form extends AutoDerivation[Form] {
           factory: WidgetFactory,
           errorBus: EventBus[(String, ValidationEvent)]
       ): HtmlElement = {
-        val a = variable.zoom {
+        val a = variable.zoomLazy {
           case Some(a) =>
             a
           case None => d.default
@@ -553,7 +553,7 @@ object Form extends AutoDerivation[Form] {
           errorBus: EventBus[(String, ValidationEvent)]
       ): HtmlElement = {
 
-        val varA = variable.zoom {
+        val varA = variable.zoomLazy {
           case Some(a) => a
           case None    => d.default
         } { case (_, a) => Some(a) }
@@ -649,7 +649,7 @@ object Form extends AutoDerivation[Form] {
         variable: Var[A],
         param: CaseClass.Param[Form, A]
     ): Var[param.PType] =
-      variable.zoom { a =>
+      variable.zoomLazy { a =>
         Try(param.deref(a))
           .getOrElse(param.default)
           .asInstanceOf[param.PType]
@@ -658,7 +658,7 @@ object Form extends AutoDerivation[Form] {
           if (p.label == param.label) value
           else p.deref(variable.now())
         }
-      )(using unsafeWindowOwner)
+      )
 
     override def render(
         path: List[Symbol],
