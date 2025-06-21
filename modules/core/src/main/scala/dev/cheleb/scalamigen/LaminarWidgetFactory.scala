@@ -17,6 +17,21 @@ object LaminarWidgetFactory extends WidgetFactory:
     tpe := "date"
   )
 
+  override def renderDialog(
+      title: String,
+      content: HtmlElement,
+      openDialogBus: EventBus[Boolean]
+  ): HtmlElement =
+    div(
+      className := "dialog",
+      h2(title),
+      content,
+      button(
+        "Close"
+        // onClick --> closeObs
+      )
+    )
+
   override def renderSecret: HtmlElement = input(
     tpe := "password"
   )
@@ -40,7 +55,7 @@ object LaminarWidgetFactory extends WidgetFactory:
   override def renderUL(id: String): HtmlElement = ul(idAttr := id)
   override def renderPanel(headerText: Option[String]): HtmlElement =
     headerText match
-      case None => div()
+      case None             => div()
       case Some(headerText) =>
         div(
           headerText

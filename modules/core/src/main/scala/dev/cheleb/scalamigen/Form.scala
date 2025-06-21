@@ -375,50 +375,46 @@ object Form extends AutoDerivation[Form] {
           factory: WidgetFactory,
           errorBus: EventBus[(String, ValidationEvent)]
       ): HtmlElement =
-
-        val (vl, vr) = variable
+        val openDialogBus: EventBus[Boolean] = new EventBus
+        val ve = variable
           .zoomLazy {
-            case Left(l) =>
-              (Var(l), Var(rd.default))
-            case Right(r) =>
-              (Var(ld.default), Var(r))
+            case Left(l)  => (l, rd.default)
+            case Right(r) => (ld.default, r)
           } { case (v, (l, r)) =>
             v match
-              case Left(_)  => Left(l.now())
-              case Right(_) => Right(r.now())
+              case Left(_)  => Left(l)
+              case Right(_) => Right(r)
           }
-          .now()
 
-        div(
-          span(
-            factory
-              .renderLink(
-                ld.label,
-                onClick.mapTo(Left(vl.now())) --> variable.writer
-              ),
-            "----",
-            factory.renderLink(
-              rd.label,
-              onClick.mapTo(
-                Right(vr.now())
-              ) --> variable.writer
+        ve.now() match
+          case (l, r) =>
+            div(
+              child <-- variable.signal.map:
+                case Left(l) =>
+                  div(
+                    factory.renderButton.amend(
+                      "Rightss",
+                      onClick.mapTo(true) --> openDialogBus.writer
+                    ),
+                    factory.renderDialog(
+                      "Right",
+                      lf.render(path, ve.asInstanceOf[Var[L]]),
+                      // _ => variable.set(Right(r))
+                      openDialogBus
+                    )
+                    // lf.render(path, ve.asInstanceOf[Var[L]])
+                  )
+                case Right(r) =>
+                  div(
+                    factory.renderButton.amend(
+                      "Left",
+                      onClick.mapTo(Left(l)) --> variable.writer
+                    ),
+                    rf.render(path, ve.asInstanceOf[Var[R]])
+                  )
+              ,
+              div("Either form not implemented yet")
             )
-          ),
-          div(
-            display <-- variable.signal.map {
-              case Left(_) => "block"
-              case _       => "none"
-            },
-            lf.render(path, vl)
-          ),
-          div(
-            display <-- variable.signal.map {
-              case Left(_) => "none"
-              case _       => "block"
-            },
-            rf.render(path, vr)
-          )
-        )
 
     }
 
