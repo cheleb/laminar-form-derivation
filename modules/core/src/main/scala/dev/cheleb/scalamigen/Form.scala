@@ -3,7 +3,7 @@ package dev.cheleb.scalamigen
 import com.raquo.laminar.api.L.*
 import magnolia1.*
 
-import scala.util.Try
+import scala.util.*
 import com.raquo.airstream.state.Var
 
 import org.scalajs.dom.HTMLElement
@@ -375,46 +375,55 @@ object Form extends AutoDerivation[Form] {
           factory: WidgetFactory,
           errorBus: EventBus[(String, ValidationEvent)]
       ): HtmlElement =
-        val openDialogBus: EventBus[Boolean] = new EventBus
-        val ve = variable
-          .zoomLazy {
-            case Left(l)  => (l, rd.default)
-            case Right(r) => (ld.default, r)
-          } { case (v, (l, r)) =>
-            v match
-              case Left(_)  => Left(l)
-              case Right(_) => Right(r)
-          }
-
-        ve.now() match
-          case (l, r) =>
-            div(
-              child <-- variable.signal.map:
-                case Left(l) =>
-                  div(
-                    factory.renderButton.amend(
-                      "Rightss",
-                      onClick.mapTo(true) --> openDialogBus.writer
-                    ),
-                    factory.renderDialog(
-                      "Right",
-                      lf.render(path, ve.asInstanceOf[Var[L]]),
-                      // _ => variable.set(Right(r))
-                      openDialogBus
-                    )
-                    // lf.render(path, ve.asInstanceOf[Var[L]])
-                  )
-                case Right(r) =>
-                  div(
-                    factory.renderButton.amend(
-                      "Left",
-                      onClick.mapTo(Left(l)) --> variable.writer
-                    ),
-                    rf.render(path, ve.asInstanceOf[Var[R]])
-                  )
-              ,
-              div("Either form not implemented yet")
+        div(
+          span(
+            factory.renderLink(
+              "Left",
+              onClick.mapTo(true) --> Observer[Boolean] { _ =>
+                errorBus.emit(path.key -> ShownEvent)
+                variable.set(Left(ld.default))
+              }
+            ),
+            "---",
+            factory.renderLink(
+              "Right",
+              onClick.mapTo(true) --> Observer[Boolean] { _ =>
+                errorBus.emit(path.key -> ShownEvent)
+                variable.set(Right(rd.default))
+              }
             )
+          ),
+          div(
+            lf.render(
+              path,
+              variable.zoom {
+                case Right(_) => ld.default
+                case Left(l)  => l
+              } { case (_, l) =>
+                Left(l)
+              }
+            ),
+            display <-- variable.signal.map {
+              case Left(_) => "block"
+              case _       => "none"
+            }
+          ),
+          div(
+            rf.render(
+              path,
+              variable.zoomLazy {
+                case Right(r) => r
+                case Left(_)  => rd.default
+              } { case (_, r) =>
+                Right(r)
+              }
+            ),
+            display <-- variable.signal.map {
+              case Right(_) => "block"
+              case _        => "none"
+            }
+          )
+        )
 
     }
 
