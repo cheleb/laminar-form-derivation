@@ -743,7 +743,16 @@ object Form extends AutoDerivation[Form] {
     ): HtmlElement =
       val a = variable.now()
       sealedTrait.choose(a) { sub =>
-        val va = Var(sub.cast(a))
+
+        val va = variable.zoomLazy { _ =>
+          // println(s"1)sub: ${sub.typeInfo.short} a: $a")
+          sub.cast(a)
+        } { case (_, a2) =>
+          // println(s"2)subn: ${sub.typeInfo.short} a2: $a2")
+          a2
+        }
+
+        va.signal --> variable.writer
         sub.typeclass
           .render(
             path,
@@ -753,7 +762,7 @@ object Form extends AutoDerivation[Form] {
             idAttr := sub.typeInfo.short
           )
       }
-      // )
+
   }
 
   def getSubtypeLabel[T](sub: Subtype[Typeclass, T, ?]): String =
