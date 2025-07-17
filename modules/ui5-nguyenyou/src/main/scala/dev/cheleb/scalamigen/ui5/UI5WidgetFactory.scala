@@ -7,6 +7,7 @@ import com.raquo.laminar.modifiers.EventListener
 
 import dev.cheleb.scalamigen.WidgetFactory
 import com.raquo.laminar.api.L
+
 //import io.github.nguyenyou.ui5.webcomponents.ui5Webcomponents.distTypesTitleLevelMod.TitleLevel
 
 /** UI5WidgetFactory is a factory for [SAP UI5
@@ -22,6 +23,16 @@ object UI5WidgetFactory extends WidgetFactory:
   override def renderDatePicker: L.HtmlElement = DatePicker(
     _.formatPattern := "yyyy-MM-dd"
   )()
+
+  override def renderDialog(
+      title: String,
+      content: HtmlElement,
+      openDialogBus: EventBus[Boolean]
+  ): HtmlElement =
+    Dialog(
+      _.headerText := title,
+      _.onClose --> { _ => }
+    )().amend(content)
 
   override def renderSecret: L.HtmlElement = Input(
     _.tpe := "Password"

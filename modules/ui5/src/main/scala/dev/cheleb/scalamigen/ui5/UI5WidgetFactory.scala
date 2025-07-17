@@ -25,6 +25,19 @@ object UI5WidgetFactory extends WidgetFactory:
     _.formatPattern := "yyyy-MM-dd"
   )
 
+  override def renderDialog(
+      title: String,
+      content: HtmlElement,
+      openDialogBus: EventBus[Boolean]
+  ): HtmlElement =
+    Dialog(
+      _.headerText := title,
+      _.showFromEvents(openDialogBus.events.filter(identity).mapTo(())),
+      _.closeFromEvents(
+        openDialogBus.events.map(!_).filter(identity).mapTo(())
+      )
+    ).amend(content)
+
   override def renderSecret: L.HtmlElement = Input(
     _.tpe := Password
   )

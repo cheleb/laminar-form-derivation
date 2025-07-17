@@ -3,6 +3,8 @@ package dev.cheleb.scalamigen
 import com.raquo.laminar.api.L.HtmlElement
 import com.raquo.laminar.modifiers.EventListener
 
+import com.raquo.airstream.eventbus.EventBus
+
 /** This is a trait that defines the interface for the widget factory.
   */
 trait WidgetFactory:
@@ -14,6 +16,12 @@ trait WidgetFactory:
   /** Render a date picker.
     */
   def renderDatePicker: HtmlElement
+
+  def renderDialog(
+      title: String,
+      content: HtmlElement,
+      openDialogBus: EventBus[Boolean]
+  ): HtmlElement
 
   /** Render a text input, for strings.
     */

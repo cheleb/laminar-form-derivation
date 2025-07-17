@@ -26,7 +26,7 @@ object App extends App {
     samples.sealedClasses,
     samples.person,
     samples.list,
-    samples.tree,
+//    samples.tree,
     samples.adhoc
   )
 

@@ -3,7 +3,7 @@ package dev.cheleb.scalamigen
 import com.raquo.laminar.api.L.*
 import magnolia1.*
 
-import scala.util.Try
+import scala.util.*
 import com.raquo.airstream.state.Var
 
 import org.scalajs.dom.HTMLElement
@@ -103,16 +103,13 @@ trait Form[A] { self =>
     *
     * @param variable
     *   the variable to render
-    * @param syncParent
-    *   a function to sync the parent state
     * @param factory
     *   the widget factory
     * @return
     */
   def render(
       path: List[Symbol],
-      variable: Var[A],
-      syncParent: () => Unit
+      variable: Var[A]
   )(using
       factory: WidgetFactory,
       errorBus: EventBus[(String, ValidationEvent)]
@@ -151,8 +148,7 @@ trait Form[A] { self =>
   def labelled(label: String, required: Boolean): Form[A] = new Form[A] {
     override def render(
         path: List[Symbol],
-        variable: Var[A],
-        syncParent: () => Unit
+        variable: Var[A]
     )(using
         factory: WidgetFactory,
         errorBus: EventBus[(String, ValidationEvent)]
@@ -162,7 +158,7 @@ trait Form[A] { self =>
           self.renderLabel(label, required)
         ),
         div(
-          self.render(path, variable, syncParent)
+          self.render(path, variable)
         )
       )
 
@@ -170,13 +166,12 @@ trait Form[A] { self =>
   def xmap[B](to: (B, A) => B)(from: B => A): Form[B] = new Form[B] {
     override def render(
         path: List[Symbol],
-        variable: Var[B],
-        syncParent: () => Unit
+        variable: Var[B]
     )(using
         factory: WidgetFactory,
         errorBus: EventBus[(String, ValidationEvent)]
     ): HtmlElement =
-      self.render(path, variable.zoom(from)(to), syncParent)
+      self.render(path, variable.zoomLazy(from)(to))
   }
 
 }
@@ -199,21 +194,21 @@ object Form extends AutoDerivation[Form] {
     *   the type of the variable
     * @return
     */
-  def renderVar[A](v: Var[A], syncParent: () => Unit)(using
+  def renderVar[A](v: Var[A])(using
       WidgetFactory,
       EventBus[(String, ValidationEvent)]
   )(using
       fa: Form[A]
   ): ReactiveHtmlElement[HTMLElement] =
-    fa.render(Nil, v, syncParent)
+    fa.render(Nil, v)
 
-  def renderVar[A](path: List[Symbol], v: Var[A], syncParent: () => Unit)(using
+  def renderVar[A](path: List[Symbol], v: Var[A])(using
       WidgetFactory,
       EventBus[(String, ValidationEvent)]
   )(using
       fa: Form[A]
   ): ReactiveHtmlElement[HTMLElement] =
-    fa.render(path, v, syncParent)
+    fa.render(path, v)
 
   /** Form for an Iron type. This is a form for a type that can be validated
     * with an Iron type.
@@ -234,8 +229,7 @@ object Form extends AutoDerivation[Form] {
     new Form[IronType[T, C]] {
       override def render(
           path: List[Symbol],
-          variable: Var[IronType[T, C]],
-          syncParent: () => Unit
+          variable: Var[IronType[T, C]]
       )(using
           factory: WidgetFactory,
           errorBus: EventBus[(String, ValidationEvent)]
@@ -278,8 +272,7 @@ object Form extends AutoDerivation[Form] {
 
     override def render(
         path: List[Symbol],
-        variable: Var[String],
-        syncParent: () => Unit
+        variable: Var[String]
     )(using
         factory: WidgetFactory,
         errorBus: EventBus[(String, ValidationEvent)]
@@ -289,7 +282,6 @@ object Form extends AutoDerivation[Form] {
           value <-- variable.signal,
           onInput.mapToValue --> { v =>
             variable.set(v)
-            syncParent()
           }
         )
 
@@ -299,8 +291,7 @@ object Form extends AutoDerivation[Form] {
 
     override def render(
         path: List[Symbol],
-        variable: Var[Nothing],
-        syncParent: () => Unit
+        variable: Var[Nothing]
     )(using
         factory: WidgetFactory,
         errorBus: EventBus[(String, ValidationEvent)]
@@ -316,8 +307,7 @@ object Form extends AutoDerivation[Form] {
 
     override def render(
         path: List[Symbol],
-        variable: Var[Boolean],
-        syncParent: () => Unit
+        variable: Var[Boolean]
     )(using
         factory: WidgetFactory,
         errorBus: EventBus[(String, ValidationEvent)]
@@ -328,7 +318,6 @@ object Form extends AutoDerivation[Form] {
             checked <-- variable.signal,
             onChange.mapToChecked --> { v =>
               variable.set(v)
-              syncParent()
             }
           )
       )
@@ -381,47 +370,58 @@ object Form extends AutoDerivation[Form] {
     new Form[Either[L, R]] {
       override def render(
           path: List[Symbol],
-          variable: Var[Either[L, R]],
-          syncParent: () => Unit
+          variable: Var[Either[L, R]]
       )(using
           factory: WidgetFactory,
           errorBus: EventBus[(String, ValidationEvent)]
       ): HtmlElement =
-
-        val (vl, vr) = variable.now() match
-          case Left(l) =>
-            (Var(l), Var(rd.default))
-          case Right(r) =>
-            (Var(ld.default), Var(r))
-
         div(
           span(
-            factory
-              .renderLink(
-                ld.label,
-                onClick.mapTo(Left(vl.now())) --> variable.writer
-              ),
-            "----",
             factory.renderLink(
-              rd.label,
-              onClick.mapTo(
-                Right(vr.now())
-              ) --> variable.writer
+              "Left",
+              onClick.mapTo(true) --> Observer[Boolean] { _ =>
+                errorBus.emit(path.key -> ShownEvent)
+                variable.set(Left(ld.default))
+              }
+            ),
+            "---",
+            factory.renderLink(
+              "Right",
+              onClick.mapTo(true) --> Observer[Boolean] { _ =>
+                errorBus.emit(path.key -> ShownEvent)
+                variable.set(Right(rd.default))
+              }
             )
           ),
           div(
+            lf.render(
+              path,
+              variable.zoom {
+                case Right(_) => ld.default
+                case Left(l)  => l
+              } { case (_, l) =>
+                Left(l)
+              }
+            ),
             display <-- variable.signal.map {
               case Left(_) => "block"
               case _       => "none"
-            },
-            lf.render(path, vl, () => variable.set(Left(vl.now())))
+            }
           ),
           div(
+            rf.render(
+              path,
+              variable.zoomLazy {
+                case Right(r) => r
+                case Left(_)  => rd.default
+              } { case (_, r) =>
+                Right(r)
+              }
+            ),
             display <-- variable.signal.map {
-              case Left(_) => "none"
-              case _       => "block"
-            },
-            rf.render(path, vr, () => variable.set(Right(vr.now())))
+              case Right(_) => "block"
+              case _        => "none"
+            }
           )
         )
 
@@ -444,13 +444,12 @@ object Form extends AutoDerivation[Form] {
     new Form[Option[A]] {
       override def render(
           path: List[Symbol],
-          variable: Var[Option[A]],
-          syncParent: () => Unit
+          variable: Var[Option[A]]
       )(using
           factory: WidgetFactory,
           errorBus: EventBus[(String, ValidationEvent)]
       ): HtmlElement = {
-        val a = variable.zoom {
+        val a = variable.zoomLazy {
           case Some(a) =>
             a
           case None => d.default
@@ -471,7 +470,7 @@ object Form extends AutoDerivation[Form] {
                   case Some(_) => "block"
                   case None    => "none"
                 },
-                fa.render(path, a, syncParent)
+                fa.render(path, a)
               ),
               div(
                 factory.renderButton.amend(
@@ -546,19 +545,18 @@ object Form extends AutoDerivation[Form] {
 
       override def render(
           path: List[Symbol],
-          variable: Var[Option[A]],
-          syncParent: () => Unit
+          variable: Var[Option[A]]
       )(using
           factory: WidgetFactory,
           errorBus: EventBus[(String, ValidationEvent)]
       ): HtmlElement = {
 
-        val varA = variable.zoom {
+        val varA = variable.zoomLazy {
           case Some(a) => a
           case None    => d.default
         } { case (_, a) => Some(a) }
 
-        fa.render(path, varA, syncParent)
+        fa.render(path, varA)
           .amend(
             display <-- displaySrc,
             condVar.signal.map { v =>
@@ -589,8 +587,7 @@ object Form extends AutoDerivation[Form] {
 
       override def render(
           path: List[Symbol],
-          variable: Var[List[A]],
-          syncParent: () => Unit
+          variable: Var[List[A]]
       )(using
           factory: WidgetFactory,
           errorBus: EventBus[(String, ValidationEvent)]
@@ -600,7 +597,7 @@ object Form extends AutoDerivation[Form] {
             div(
               idAttr := s"list-item-$id",
               div(
-                fa.render(path, aVar, syncParent)
+                fa.render(path, aVar)
               )
             )
           })
@@ -615,8 +612,7 @@ object Form extends AutoDerivation[Form] {
 
     override def render(
         path: List[Symbol],
-        variable: Var[LocalDate],
-        syncParent: () => Unit
+        variable: Var[LocalDate]
     )(using
         factory: WidgetFactory,
         errorBus: EventBus[(String, ValidationEvent)]
@@ -627,7 +623,6 @@ object Form extends AutoDerivation[Form] {
             value <-- variable.signal.map(_.toString),
             onChange.mapToValue --> { v =>
               variable.set(LocalDate.parse(v))
-              syncParent()
             }
           )
       )
@@ -649,21 +644,22 @@ object Form extends AutoDerivation[Form] {
         variable: Var[A],
         param: CaseClass.Param[Form, A]
     ): Var[param.PType] =
-      variable.zoom { a =>
+      variable.zoomLazy { a =>
         Try(param.deref(a))
           .getOrElse(param.default)
           .asInstanceOf[param.PType]
       }((_, value) =>
         caseClass.construct { p =>
           if (p.label == param.label) value
-          else p.deref(variable.now())
+          else {
+            p.deref(variable.now())
+          }
         }
-      )(using unsafeWindowOwner)
+      )
 
     override def render(
         path: List[Symbol],
-        variable: Var[A],
-        syncParent: () => Unit
+        variable: Var[A]
     )(using
         factory: WidgetFactory,
         errorBus: EventBus[(String, ValidationEvent)]
@@ -700,8 +696,7 @@ object Form extends AutoDerivation[Form] {
                 param.typeclass
                   .render(
                     path :+ Symbol(fieldName),
-                    mkVariableForParam(variable, param),
-                    syncParent
+                    mkVariableForParam(variable, param)
                   )
                   .amend(
                     idAttr := param.label
@@ -719,8 +714,7 @@ object Form extends AutoDerivation[Form] {
             .labelled(fieldName, !isOption)
             .render(
               path :+ Symbol(fieldName),
-              mkVariableForParam(variable, param),
-              syncParent
+              mkVariableForParam(variable, param)
             )
             .amend(
               idAttr := param.label
@@ -742,29 +736,33 @@ object Form extends AutoDerivation[Form] {
 
     override def render(
         path: List[Symbol],
-        variable: Var[A],
-        syncParent: () => Unit
+        variable: Var[A]
     )(using
         factory: WidgetFactory,
         errorBus: EventBus[(String, ValidationEvent)]
     ): HtmlElement =
       val a = variable.now()
       sealedTrait.choose(a) { sub =>
-        val va = Var(sub.cast(a))
+
+        val va = variable.zoomLazy { _ =>
+          // println(s"1)sub: ${sub.typeInfo.short} a: $a")
+          sub.cast(a)
+        } { case (_, a2) =>
+          // println(s"2)subn: ${sub.typeInfo.short} a2: $a2")
+          a2
+        }
+
+        va.signal --> variable.writer
         sub.typeclass
           .render(
             path,
-            va,
-            () => {
-              variable.set(va.now())
-              syncParent()
-            }
+            va
           )
           .amend(
             idAttr := sub.typeInfo.short
           )
       }
-      // )
+
   }
 
   def getSubtypeLabel[T](sub: Subtype[Typeclass, T, ?]): String =
