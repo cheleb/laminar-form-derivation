@@ -24,12 +24,6 @@ inThisBuild(
     // pgpPublicRing := file("/tmp/public.asc"),
     // pgpSecretRing := file("/tmp/secret.asc"),
     pgpPassphrase := sys.env.get("PGP_PASSWORD").map(_.toArray),
-    credentials += Credentials(
-      "GnuPG Key ID",
-      "gpg",
-      "D8674BC7118AE928BA45C41365CAE4532FF05F2D", // key identifier
-      "ignored" // this field is ignored; passwords are supplied by pinentry
-    ),
     scmInfo := Some(
       ScmInfo(
         url("https://github.com/cheleb/laminar-form-derivation/"),

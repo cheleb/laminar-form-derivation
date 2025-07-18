@@ -24,9 +24,7 @@ jobs:
         with:
           node-version: 21
       - name: Release
-        run: |
-         .github/decodekey.sh
-         sbt ci-release
+        run:  sbt ci-release
 
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
