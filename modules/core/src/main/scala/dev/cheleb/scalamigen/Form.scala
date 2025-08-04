@@ -593,7 +593,7 @@ object Form extends AutoDerivation[Form] {
           errorBus: EventBus[(String, ValidationEvent)]
       ): HtmlElement =
         div(
-          children <-- variable.split(idOf)((id, initial, aVar) => {
+          children <-- variable.split(idOf)((id, _, aVar) => {
             div(
               idAttr := s"list-item-$id",
               div(
