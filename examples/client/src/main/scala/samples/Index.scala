@@ -52,7 +52,10 @@ object App extends App {
       )("UI5 Doreane"),
       SegmentedButtonItem(
         _.id := "ui5-nguyenyou"
-      )("UI5 Nguyenyou")
+      )("UI5 Nguyenyou"),
+      SegmentedButtonItem(
+        _.id := "webawesome"
+      )("WebAwesome")
     ),
     child <-- demoVar.signal.map { id =>
       id match {
@@ -70,6 +73,11 @@ object App extends App {
           div(
             h2("UI5 Nguyenyou"),
             DemoNguyenyou()
+          )
+        case "webawesome" =>
+          div(
+            h2("WebAwesome"),
+            DemoWebAwesome()
           )
       }
     }

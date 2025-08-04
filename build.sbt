@@ -1,7 +1,7 @@
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-val scala3 = "3.3.6"
+val scala3 = "3.7.2"
 
 val ironVersion = "3.2.0"
 
@@ -98,6 +98,7 @@ lazy val root = project
     coreSharedJvm,
     ui5,
     ui5_nguyenyou,
+    webawesome,
     example
   )
   .settings(
@@ -229,6 +230,24 @@ lazy val ui5_nguyenyou = scalajsProject("ui5-nguyenyou", false)
     )
   )
 
+lazy val webawesome = scalajsProject("webawesome", false)
+  .settings(
+    name := "laminar-form-derivation-webawesome",
+    //   scalaJSUseMainModuleInitializer := true,
+    scalaJSLinkerConfig ~= {
+      _.withModuleKind(scalaJSModule)
+        .withSourceMap(false)
+        .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
+    }
+  )
+  .settings(scalacOptions ++= usedScalacOptions)
+  .dependsOn(core)
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.github.nguyenyou" %%% "webawesome-laminar" % "0.3.0"
+    )
+  )
+
 lazy val example = scalajsProject("client", true)
   .settings(
     scalaJSUseMainModuleInitializer := true,
@@ -245,7 +264,7 @@ lazy val example = scalajsProject("client", true)
     }
   )
   .settings(scalacOptions ++= usedScalacOptions)
-  .dependsOn(ui5, ui5_nguyenyou, exampleSharedJs)
+  .dependsOn(ui5, ui5_nguyenyou, webawesome, exampleSharedJs)
   .settings(
     publish / skip := true,
     scalacOptions -= "-Xfatal-warnings" // disable fatal warnings due to spurious https://github.com/scala/scala3/issues/20741
