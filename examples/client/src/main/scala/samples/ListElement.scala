@@ -12,8 +12,6 @@ def list(using
       ints: List[Person2]
   )
 
-  given (Person2 => Int) = _.id
-
   val listPersonVar = Var(
     ListElement(List(1, 2, 3).map(id => Person2(id, "Vlad", 20)))
   )

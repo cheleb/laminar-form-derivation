@@ -577,12 +577,10 @@ object Form extends AutoDerivation[Form] {
   /** Form for a List[A]
     * @param fa
     *   the form for A
-    * @param idOf
-    *   a function to get the id of an A, important for the split function.
     * @return
     */
 
-  given listOfA[A, K](using fa: Form[A], idOf: A => K): Form[List[A]] =
+  given listOfA[A, K](using fa: Form[A]): Form[List[A]] =
     new Form[List[A]] {
 
       override def render(
@@ -593,7 +591,7 @@ object Form extends AutoDerivation[Form] {
           errorBus: EventBus[(String, ValidationEvent)]
       ): HtmlElement =
         div(
-          children <-- variable.split(idOf)((id, initial, aVar) => {
+          children <-- variable.splitByIndex((id, _, aVar) => {
             div(
               idAttr := s"list-item-$id",
               div(
