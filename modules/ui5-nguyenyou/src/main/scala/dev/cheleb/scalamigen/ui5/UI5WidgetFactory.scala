@@ -69,7 +69,9 @@ object UI5WidgetFactory extends WidgetFactory:
       case None =>
         div(cls := "srf-table")
 
-  override def renderSelect(f: Int => Unit): HtmlElement = Select(
+  override def renderSelect(
+      selectedIndex: Int
+  )(f: Int => Unit): HtmlElement = Select(
     _.onChange
       .map(_.detail.selectedOption.value) --> { ds =>
       ds.foreach { case idx: String =>

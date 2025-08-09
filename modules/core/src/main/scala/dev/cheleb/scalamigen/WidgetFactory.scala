@@ -59,7 +59,7 @@ trait WidgetFactory:
 
   /** Render a select.
     */
-  def renderSelect(f: Int => Unit): HtmlElement
+  def renderSelect(selectedIndex: Int)(f: Int => Unit): HtmlElement
 
   /** Render an option.
     */
