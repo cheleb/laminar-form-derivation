@@ -7,7 +7,6 @@ import com.raquo.laminar.modifiers.EventListener
 
 import dev.cheleb.scalamigen.WidgetFactory
 import com.raquo.laminar.api.L
-import org.scalajs.dom.HTMLSelectElement
 
 //import io.github.nguyenyou.ui5.webcomponents.ui5Webcomponents.distTypesTitleLevelMod.TitleLevel
 
@@ -67,21 +66,23 @@ object WebAwesomeWidgetFactory extends WidgetFactory:
           headerText
         )
 
-  override def renderSelect(f: Int => Unit): HtmlElement = select(
-    onChange.map(
-      _.target.asInstanceOf[HTMLSelectElement].selectedIndex
-    ) --> { ds =>
-      f(ds)
-    }
-  )
+  override def renderSelect(selectedIndex: Int)(
+      f: Int => Unit
+  ): HtmlElement =
+    Select(
+      _.onChange.mapToValue.map(_.toInt) --> { ds =>
+        f(ds)
+      },
+      _.value := s"$selectedIndex"
+    )()
 
   override def renderOption(
       label: String,
       idx: Int,
       isSelected: Boolean
   ): HtmlElement =
-    option(
-      label,
-      value := s"$idx",
-      selected := isSelected
-    )
+    UOption(
+      _.label := label,
+      _.value := s"$idx",
+      _.selected := isSelected
+    )(label)
