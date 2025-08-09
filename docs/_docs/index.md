@@ -16,12 +16,13 @@ Laminar Form Derivation is a library that allows you to derive HTML form from a 
 It depends on:
 * [Scala 3](https://docs.scala-lang.org/scala3/) for compile-time metaprogramming and [ScalaJS](https://www.scala-js.org/) for client-side rendering.
 * [Laminar](https://laminar.dev)
-* [Magnolia](https://github.com/softwaremill/magnolia)
+* [Magnolia](https://github.com/softwaremill/magnolia) by [SoftwareMill](https://softwaremill.com/)
+  * originally [John Pretty](https://pretty.direct)
 
 Optionaly:
 * [UI5 Web Components](https://sap.github.io/ui5-webcomponents/) and [ScalaJS binding](https://github.com/sherpal/laminarsapui5bindings)
 * [UI5 Web Components from Nguyenyou](https://github.com/nguyenyou/ui5-webcomponents-laminar)
-
+* [WebAwesome aka ShoeLace 3](https://webawesome-laminar.vercel.app/docs/components/button)
 
 ## Credits
 
