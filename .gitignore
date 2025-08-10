@@ -4,3 +4,4 @@ node_modules/
 dist/
 *.bak
 version.sbt
+package-lock.json
