@@ -740,13 +740,16 @@ object Form extends AutoDerivation[Form] {
         errorBus: EventBus[(String, ValidationEvent)]
     ): HtmlElement =
       val a = variable.now()
+      println(s"Rendering sealed trait: $a")
       sealedTrait.choose(a) { sub =>
 
-        val va = variable.zoomLazy { na =>
-//          println(s"1)sub: ${sub.typeInfo.short} a: $a")
-          sub.cast(na)
+        val va = variable.zoom { na =>
+          try (sub.cast(na))
+          catch {
+            // Handle casting failure when user changes the subtype...
+            case _: Throwable => sub.cast(a)
+          }
         } { case (_, a2) =>
-          //        println(s"2)subn: ${sub.typeInfo.short} a2: $a2")
           a2
         }
 
