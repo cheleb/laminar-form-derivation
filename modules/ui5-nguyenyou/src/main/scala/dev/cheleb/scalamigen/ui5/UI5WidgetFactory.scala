@@ -73,7 +73,6 @@ object UI5WidgetFactory extends WidgetFactory:
     _.onChange
       .map(_.detail.selectedOption.value) --> { ds =>
       ds.foreach { case idx: String =>
-        println(s"Selected: $idx")
         f(idx.toInt)
       }
 

@@ -742,11 +742,11 @@ object Form extends AutoDerivation[Form] {
       val a = variable.now()
       sealedTrait.choose(a) { sub =>
 
-        val va = variable.zoomLazy { _ =>
-          // println(s"1)sub: ${sub.typeInfo.short} a: $a")
-          sub.cast(a)
+        val va = variable.zoomLazy { na =>
+//          println(s"1)sub: ${sub.typeInfo.short} a: $a")
+          sub.cast(na)
         } { case (_, a2) =>
-          // println(s"2)subn: ${sub.typeInfo.short} a2: $a2")
+          //        println(s"2)subn: ${sub.typeInfo.short} a2: $a2")
           a2
         }
 
@@ -757,7 +757,7 @@ object Form extends AutoDerivation[Form] {
             va
           )
           .amend(
-            idAttr := sub.typeInfo.short
+            idAttr := path.key
           )
       }
 

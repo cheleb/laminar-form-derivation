@@ -37,7 +37,6 @@ object DemoNguyenyou {
           )("Demos"),
           SideNavigation(
             _.onSelectionChange --> { event =>
-              println(event.detail.item.id)
               val name = event.detail.item.id
               demos
                 .find(_.name == name)
