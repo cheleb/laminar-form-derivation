@@ -33,7 +33,7 @@ jobs:
       - name: Fetch tags
         run: git fetch --prune --unshallow --tags        
       - name: Setup JVM
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: "22"
           distribution: "zulu"
