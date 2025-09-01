@@ -244,7 +244,7 @@ lazy val webawesome = scalajsProject("webawesome", false)
   .dependsOn(core)
   .settings(
     libraryDependencies ++= Seq(
-      "io.github.nguyenyou" %%% "webawesome-laminar" % "0.3.0"
+      "io.github.nguyenyou" %%% "webawesome-laminar" % "0.4.0"
     )
   )
 
