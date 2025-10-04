@@ -12,7 +12,6 @@ Laminar Form Derivation is a library that allows you to derive HTML form from a 
 <span onclick='window.open("../demo/index.html", "_blank")'>🚀 Click me for a live demo</span>
 
 
-<span onclick='window.open("../demo/awesome.html", "_blank")'>🚀 Click me for a live demo, with webawesome css</span>
 
 
 
