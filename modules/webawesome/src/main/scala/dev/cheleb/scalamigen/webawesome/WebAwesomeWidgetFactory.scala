@@ -1,7 +1,7 @@
-package dev.cheleb.scalamigen.ui5nguyenyou
+package dev.cheleb.scalamigen.webawesome
 
 import com.raquo.laminar.api.L.*
-import io.github.nguyenyou.ui5.webcomponents.laminar.*
+import io.github.nguyenyou.webawesome.laminar.*
 
 import com.raquo.laminar.modifiers.EventListener
 
@@ -16,12 +16,12 @@ import com.raquo.laminar.api.L
   * It relies on [Laminar UI5
   * bindings](https://github.com/sherpal/LaminarSAPUI5Bindings).
   */
-object UI5WidgetFactory extends WidgetFactory:
+object WebAwesomeWidgetFactory extends WidgetFactory:
 
-  override def renderCheckbox: L.HtmlElement = CheckBox()()
+  override def renderCheckbox: L.HtmlElement = Checkbox()()
 
-  override def renderDatePicker: L.HtmlElement = DatePicker(
-    _.formatPattern := "yyyy-MM-dd"
+  override def renderDatePicker: L.HtmlElement = Input(
+    _.tpe := "date"
   )()
 
   override def renderDialog(
@@ -30,65 +30,59 @@ object UI5WidgetFactory extends WidgetFactory:
       openDialogBus: EventBus[Boolean]
   ): HtmlElement =
     Dialog(
-      _.headerText := title,
-      _.onClose --> { _ => }
+      _.label := title
+      // _.onClose --> { _ => }
     )().amend(content)
 
   override def renderSecret: L.HtmlElement = Input(
-    _.tpe := "Password"
+    _.tpe := "password"
   )()
 
   override def renderText: HtmlElement = Input(
-    _.showClearIcon := true,
+    //  _.showClearIcon := true,
     _.placeholder := "Enter text"
   )()
   override def renderLabel(required: Boolean, name: String): HtmlElement =
-    Label(
-      _.required := required,
-      _.showColon := false
-//    _.text := name
-    )(name)
+    span(name)
 
   override def renderNumeric: HtmlElement = Input(
-    _.tpe := "Number",
+    _.tpe := "number",
     _.placeholder := "Enter number"
   )()
   override def renderButton: HtmlElement = Button()()
   override def renderLink(text: String, el: EventListener[?, ?]): HtmlElement =
-    Link()(text, el)
-  override def renderUL(id: String): HtmlElement = ListItemGroup(
-    _.id := id
-  )()
+    a(
+      text,
+      href := "#",
+      el
+    )
+  override def renderUL(id: String): HtmlElement = ul(idAttr := id)
+
   override def renderPanel(headerText: Option[String]): HtmlElement =
     headerText match
+      case None             => div()
       case Some(headerText) =>
-        Panel(
-          _.headerText := headerText,
-          _.headerLevel := "H3"
-        )()
-      case None =>
-        div(cls := "srf-table")
+        div(
+          headerText
+        )
 
-  override def renderSelect(
-      selectedIndex: Int
-  )(f: Int => Unit): HtmlElement = Select(
-    _.onChange
-      .map(_.detail.selectedOption.value) --> { ds =>
-      ds.foreach { case idx: String =>
-        f(idx.toInt)
-      }
-
-    }
-  )()
+  override def renderSelect(selectedIndex: Int)(
+      f: Int => Unit
+  ): HtmlElement =
+    Select(
+      _.onChange.mapToValue.map(_.toInt) --> { ds =>
+        f(ds)
+      },
+      _.value := s"$selectedIndex"
+    )()
 
   override def renderOption(
       label: String,
       idx: Int,
-      selected: Boolean
+      isSelected: Boolean
   ): HtmlElement =
-    Opt(
+    UOption(
+      _.label := label,
       _.value := s"$idx",
-      _.selected := selected
-    )(
-      label
-    )
+      _.selected := isSelected
+    )(label)

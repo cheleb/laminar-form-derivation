@@ -61,13 +61,16 @@ object LaminarWidgetFactory extends WidgetFactory:
           headerText
         )
 
-  override def renderSelect(f: Int => Unit): HtmlElement = select(
-    onChange.map(
-      _.target.asInstanceOf[HTMLSelectElement].selectedIndex
-    ) --> { ds =>
-      f(ds)
-    }
-  )
+  override def renderSelect(
+      selectedIndex: Int
+  )(f: Int => Unit): HtmlElement =
+    select(
+      onChange.map(
+        _.target.asInstanceOf[HTMLSelectElement].selectedIndex
+      ) --> { ds =>
+        f(ds)
+      }
+    )
 
   override def renderOption(
       label: String,

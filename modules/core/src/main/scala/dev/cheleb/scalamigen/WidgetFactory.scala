@@ -58,9 +58,21 @@ trait WidgetFactory:
   def renderUL(id: String): HtmlElement
 
   /** Render a select.
+    * @param selectedIndex
+    *   the index of the initially selected option
+    * @param f
+    *   a callback function that is called when the selected option changes,
+    *   this function receives the new index as a parameter and should update
+    *   the model accordingly.
     */
-  def renderSelect(f: Int => Unit): HtmlElement
+  def renderSelect(selectedIndex: Int)(f: Int => Unit): HtmlElement
 
   /** Render an option.
+    * @param label
+    *   the label of the option
+    * @param idx
+    *   the index of the option
+    * @param selected
+    *   whether the option is selected
     */
   def renderOption(label: String, idx: Int, selected: Boolean): HtmlElement

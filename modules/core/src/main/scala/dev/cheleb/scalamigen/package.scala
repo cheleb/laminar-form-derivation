@@ -101,7 +101,7 @@ def selectForm[A](
       val labels = elements.map(labelMapper)
       div(
         factory
-          .renderSelect { idx =>
+          .renderSelect(elements.indexOf(variable.now())) { idx =>
             variable.set(elements(idx))
           }
           .amend(
@@ -146,7 +146,7 @@ def selectMappedForm[A, B](
       val labels = elements.map(labelMapper).zip(elements)
       div(
         factory
-          .renderSelect { idx =>
+          .renderSelect(elements.map(mapper).indexOf(variable.now())) { idx =>
             variable.set(mapper(elements(idx)))
           }
           .amend(
