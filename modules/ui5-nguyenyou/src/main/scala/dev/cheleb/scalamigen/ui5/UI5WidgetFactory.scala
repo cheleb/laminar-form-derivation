@@ -86,7 +86,7 @@ object UI5WidgetFactory extends WidgetFactory:
       idx: Int,
       selected: Boolean
   ): HtmlElement =
-    Opt(
+    OptionCustom(
       _.value := s"$idx",
       _.selected := selected
     )(

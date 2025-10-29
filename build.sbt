@@ -5,7 +5,7 @@ val scala3 = "3.7.3"
 
 val ironVersion = "3.2.0"
 
-val tapirVersion = "1.11.46"
+val tapirVersion = "1.12.0"
 
 val laminarVersion = "17.2.1"
 
@@ -58,7 +58,7 @@ lazy val generator = project
   .enablePlugins(SbtTwirl)
   .settings(
     libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0",
-    libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.11.5",
+    libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.11.6",
     libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.17"
   )
   .settings(
@@ -208,7 +208,7 @@ lazy val ui5 = scalajsProject("ui5", false)
   .dependsOn(core)
   .settings(
     libraryDependencies ++= Seq(
-      "be.doeraene" %%% "web-components-ui5" % "2.0.0-RC2"
+      "be.doeraene" %%% "web-components-ui5" % "2.12.1"
     )
   )
 
@@ -226,7 +226,7 @@ lazy val ui5_nguyenyou = scalajsProject("ui5-nguyenyou", false)
   .dependsOn(core)
   .settings(
     libraryDependencies ++= Seq(
-      "io.github.nguyenyou" %%% "ui5-webcomponents-laminar" % "2.9.0"
+      "io.github.nguyenyou" %%% "ui5-webcomponents-laminar" % "2.14.0"
     )
   )
 
