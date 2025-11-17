@@ -19,8 +19,6 @@ object DemoDoreane {
 
     val sampleVar = Var(samples.simple)
 
-    val demos = App.demos
-
     div(
       display := "flex",
       div(

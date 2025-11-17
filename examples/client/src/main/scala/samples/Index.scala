@@ -13,22 +13,23 @@ case class Sample(
     source: String = "TODO"
 )
 
-object App extends App {
-  hljs.registerLanguage("scala", hljsScala)
-
-  def demos(using wf: WidgetFactory) = Seq(
-    samples.simple,
-    samples.opaque,
-    samples.either,
-    samples.validation,
-    samples.conditional,
-    samples.enums,
-    samples.sealedClasses,
-    samples.person,
-    samples.list,
+def demos(using wf: WidgetFactory) = Seq(
+  samples.simple,
+  samples.opaque,
+  samples.either,
+  samples.validation,
+  samples.conditional,
+  samples.enums,
+  samples.sealedClasses,
+  samples.person,
+  samples.list,
 //    samples.tree,
-    samples.adhoc
-  )
+  samples.adhoc
+)
+
+@main
+def app = {
+  hljs.registerLanguage("scala", hljsScala)
 
   val demoVar = Var("ui5")
 
