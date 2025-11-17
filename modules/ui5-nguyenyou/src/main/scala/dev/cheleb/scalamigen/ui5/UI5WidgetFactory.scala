@@ -74,10 +74,10 @@ object UI5WidgetFactory extends WidgetFactory:
   )(f: Int => Unit): HtmlElement = Select(
     _.onChange
       .map(_.detail.selectedOption.value) --> { ds =>
-      ds.foreach { case idx: String =>
-        f(idx.toInt)
-      }
-
+      ds match
+        case _: Unit     => ()
+        case idx: String =>
+          f(idx.toInt)
     }
   )()
 
