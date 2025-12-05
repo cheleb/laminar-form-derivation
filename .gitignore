@@ -5,3 +5,4 @@ dist/
 *.bak
 version.sbt
 package-lock.json
+scripts/.scala-build/
