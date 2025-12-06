@@ -330,6 +330,9 @@ Global / onLoad := {
     val MAIN_JS_PATH =
       example.base.getAbsoluteFile / "target" / s"scala-$SCALA_VERSION" / "client-fastopt/main.js"
 
+    val NPM_DEV_PATH =
+      example.base.getAbsoluteFile / "target" / "npm-dev-server-running.marker"
+
     IO.writeLines(
       outputFile,
       s"""  
@@ -337,6 +340,8 @@ Global / onLoad := {
   |SCALA_VERSION="$SCALA_VERSION"
   |# Marker file to indicate that npm dev server has been started
   |MAIN_JS_PATH="${MAIN_JS_PATH}"
+  |# Marker file to indicate that npm dev server has been started
+  |NPM_DEV_PATH="${NPM_DEV_PATH}"
   |""".stripMargin.split("\n").toList,
       StandardCharsets.UTF_8
     )

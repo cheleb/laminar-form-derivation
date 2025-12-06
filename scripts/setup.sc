@@ -13,6 +13,9 @@ val buildEnv = os.pwd / "scripts" / "target" / "build-env.sh"
 val exampleClient = os.pwd / "examples" / "client"
 val nodeModule = exampleClient / "node_modules" / ".package-lock.json"
 val packageJson = exampleClient / "package.json"
+val npmDevMarker = exampleClient / "target" / "npm-dev-server-running.marker"
+
+os.remove(npmDevMarker)
 
 if shouldImportProject then
   println(s"Importing project settings into build-env.sh ($buildEnv)...")
