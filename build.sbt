@@ -325,13 +325,18 @@ Global / onLoad := {
     val outputFile = Path(path).asFile
     println(s"🍺 Generating build-env.sh at $outputFile")
 
-    val scalaVersionValue = (example / scalaVersion).value
+    val SCALA_VERSION = (example / scalaVersion).value
+
+    val MAIN_JS_PATH =
+      example.base.getAbsoluteFile / "target" / s"scala-$SCALA_VERSION" / "client-fastopt/main.js"
 
     IO.writeLines(
       outputFile,
       s"""  
   |# Generated file see build.sbt
-  |SCALA_VERSION="$scalaVersionValue"
+  |SCALA_VERSION="$SCALA_VERSION"
+  |# Marker file to indicate that npm dev server has been started
+  |MAIN_JS_PATH="${MAIN_JS_PATH}"
   |""".stripMargin.split("\n").toList,
       StandardCharsets.UTF_8
     )
