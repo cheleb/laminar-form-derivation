@@ -1,3 +1,4 @@
+import java.nio.file.Files
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
@@ -318,17 +319,22 @@ def scalajsProject(projectId: String, sample: Boolean): Project =
     )
 
 Global / onLoad := {
-  val scalaVersionValue = (example / scalaVersion).value
-  val outputFile =
-    baseDirectory.value / "scripts" / "target" / "build-env.sh"
-  IO.writeLines(
-    outputFile,
-    s"""  
+
+  val buildEnvShPath = sys.env.get("BUILD_ENV_SH_PATH")
+  buildEnvShPath.foreach { path =>
+    val outputFile = Path(path).asFile
+    println(s"🍺 Generating build-env.sh at $outputFile")
+
+    val scalaVersionValue = (example / scalaVersion).value
+
+    IO.writeLines(
+      outputFile,
+      s"""  
   |# Generated file see build.sbt
   |SCALA_VERSION="$scalaVersionValue"
   |""".stripMargin.split("\n").toList,
-    StandardCharsets.UTF_8
-  )
-
+      StandardCharsets.UTF_8
+    )
+  }
   (Global / onLoad).value
 }

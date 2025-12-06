@@ -15,9 +15,13 @@ val nodeModule = exampleClient / "node_modules" / ".package-lock.json"
 val packageJson = exampleClient / "package.json"
 
 if shouldImportProject then
-  println("Importing project settings into build-env.sh...")
+  println(s"Importing project settings into build-env.sh ($buildEnv)...")
   os.proc("sbt", "projects")
-    .call(cwd = os.pwd)
+    .call(
+      cwd = os.pwd,
+      env = Map("BUILD_ENV_SH_PATH" -> buildEnv.toString),
+      stdout = os.ProcessOutput.Readlines(line => println(s"  $line"))
+    )
 
 if nodePackageMustInstalled then
   println("✨ Installing node modules...")
