@@ -28,3 +28,4 @@ jobs:
     uses: /WorldOfScala/actions/.github/workflows/gh-pages.yml@gh-pages
     with:
       script: ./scripts/gh-pages.sh
+    secrets: inherit
