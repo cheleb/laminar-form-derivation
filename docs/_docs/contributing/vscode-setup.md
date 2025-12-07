@@ -4,7 +4,7 @@ This document explains the setup process when opening the project in VSCode.
 
 
 
-![Sequence Diagram](/images/setup.png)
+![Sequence Diagram](/images/contributing/vscode-setup.png)
 
 The sequence diagram shows:
 

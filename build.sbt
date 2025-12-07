@@ -100,7 +100,8 @@ lazy val root = project
     ui5,
     ui5_nguyenyou,
     webawesome,
-    example
+    example,
+    docs
   )
   .settings(
     publish / skip := true

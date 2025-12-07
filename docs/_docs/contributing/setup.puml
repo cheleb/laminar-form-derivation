@@ -1,4 +1,4 @@
-@startuml setup
+@startuml vscode-setup
 
 !include <logos/firefox>
 title VSCode Startup Sequence for Laminar Form Derivation
