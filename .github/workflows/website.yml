@@ -56,7 +56,7 @@ jobs:
           popd
           export VERSION=`git describe --tags --abbrev=0 | sed "s/v//"`
           echo "Documentation version: $VERSION"
-          sbt makeSite
+          sbt website
         env:
           NODE_OPTIONS: "--openssl-legacy-provider"
       - name: Setup Pages
