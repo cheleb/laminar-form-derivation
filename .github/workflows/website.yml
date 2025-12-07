@@ -20,53 +20,11 @@ concurrency:
   group: "pages"
   cancel-in-progress: true
 
+
 jobs:
   # Single deploy job since we're just deploying
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - name: Fetch tags
-        run: git fetch --prune --unshallow --tags        
-      - name: Setup JVM
-        uses: actions/setup-java@v5
-        with:
-          java-version: "22"
-          distribution: "zulu"
-      - name: Install sbt
-        uses: sbt/setup-sbt@v1
-      - name: Set up Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 23
-#          cache: 'npm'
-      - name: Install dependencies
-        run: |
-          cd examples/client
-          rm -rf package-lock.json
-          npm i
-      - name: Vite build
-        run: |
-          pushd examples/client
-          npm run build
-          popd
-          export VERSION=`git describe --tags --abbrev=0 | sed "s/v//"`
-          echo "Documentation version: $VERSION"
-          sbt website
-        env:
-          NODE_OPTIONS: "--openssl-legacy-provider"
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          # Upload dist repository
-          path: "target/site"
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-        
+   
+    uses: /WorldOfScala/actions/.github/workflows/gh-pages.yml@gh-pages
+    with:
+      script: ./scripts/gh-pages.sh
