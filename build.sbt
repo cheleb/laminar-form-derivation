@@ -1,3 +1,4 @@
+import java.nio.file.Files
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
@@ -99,7 +100,8 @@ lazy val root = project
     ui5,
     ui5_nguyenyou,
     webawesome,
-    example
+    example,
+    docs
   )
   .settings(
     publish / skip := true
@@ -317,18 +319,63 @@ def scalajsProject(projectId: String, sample: Boolean): Project =
       )
     )
 
-Global / onLoad := {
-  val scalaVersionValue = (example / scalaVersion).value
-  val outputFile =
-    baseDirectory.value / "scripts" / "target" / "build-env.sh"
-  IO.writeLines(
-    outputFile,
-    s"""  
-  |# Generated file see build.sbt
-  |SCALA_VERSION="$scalaVersionValue"
-  |""".stripMargin.split("\n").toList,
-    StandardCharsets.UTF_8
+lazy val docs = project // new documentation project
+  .in(file("laminar-form-derivation-docs")) // important: it must not be docs/
+  .dependsOn(core, exampleSharedJs, exampleSharedJvm)
+  .settings(
+    publish / skip := true,
+    moduleName := "laminar-form-derivation-docs",
+    ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(
+      core
+    ),
+    ScalaUnidoc / unidoc / target := (LocalRootProject / baseDirectory).value / "website" / "static" / "api",
+    cleanFiles += (ScalaUnidoc / unidoc / target).value,
+    mdocVariables := Map(
+      "VERSION" -> sys.env.getOrElse("VERSION", version.value),
+      "ORG" -> organization.value
+    )
+  )
+//  .disablePlugins(WartRemover)
+  .enablePlugins(
+    MdocPlugin,
+//    ScalaUnidocPlugin,
+    PlantUMLPlugin
+  )
+  .settings(
+    plantUMLSource := file("docs/_docs"),
+    Compile / plantUMLTarget := "mdoc/_assets/images"
+  )
+  .settings(
+    libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.21"
   )
 
+Global / onLoad := {
+
+  val buildEnvShPath = sys.env.get("BUILD_ENV_SH_PATH")
+  buildEnvShPath.foreach { path =>
+    val outputFile = Path(path).asFile
+    println(s"🍺 Generating build-env.sh at $outputFile")
+
+    val SCALA_VERSION = (example / scalaVersion).value
+
+    val MAIN_JS_PATH =
+      example.base.getAbsoluteFile / "target" / s"scala-$SCALA_VERSION" / "client-fastopt/main.js"
+
+    val NPM_DEV_PATH =
+      example.base.getAbsoluteFile / "target" / "npm-dev-server-running.marker"
+
+    IO.writeLines(
+      outputFile,
+      s"""  
+  |# Generated file see build.sbt
+  |SCALA_VERSION="$SCALA_VERSION"
+  |# Marker file to indicate that npm dev server has been started
+  |MAIN_JS_PATH="${MAIN_JS_PATH}"
+  |# Marker file to indicate that npm dev server has been started
+  |NPM_DEV_PATH="${NPM_DEV_PATH}"
+  |""".stripMargin.split("\n").toList,
+      StandardCharsets.UTF_8
+    )
+  }
   (Global / onLoad).value
 }

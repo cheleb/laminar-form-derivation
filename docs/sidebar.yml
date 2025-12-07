@@ -1,0 +1,10 @@
+index: index.md
+subsection:
+  - title: Getting Started
+    page: getting-started.md
+  - title: Usage
+    page: usage.md
+  - index: contributing/index.md
+    subsection:
+      - title: VSCode Setup
+        page: contributing/vscode-setup.md
