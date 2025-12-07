@@ -318,6 +318,36 @@ def scalajsProject(projectId: String, sample: Boolean): Project =
       )
     )
 
+lazy val docs = project // new documentation project
+  .in(file("laminar-form-derivation-docs")) // important: it must not be docs/
+  .dependsOn(core, exampleSharedJs, exampleSharedJvm)
+  .settings(
+    publish / skip := true,
+    moduleName := "laminar-form-derivation-docs",
+    ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(
+      core
+    ),
+    ScalaUnidoc / unidoc / target := (LocalRootProject / baseDirectory).value / "website" / "static" / "api",
+    cleanFiles += (ScalaUnidoc / unidoc / target).value,
+    mdocVariables := Map(
+      "VERSION" -> sys.env.getOrElse("VERSION", version.value),
+      "ORG" -> organization.value
+    )
+  )
+//  .disablePlugins(WartRemover)
+  .enablePlugins(
+    MdocPlugin,
+//    ScalaUnidocPlugin,
+    PlantUMLPlugin
+  )
+  .settings(
+    plantUMLSource := file("docs/_docs"),
+    Compile / plantUMLTarget := "mdoc/_assets/images"
+  )
+  .settings(
+    libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.21"
+  )
+
 Global / onLoad := {
 
   val buildEnvShPath = sys.env.get("BUILD_ENV_SH_PATH")

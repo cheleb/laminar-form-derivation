@@ -1,3 +1,5 @@
+addCommandAlias("website", "docs/mdoc; makeSite")
+
 lazy val currentYear: String =
   java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString
 
@@ -17,7 +19,7 @@ git.remoteRepo := "git@github.com:cheleb/laminar-form-derivation.git"
 ghpagesNoJekyll := true
 Compile / doc / scalacOptions ++= Seq(
   "-siteroot",
-  "docs",
+  "laminar-form-derivation-docs/target/mdoc",
   "-project",
   "Laminar Form Derivation",
   "-groups",
@@ -30,7 +32,7 @@ Compile / doc / scalacOptions ++= Seq(
   "-project-footer",
   s"Copyright (c) 2022-$currentYear, Olivier NOUGUIER",
   // custom::https://www.linkedin.com/in/olivier-nouguier::linkedinday.png::linkedinnight.png
-  "-social-links:github::https://github.com/cheleb,twitter::https://twitter.com/oNouguier",
+  "-social-links:github::https://github.com/cheleb/laminar-form-derivation,twitter::https://twitter.com/oNouguier",
   "-Ygenerate-inkuire",
   "-skip-by-regex:facades\\..*",
   "-skip-by-regex:samples\\..*",

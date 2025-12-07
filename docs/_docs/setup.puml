@@ -1,40 +1,56 @@
-@startuml VSCode_Startup_Sequence
+@startuml setup
 
+!include <logos/firefox>
 title VSCode Startup Sequence for Laminar Form Derivation
 
 actor User
 participant "VSCode" as vscode
-participant "Task: demo" as demo
-participant "Task: setup" as setup
-participant "Task: runDemo" as runDemo
-participant "Task: fastLink" as fastLink
-participant "Task: npmDev" as npmDev
-participant "setup.sc" as setupScript
-participant "fastLink.sh" as fastLinkScript
-participant "npmDev.sh" as npmDevScript
+
+
+control "Tasks" as demo
+participant "Scala CLI" as scalaCLI
+control "runDemo" as runDemo
+control "fastLink" as fastLink
+control "npmDev" as npmDev
+participant "sbt" as sbt
+participant "Vite" as Vite
+participant "<$firefox>" as firefox
 
 User -> vscode: Opens project folder
-vscode -> demo: Triggers "demo" task\n(runOn: folderOpen)
-demo -> setup: Executes "setup" task\n(sequence)
-demo -> runDemo: Executes "runDemo" task\n(sequence)
+activate vscode
 
-setup -> setupScript: Runs ./scripts/setup.sc
-setupScript -> setupScript: Checks if build-env.sh needs regeneration
-setupScript -> setupScript: Checks if node modules need installation
-setupScript --> setup: Returns completion
+vscode -> demo: folderOpen
 
-runDemo -> fastLink: Executes "fastLink" task\n(parallel)
-runDemo -> npmDev: Executes "npmDev" task\n(parallel)
+demo -> scalaCLI: setup
+deactivate vscode
+activate scalaCLI
+'scalaCLI -> scalaCLI: setup.sc
+note right: <b>npm i / sbt</b>
+scalaCLI -> demo
+deactivate scalaCLI
+demo -> runDemo
+activate runDemo
+runDemo -> npmDev
+activate npmDev
+runDemo -> fastLink
+deactivate runDemo
+activate fastLink
+note left: <b>wait fastOptJS</b>
+activate fastLink #LightBlue
+activate Vite
+npmDev -/ Vite
 
-fastLink -> fastLinkScript: Runs ./scripts/fastLink.sh
-fastLinkScript -> fastLinkScript: Waits for npm dev server marker
-fastLinkScript -> fastLinkScript: Waits for main.js generation
-fastLinkScript -> fastLinkScript: Runs sbt ~client/fastLinkJS
-fastLinkScript --> fastLink: Returns completion
+activate sbt
 
-npmDev -> npmDevScript: Runs ./scripts/npmDev.sh
-npmDevScript -> npmDevScript: Creates npm dev server marker
-npmDevScript -> npmDevScript: Runs npm run dev in client
-npmDevScript --> npmDev: Returns completion
+Vite -> sbt: fastOptJS
+sbt -/ fastLink
+deactivate fastLink
 
+loop
+fastLink -/ sbt: ~client/fastLinkJS
+    sbt -> Vite: export ESModule
+    Vite -> firefox
+end
+ deactivate Vite
+ deactivate sbt
 @enduml
