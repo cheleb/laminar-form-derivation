@@ -21,11 +21,13 @@ My favorite IDE is [Visual Studio Code](https://code.visualstudio.com/). But you
 
 Clone the repository and open it in VSCode.
 
-Should be good to go, see 
+Should be good to go, see [the magic](.vscode/tasks.json) explained [here](vscode-setup.md).
+
+
 
 ### IntelliJ IDEA
 
-TBD
+TBD: Help me here.
 
 ## Prerequisites
 
