@@ -1,5 +1,8 @@
 # laminar-form-derivation
 
+![Sonatype Central](https://maven-badges.sml.io/sonatype-central/dev.cheleb/zio-tapir-laminar_sjs1_3/badge.svg)
+![GitHub Workflow Status](https://github.com/cheleb/laminar-form-derivation/actions/workflows/ci.yml/badge.svg)
+
 This project derive UI Form for [laminar](https://laminar.dev/) with magnolia.
 
 ## Docs
@@ -12,7 +15,7 @@ For the very impatient, here is a [live demo](https://cheleb.github.io/laminar-f
 
 ## Installation
 
-* Scala LTS: v0.24.3 
+* Scala LTS: v0.24.3
 * Scala > 3.6.5: v1.0.0+
 
 ```sbt
@@ -21,11 +24,10 @@ libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui" % "0.11.0"
 // With UI5 Web Components
 libraryDependencies += "dev.cheleb" %%% "laminar-form-derivation-ui5" % "0.11.0"
 ```
+
 ## Run the example
 
-
 Client side is reloaded in dev mode with [vite](https://vitejs.dev/), server side is built with [sbt](https://www.scala-sbt.org/)
-
 
 Client code is in [example/client](./example/client/src/main/scala/HelloWorld.scala)
 
@@ -47,32 +49,33 @@ Then wait a few seconds for the build to import ...
 
 You will have the following tasks:
 
- * sbt fastLink client
- * vite dev hot reloading
+* sbt fastLink client
+* vite dev hot reloading
 
-![Tasks](./docs/_assets/images/dev-terminals.png) 
+![Tasks](./docs/_assets/images/dev-terminals.png)
 
 #### Manual
 
 With vite hot reload
 
- * Teminal 1 
+* Teminal 1
 
 ```bash
 sbt clean
 DEV=1 sbt "~client/fastLinkJS"
 ```
 
- * Terminal 2
+* Terminal 2
+
  ```bash
   cd example/client
   npm install
   npm run dev
   ```
 
-Open http://localhost:3000, changes are hot reloaded in the browser when you save the [HelloWorld.scala](./example/client/src/main/scala/HelloWorld.scala).
+Open <http://localhost:3000>, changes are hot reloaded in the browser when you save the [HelloWorld.scala](./example/client/src/main/scala/HelloWorld.scala).
 
-### Production mode 
+### Production mode
 
 With a ZIO http server (work in progress)
 
@@ -80,7 +83,7 @@ With a ZIO http server (work in progress)
 sbt server/run  
 ```
 
-Open http://localhost:8080
+Open <http://localhost:8080>
 
 With server restart on change
 
@@ -89,7 +92,6 @@ sbt "~server/reStart"
 ```
 
 Reload the page to see the changes...
-
 
 ## Sample Usage
 
@@ -151,7 +153,4 @@ Renders the following form:
 
 ![Form](./form.png)
 
-
 More info in the [example](./example/client/src/main/scala/HelloWorld.scala)
-
-
