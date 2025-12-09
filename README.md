@@ -31,9 +31,19 @@ Client side is reloaded in dev mode with [vite](https://vitejs.dev/), server sid
 
 Client code is in [example/client](./example/client/src/main/scala/HelloWorld.scala)
 
-### Development
+## Development
 
-#### VSCode with metals
+### VSCode with metals
+
+**Prerequisites**
+
+* [VSCode](https://code.visualstudio.com/)
+* [Metals](https://scalameta.org/metals/docs/editors/vscode.html)
+* [sbt](https://www.scala-sbt.org/)
+* [Node.js](https://nodejs.org/en/download/)
+* [Scala CLI](https://www.scala-lang.org/download/)
+
+
 
 Just open the project with vscode and enjoy [the magic](.vscode/tasks.json)
 
@@ -54,7 +64,7 @@ You will have the following tasks:
 
 ![Tasks](./docs/_assets/images/dev-terminals.png)
 
-#### Manual
+### Manual
 
 With vite hot reload
 
