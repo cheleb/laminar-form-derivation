@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: 21
       - name: Cache SBT
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
             path: |
               ~/.ivy2/cache
@@ -34,7 +34,7 @@ jobs:
             restore-keys: |
               ${{ runner.os }}-sbt-
       - name: Cache node
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
             path: |
               examples/client/node_modules
