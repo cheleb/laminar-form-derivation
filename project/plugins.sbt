@@ -19,5 +19,5 @@ addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.1.1")
 // Documentation plugins
 addSbtPlugin("com.github.sbt" % "sbt-unidoc"   % "0.6.0")
 addSbtPlugin("com.github.sbt" % "sbt-ghpages"  % "0.9.0")
-addSbtPlugin("org.scalameta"  % "sbt-mdoc"     % "2.8.1")
+addSbtPlugin("org.scalameta"  % "sbt-mdoc"     % "2.8.2")
 addSbtPlugin("dev.cheleb"     % "sbt-plantuml" % "0.2.0")
