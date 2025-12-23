@@ -24,8 +24,6 @@ object DemoNguyenyou {
       //    dataAttr("component-name") := name
     )()
 
-    val demos = App.demos
-
     val myApp =
       div(
         display := "flex",
