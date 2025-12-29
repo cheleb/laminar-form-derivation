@@ -362,7 +362,7 @@ Global / onLoad := {
       example.base.getAbsoluteFile / "target" / s"scala-$SCALA_VERSION" / "client-fastopt/main.js"
 
     val NPM_DEV_PATH =
-      example.base.getAbsoluteFile / "target" / "npm-dev-server-running.marker"
+      root.base.getAbsoluteFile / "target" / "npm-dev-server-running.marker"
 
     IO.writeLines(
       outputFile,
