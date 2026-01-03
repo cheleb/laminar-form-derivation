@@ -14,6 +14,8 @@ inThisBuild(
   List(
     scalaVersion := scala3,
     organization := "dev.cheleb",
+    fullstackJsModules := "examples",
+    fullstackJsProject := example,
     homepage := Some(url("https://github.com/cheleb/")),
     publishTo := {
       val centralSnapshots =
@@ -251,6 +253,7 @@ lazy val webawesome = scalajsProject("webawesome", false)
   )
 
 lazy val example = scalajsProject("client", true)
+  .enablePlugins(FullstackPlugin)
   .settings(
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= { config =>
@@ -348,34 +351,3 @@ lazy val docs = project // new documentation project
   .settings(
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.23"
   )
-
-Global / onLoad := {
-
-  val buildEnvShPath = sys.env.get("BUILD_ENV_SH_PATH")
-  buildEnvShPath.foreach { path =>
-    val outputFile = Path(path).asFile
-    println(s"🍺 Generating build-env.sh at $outputFile")
-
-    val SCALA_VERSION = (example / scalaVersion).value
-
-    val MAIN_JS_PATH =
-      example.base.getAbsoluteFile / "target" / s"scala-$SCALA_VERSION" / "client-fastopt/main.js"
-
-    val NPM_DEV_PATH =
-      root.base.getAbsoluteFile / "target" / "npm-dev-server-running.marker"
-
-    IO.writeLines(
-      outputFile,
-      s"""  
-  |# Generated file see build.sbt
-  |SCALA_VERSION="$SCALA_VERSION"
-  |# Marker file to indicate that npm dev server has been started
-  |MAIN_JS_PATH="${MAIN_JS_PATH}"
-  |# Marker file to indicate that npm dev server has been started
-  |NPM_DEV_PATH="${NPM_DEV_PATH}"
-  |""".stripMargin.split("\n").toList,
-      StandardCharsets.UTF_8
-    )
-  }
-  (Global / onLoad).value
-}

@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
+#-- DO NOT EDIT: This file is managed by sbt-fullstack-js plugin --
 
-. ./scripts/target/build-env.sh
+if [ -e ./scripts/target/build-env.sh ]; then
+ . ./scripts/target/build-env.sh
+else
+ echo "Error: build-env.sh not found. Please run ./scripts/setup.sc first."
+ exit 1
+fi
 
 echo -n "Waiting for npm dev server to start."
 
@@ -20,5 +26,4 @@ done
 echo "  ✅"
 echo "⏱️ Watching client-fastopt/main.js for changes..."
 
-
-DEV=1 sbt '~client/fastLinkJS'
+sbt --batch -Dsbt.supershell=false '~client/fastLinkJS'

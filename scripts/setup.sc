@@ -1,70 +1,91 @@
-#!/usr/bin/env -S scala-cli -S 3
+#!/usr/bin/env -S scala-cli --scala-version 3.8.0-RC5
+//-- DO NOT EDIT: This file is managed by sbt-fullstack-js plugin --
 
-//> using scala "3.8.0-RC3"
-//> using javaOptions "--sun-misc-unsafe-memory-access=allow" // Example option to set maximum heap size
+// using javaOptions "--sun-misc-unsafe-memory-access=allow" // Example option to set maximum heap size
 //> using dep "com.lihaoyi::os-lib:0.11.6"
 
 import os.*
-import scala.math.Ordered.orderingToOrdered
 
-val buildSbt = os.pwd / "build.sbt"
-val buildEnv = os.pwd / "scripts" / "target" / "build-env.sh"
+// First we remove started marked semaphor file.
+// This allows to avoid confict when many (3) instances of sbt starts in the same time in the same folder:
+//
+// - server
+// - vite init
+// - fastLink
+//
+removeStartedMarker()
 
-val exampleClient = os.pwd / "examples" / "client"
-val nodeModule = exampleClient / "node_modules" / ".package-lock.json"
-val packageJson = exampleClient / "package.json"
-val npmDevMarker = exampleClient / "target" / "npm-dev-server-running.marker"
+//
+//Expected the project id of the ScalaJs application.
+//
+val app = args.headOption.getOrElse("client")
 
-os.remove(npmDevMarker)
+given client: Path = os.pwd / "examples" / app
 
-if shouldImportProject then
+if buildSbt isYoungerThan buildEnv then
   println(s"Importing project settings into build-env.sh ($buildEnv)...")
   os.proc("sbt", "projects")
     .call(
       cwd = os.pwd,
-      env = Map("BUILD_ENV_SH_PATH" -> buildEnv.toString),
+      env = Map("INIT" -> "setup"),
       stdout = os.ProcessOutput.Readlines(line => println(s"  $line"))
     )
 
-if nodePackageMustInstalled then
-  println("✨ Installing node modules...")
-  os.proc("npm", "install").call(cwd = exampleClient)
+npmCommand foreach: command =>
+  println(s"✨ Installing ($command) node modules...")
+  os.proc("npm", command).call(cwd = client)
   println("Node modules installation complete.")
 
-def shouldImportProject: Boolean = if (os.exists(buildEnv)) {
-  if (os.stat(buildSbt).mtime > os.stat(buildEnv).mtime) {
-    println(
-      "⚠️  build.sbt has been modified since the last build-env.sh generation.\n\t - regenerating build-env.sh."
-    )
-    os.remove(buildEnv)
-    true
-  } else
-    false
-} else {
-  println("✨ Creating build-env.sh...")
-  true
-}
-
-def nodePackageMustInstalled: Boolean = if (os.exists(nodeModule)) {
-  print(s"\t- 🔎 Node modules already installed: ")
-  if (os.stat(packageJson).mtime > os.stat(nodeModule).mtime) {
-    println(
-      "⚠️\n\t\t- package.json has been modified since the last installation."
-    )
-    true
+// Utils && Helpers
+def npmCommand(using client: Path): Option[String] =
+  if packageLockJson.isMissing then
+    println("✨	- First install")
+    Some("install")
+  else if packageJson isYoungerThan packageLockJson then
+    println("⏫	- package.json has been modified since the last installation.")
+    Some("install")
+  else if nodeModule.isOlderThanAWeek then {
+    print(s"\t- 🔎 Node modules already installed but old")
+    println("\n\t\t- ⚠️\t Not installed recently ( > 7 days). Consider reinstalling if issues arise.")
+    None
+  } else if nodeModule.isMissing then {
+    println("🟢 CI")
+    Some("ci")
   } else {
-    os.stat(nodeModule).mtime match {
-      case time
-          if time.toMillis > System
-            .currentTimeMillis() - 7 * 24 * 60 * 60 * 1000 =>
-      //  println("Node modules were installed within the last 7 days.")
-      case _ =>
-        println(
-          "⚠️\n\t Node modules exist but were not installed recently ( > 7 days). Consider reinstalling if issues arise."
-        )
-    }
-    println("✅ up-to-date.")
-    false
+    println("\t- ✅ npm are deps uptodate.")
+    None
   }
-} else
-  true
+
+def buildSbt                            = os.pwd / "build.sbt"
+def buildEnv                            = os.pwd / "scripts" / "target" / "build-env.sh"
+def devMarker                           = os.pwd / "target" / "dev-server-running.marker"
+def npmDevMarker                        = os.pwd / "target" / "npm-dev-server-running.marker"
+def nodeModule(using client: Path)      = client / "node_modules" / ".package-lock.json"
+def packageJson(using client: Path)     = client / "package.json"
+def packageLockJson(using client: Path) = client / "package-lock.json"
+
+/** Delete semaphore files to sync multiple sbt launchs.
+  */
+def removeStartedMarker() =
+  if os.exists(devMarker) then os.remove(devMarker)
+  if os.exists(npmDevMarker) then os.remove(npmDevMarker)
+
+import scala.math.Ordered.orderingToOrdered
+
+extension (path: Path)
+  /** True if something must be reprocessed.
+    */
+  infix def isYoungerThan(that: Path) =
+    if os.exists(that) then
+      os.stat(path).mtime > os.stat(that).mtime
+    else true
+
+  def exists: Boolean = os.exists(path)
+
+  def isMissing: Boolean = !os.exists(path)
+
+  def isOlderThanAWeek: Boolean =
+    os.exists(path) && os.stat(path).mtime.toInstant < java.time.Instant.now().minus(
+      7,
+      java.time.temporal.ChronoUnit.DAYS
+    )
