@@ -269,7 +269,7 @@ lazy val example = scalajsProject("client", true)
   .dependsOn(ui5, ui5_nguyenyou, webawesome, exampleSharedJs)
   .settings(
     publish / skip := true,
-    scalacOptions -= "-Xfatal-warnings" // disable fatal warnings due to spurious https://github.com/scala/scala3/issues/20741
+    scalacOptions -= "-Werror" // disable fatal warnings due to spurious https://github.com/scala/scala3/issues/20741
   )
 
 lazy val exampleShared = crossProject(JSPlatform, JVMPlatform)
@@ -315,7 +315,7 @@ def scalajsProject(projectId: String, sample: Boolean): Project =
         "-scalajs",
         "-deprecation",
         "-feature",
-        "-Xfatal-warnings"
+        "-Werror"
       )
     )
 
