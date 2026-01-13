@@ -49,7 +49,7 @@ inThisBuild(
     scalacOptions ++= Seq(
       "-deprecation",
       "-feature",
-      "-Xfatal-warnings"
+      "-Werror"
     )
   )
 )
