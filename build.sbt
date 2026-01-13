@@ -2,7 +2,7 @@ import java.nio.file.Files
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-val scala3 = "3.7.4"
+val scala3 = "3.8.0"
 
 val ironVersion = "3.2.2"
 
@@ -49,7 +49,7 @@ inThisBuild(
     scalacOptions ++= Seq(
       "-deprecation",
       "-feature",
-      "-Xfatal-warnings"
+      "-Werror"
     )
   )
 )
@@ -269,7 +269,7 @@ lazy val example = scalajsProject("client", true)
   .dependsOn(ui5, ui5_nguyenyou, webawesome, exampleSharedJs)
   .settings(
     publish / skip := true,
-    scalacOptions -= "-Xfatal-warnings" // disable fatal warnings due to spurious https://github.com/scala/scala3/issues/20741
+    scalacOptions -= "-Werror" // disable fatal warnings due to spurious https://github.com/scala/scala3/issues/20741
   )
 
 lazy val exampleShared = crossProject(JSPlatform, JVMPlatform)
@@ -315,7 +315,7 @@ def scalajsProject(projectId: String, sample: Boolean): Project =
         "-scalajs",
         "-deprecation",
         "-feature",
-        "-Xfatal-warnings"
+        "-Werror"
       )
     )
 
