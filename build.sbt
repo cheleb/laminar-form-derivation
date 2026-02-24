@@ -6,7 +6,7 @@ val scala3 = "3.8.2"
 
 val ironVersion = "3.3.0"
 
-val tapirVersion = "1.13.8"
+val tapirVersion = "1.13.9"
 
 val laminarVersion = "17.2.1"
 
