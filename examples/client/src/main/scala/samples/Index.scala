@@ -13,8 +13,7 @@ case class Sample(
     source: String = "TODO"
 )
 
-object App extends App {
-  hljs.registerLanguage("scala", hljsScala)
+object App {
 
   def demos(using wf: WidgetFactory) = Seq(
     samples.simple,
@@ -29,6 +28,11 @@ object App extends App {
 //    samples.tree,
     samples.adhoc
   )
+}
+
+@main
+def main() = {
+  hljs.registerLanguage("scala", hljsScala)
 
   val demoVar = Var("ui5")
 
