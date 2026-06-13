@@ -4,11 +4,13 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 val scala3 = "3.8.4"
 
-val ironVersion = "3.3.0"
+val ironVersion = "3.3.1"
 
 val tapirVersion = "1.13.19"
 
 val laminarVersion = "17.2.1"
+
+val zioSchemaJsonVersion = "1.8.5"
 
 inThisBuild(
   List(
@@ -143,6 +145,7 @@ lazy val server = project
     scalaJSProjects := Seq(example),
     Assets / pipelineStages := Seq(scalaJSPipeline),
     libraryDependencies ++= Seq(
+      "dev.zio" %% "zio-schema-json" % zioSchemaJsonVersion,
       "io.github.iltotore" %% "iron-zio-json" % ironVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-zio" % tapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-zio-http-server" % tapirVersion,
