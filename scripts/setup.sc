@@ -1,8 +1,7 @@
 #!/usr/bin/env -S scala-cli -S 3
 
-//> using scala "3.8.0-RC3"
-//> using javaOptions "--sun-misc-unsafe-memory-access=allow" // Example option to set maximum heap size
-//> using dep "com.lihaoyi::os-lib:0.11.6"
+//> using scala "3.8.4"
+//> using dep "com.lihaoyi::os-lib:0.11.8"
 
 import os.*
 import scala.math.Ordered.orderingToOrdered
