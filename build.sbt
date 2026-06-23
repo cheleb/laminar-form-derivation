@@ -349,7 +349,7 @@ lazy val docs = project // new documentation project
     Compile / plantUMLTarget := "mdoc/_assets/images"
   )
   .settings(
-    libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.34"
+    libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.35"
   )
 
 Global / onLoad := {
