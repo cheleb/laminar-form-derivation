@@ -2,7 +2,7 @@ import java.nio.file.Files
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-val scala3 = "3.8.4"
+val scala3 = "3.9.0-RC1"
 
 val ironVersion = "3.3.2"
 
