@@ -6,7 +6,7 @@ val scala3 = "3.8.4"
 
 val ironVersion = "3.3.2"
 
-val tapirVersion = "1.13.27"
+val tapirVersion = "1.13.28"
 
 val laminarVersion = "17.2.1"
 
@@ -183,7 +183,7 @@ lazy val core = scalajsProject("core", false)
   .settings(
     libraryDependencies ++= Seq(
       "io.github.cquiroz" %%% "scala-java-time" % "2.7.0",
-      "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.22",
+      "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.23",
       "com.raquo" %%% "laminar" % laminarVersion,
       // "io.laminext" %%% "websocket" % laminarVersion,
       "io.github.iltotore" %%% "iron" % ironVersion
