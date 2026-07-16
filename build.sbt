@@ -183,7 +183,7 @@ lazy val core = scalajsProject("core", false)
   .settings(
     libraryDependencies ++= Seq(
       "io.github.cquiroz" %%% "scala-java-time" % "2.7.0",
-      "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.22",
+      "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.23",
       "com.raquo" %%% "laminar" % laminarVersion,
       // "io.laminext" %%% "websocket" % laminarVersion,
       "io.github.iltotore" %%% "iron" % ironVersion
