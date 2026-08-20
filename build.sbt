@@ -10,7 +10,7 @@ val tapirVersion = "1.13.31"
 
 val laminarVersion = "17.2.1"
 
-val zioSchemaJsonVersion = "1.8.5"
+val zioSchemaJsonVersion = "1.8.6"
 
 inThisBuild(
   List(
