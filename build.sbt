@@ -62,7 +62,7 @@ lazy val generator = project
   .settings(
     libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0",
     libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.11.8",
-    libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.18"
+    libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.19"
   )
   .settings(
     publish / skip := true
