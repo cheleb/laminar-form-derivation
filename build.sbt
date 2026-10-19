@@ -2,11 +2,11 @@ import java.nio.file.Files
 import java.nio.charset.StandardCharsets
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-val scala3 = "3.10.0"
+val scala3 = "3.9.0"
 
 val ironVersion = "3.4.0"
 
-val tapirVersion = "1.13.33"
+val tapirVersion = "1.14.0"
 
 val laminarVersion = "17.2.1"
 
