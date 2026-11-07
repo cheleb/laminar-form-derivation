@@ -4,9 +4,9 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 val scala3 = "3.9.0"
 
-val ironVersion = "3.4.0"
+val ironVersion = "3.4.1"
 
-val tapirVersion = "1.14.0"
+val tapirVersion = "1.14.1"
 
 val laminarVersion = "17.2.1"
 
@@ -60,7 +60,7 @@ lazy val generator = project
   .enablePlugins(SbtTwirl)
   .settings(
     libraryDependencies += "com.github.scopt" %% "scopt" % "4.2.0",
-    libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.11.8",
+    libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.11.10",
     libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.20"
   )
   .settings(
@@ -180,7 +180,7 @@ lazy val core = scalajsProject("core", false)
   .settings(scalacOptions ++= usedScalacOptions)
   .settings(
     libraryDependencies ++= Seq(
-      "io.github.cquiroz" %%% "scala-java-time" % "2.8.0",
+      "io.github.cquiroz" %%% "scala-java-time" % "2.9.0",
       "com.softwaremill.magnolia1_3" %%% "magnolia" % "1.3.24",
       "com.raquo" %%% "laminar" % laminarVersion,
       // "io.laminext" %%% "websocket" % laminarVersion,
@@ -347,7 +347,7 @@ lazy val docs = project // new documentation project
     Compile / plantUMLTarget := "mdoc/_assets/images"
   )
   .settings(
-    libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.6.5"
+    libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.6.6"
   )
 
 Global / onLoad := {
